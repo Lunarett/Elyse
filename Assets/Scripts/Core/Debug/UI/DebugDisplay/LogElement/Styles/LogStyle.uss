@@ -1,0 +1,10 @@
+.log-label {
+    -unity-font: url('project://database/Assets/Scripts/Core/Debug/UI/DebugDisplay/LogElement/Fonts/SourceCodePro-Regular.ttf?fileID=12800000&guid=469d6d3671fefbc45bc5455938a35e8e&type=3#SourceCodePro-Regular');
+    -unity-font-style: normal;
+    color: rgba(195, 195, 195, 255);
+    -unity-text-align: middle-left;
+}
+
+Foldout #unity-checkmark {
+    -unity-background-image-tint-color: rgb(195, 195, 195);
+}

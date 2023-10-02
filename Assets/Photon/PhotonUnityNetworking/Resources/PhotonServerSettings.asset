@@ -17,9 +17,9 @@ MonoBehaviour:
     AppIdFusion: 
     AppIdChat: 
     AppIdVoice: 
-    AppVersion: 
+    AppVersion: 0.1
     UseNameServer: 1
-    FixedRegion: 
+    FixedRegion: eu
     Server: 
     Port: 0
     ProxyServer: 
@@ -49,6 +49,9 @@ MonoBehaviour:
   - RPC_ApplyDamage
   - RPC_SetParent
   - RPC_SetWeaponParent
+  - Fire_RPC
+  - SpawnPlayerRPC
+  - SyncGroundedState
   DisableAutoOpenWizard: 1
   ShowSettings: 1
   DevRegionSetOnce: 1

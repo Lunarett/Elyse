@@ -1,123 +1,131 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-namespace Plusar.Player
+public class PlayerInputManager : InputManager
 {
-    public class PlayerInputManager : InputManager
+    private bool _fireInputWasHeld;
+    private bool _jumpInputWasHeld;
+    private bool _viewInputWasHeld;
+    private bool _crouchInputWasHeld;
+
+    private void LateUpdate()
     {
-        private bool m_FireInputWasHeld;
+        _fireInputWasHeld = GetFireInputHeld();
+        _jumpInputWasHeld = GetJumpInputHeld();
+        _viewInputWasHeld = GetViewInputHeld();
+        _crouchInputWasHeld = GetJumpInputHeld();
+    }
 
-        private void LateUpdate()
+    public Vector3 GetMoveInputVector3()
+    {
+        if (!CanProcessInput()) return Vector3.zero;
+        Vector2 inputAxis = GetInputActionValue<Vector2>("Movement");
+        return new Vector3(inputAxis.x, 0, inputAxis.y);
+    }
+
+    public Vector2 GetMoveInput(bool forceAllowInput = false)
+    {
+        if (forceAllowInput)
         {
-            m_FireInputWasHeld = GetFireInputHeld();
+            return GetInputActionValue<Vector2>("Movement");
         }
 
-        public Vector3 GetMoveInputVector3()
+        return CanProcessInput() ? GetInputActionValue<Vector2>("Movement") : Vector2.zero;
+    }
+
+    public Vector2 GetMouseInput()
+    {
+        return CanProcessInput() ? GetInputActionValue<Vector2>("Look") : Vector2.zero;
+    }
+
+    public bool GetJumpInputDown()
+    {
+        return CanProcessInput() && (GetJumpInputHeld() && !_jumpInputWasHeld);
+    }
+
+
+    public bool GetJumpInputHeld()
+    {
+        return CheckInputActionPhase("Jump", InputActionPhase.Performed);
+    }
+
+    public bool GetJumpInputReleased()
+    {
+        return CheckInputActionPhase("Jump", InputActionPhase.Canceled);
+    }
+
+    public bool GetFireInputDown()
+    {
+        return CanProcessInput() && (GetFireInputHeld() && !_fireInputWasHeld);
+    }
+
+    public bool GetFireInputReleased()
+    {
+        return CanProcessInput() && !GetFireInputHeld() && _fireInputWasHeld;
+    }
+
+    public bool GetFireInputHeld()
+    {
+        return CheckInputActionPhase("Fire", InputActionPhase.Performed);
+    }
+
+    public bool GetAimInputHeld()
+    {
+        return CheckInputActionPhase("Aim", InputActionPhase.Performed);
+    }
+
+    public bool GetSprintInputHeld()
+    {
+        return CheckInputActionPhase("Sprint", InputActionPhase.Performed);
+    }
+
+    public bool GetCrouchInputDown()
+    {
+        return CanProcessInput() && (GetCrouchInputHeld() && !_crouchInputWasHeld);
+    }
+
+    public bool GetCrouchInputHeld()
+    {
+        return CheckInputActionPhase("Crouch", InputActionPhase.Performed);
+    }
+
+    public bool GetCrouchInputReleased()
+    {
+        return CheckInputActionPhase("Crouch", InputActionPhase.Canceled);
+    }
+
+    public bool GetViewInputDown()
+    {
+        return CanProcessInput() && (GetViewInputHeld() && !_viewInputWasHeld);
+    }
+
+    public bool GetViewInputHeld()
+    {
+        return CheckInputActionPhase("View", InputActionPhase.Performed);
+    }
+
+    public int GetSwitchWeaponInput()
+    {
+        if (!CanProcessInput()) return 0;
+        float scrollVal = GetInputActionValue<float>("Switch");
+
+        return scrollVal switch
         {
-            if (!CanProcessInput()) return Vector3.zero;
-            Vector2 inputAxis = GetInputActionValue<Vector2>("Movement");
-            return new Vector3(inputAxis.x, 0, inputAxis.y);
+            > 0 => -1,
+            < 0 => 1,
+            _ => 0
+        };
+    }
+
+    public int GetSelectWeaponInput()
+    {
+        if (!CanProcessInput()) return 0;
+
+        for (int i = 1; i <= 4; i++)
+        {
+            if (CheckInputActionPhase($"Slot{i}", InputActionPhase.Performed)) return i;
         }
 
-        public Vector2 GetMoveInput(bool forceAllowInput = false)
-        {
-            if (forceAllowInput)
-            {
-                return GetInputActionValue<Vector2>("Movement");
-            }
-
-            return CanProcessInput() ? GetInputActionValue<Vector2>("Movement") : Vector2.zero;
-
-        }
-
-        public Vector2 GetMouseInput()
-        {
-            return CanProcessInput() ? GetInputActionValue<Vector2>("Look") : Vector2.zero;
-        }
-
-        public bool GetJumpInputDown()
-        {
-            return CheckInputActionPhase("Jump", InputActionPhase.Started);
-        }
-
-        public bool GetJumpInputHeld()
-        {
-            return CheckInputActionPhase("Jump", InputActionPhase.Performed);
-        }
-
-        public bool GetJumpInputReleased()
-        {
-            return CheckInputActionPhase("Jump", InputActionPhase.Canceled);
-        }
-
-        public bool GetFireInputDown()
-        {
-            return CanProcessInput() && (GetFireInputHeld() && !m_FireInputWasHeld);
-        }
-
-        public bool GetFireInputReleased()
-        {
-            return CanProcessInput() && !GetFireInputHeld() && m_FireInputWasHeld;
-        }
-
-        public bool GetFireInputHeld()
-        {
-            return CheckInputActionPhase("Fire", InputActionPhase.Performed);
-        }
-
-        public bool GetAimInputHeld()
-        {
-            return CheckInputActionPhase("Aim", InputActionPhase.Performed);
-        }
-
-        public bool GetSprintInputHeld()
-        {
-            return CheckInputActionPhase("Sprint", InputActionPhase.Performed);
-        }
-
-        public bool GetCrouchInputDown()
-        {
-            return CheckInputActionPhase("Crouch", InputActionPhase.Started);
-        }
-
-        public bool GetCrouchInputReleased()
-        {
-            return CheckInputActionPhase("Crouch", InputActionPhase.Canceled);
-        }
-
-        public bool GetReloadButtonDown()
-        {
-            return CheckInputActionPhase("Reload", InputActionPhase.Started);
-        }
-
-        public bool GetViewButtonDown()
-        {
-            return CheckInputActionPhase("View", InputActionPhase.Started);
-        }
-
-        public int GetSwitchWeaponInput()
-        {
-            if (!CanProcessInput()) return 0;
-            float scrollVal = GetInputActionValue<float>("Switch");
-
-            return scrollVal switch
-            {
-                > 0 => -1,
-                < 0 => 1,
-                _ => 0
-            };
-        }
-
-        public int GetSelectWeaponInput()
-        {
-            if (!CanProcessInput()) return 0;
-
-            for (int i = 1; i <= 4; i++)
-            {
-                if (CheckInputActionPhase($"Slot{i}", InputActionPhase.Performed)) return i;
-            }
-
-            return 0;
-        }
+        return 0;
     }
 }

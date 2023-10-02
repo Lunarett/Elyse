@@ -1,8 +1,8 @@
 using UnityEngine;
 using Photon.Pun;
-using Plusar.Core;
+using Pulsar.Core;
 
-namespace Plusar.Player
+namespace Pulsar.Player
 {
     public class PlayerHealth : Health
     {
