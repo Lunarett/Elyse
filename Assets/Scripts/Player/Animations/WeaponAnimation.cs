@@ -1,126 +1,100 @@
+using System;
+using ExitGames.Client.Photon.StructWrapping;
 using UnityEngine;
-using Pulsar.Utils;
 
 public class WeaponAnimation : MonoBehaviour
 {
     [Header("Bobbing")]
-    [SerializeField] private float bobSpeed = 1f; 
-    [SerializeField] private float speedCurve;
-    [SerializeField] private Vector3 travelLimit = Vector3.one * 0.025f;
-    [SerializeField] private Vector3 bobLimit = Vector3.one * 0.01f;
-    [SerializeField] private float bobExaggeration;
-    [SerializeField] private float smoothIdleReturn = 5f;
-
-    [Header("Bob Rotation")]
-    [SerializeField] private Vector3 multiplier;
+    [SerializeField] private float BobFrequency = 10f;
+    [SerializeField] private float MidAirFrequency = 2.0f;
+    [SerializeField] private float BobSharpness = 10f;
+    [SerializeField] private float DefaultBobAmount = 0.02f;
 
     [Header("Recoil Animation")]
-    [SerializeField] private float recoilAmount = 0.1f; // How far the gun moves backward.
-    [SerializeField] private float recoilSpeed = 1.0f; // Speed at which the gun recoils.
-    [SerializeField] private float returnSpeed = 2.0f; // Speed at which the gun returns.
-    [SerializeField] private float recoilRotationStrength = 5.0f; // Adjust as needed for x rotation.
+    [SerializeField] private float RecoilSharpness = 50f;
+    [SerializeField] private float MaxRecoilDistance = 0.5f;
+    [SerializeField] private float RecoilRestitutionSharpness = 10f;
+
+    private float AimingBobAmount = 0.02f;
+    private Vector3 m_WeaponMainLocalPosition;
+    private Vector3 m_WeaponBobLocalPosition;
+    private Vector3 m_WeaponRecoilLocalPosition;
+    private Vector3 m_AccumulatedRecoil;
+    private bool IsAiming = false;
+    private Vector3 m_LastCharacterPosition;
+    private float m_WeaponBobFactor;
 
     private ElyseCharacter _elyseCharacter;
-    
-    private Vector3 bobPosition;
-    private Vector3 bobEulerRotation;
-    private Vector3 idlePosition;
-
-    private float smoothRot = 12f;
-
-    private bool isRecoiling = false;
-    private float currentRecoilZ = 0.0f;
-
-    private enum RecoilState
-    {
-        Idle,
-        Recoiling,
-        Returning
-    }
-
-    private RecoilState recoilState = RecoilState.Idle;
 
     private void Awake()
     {
         _elyseCharacter = transform.root.GetComponent<ElyseCharacter>();
-        Utils.CheckForNull<ElyseCharacter>(_elyseCharacter);
+    }
+
+    private void Start()
+    {
+        m_LastCharacterPosition = transform.position;
     }
 
     private void Update()
     {
-        if (_elyseCharacter.PlayerMovement.IsMoving())
+        UpdateWeaponBob();
+        UpdateWeaponRecoil();
+    }
+
+    private void LateUpdate()
+    {
+        UpdateWeaponPosition();
+    }
+
+    private void UpdateWeaponBob()
+    {
+        if (!(Time.deltaTime > 0f)) return;
+        
+        
+        
+        Vector3 playerCharacterVelocity =
+            (transform.position - m_LastCharacterPosition) / Time.deltaTime;
+
+        float characterMovementFactor = 0f;
+        characterMovementFactor = Mathf.Clamp01(playerCharacterVelocity.magnitude / 10f);
+
+        m_WeaponBobFactor = Mathf.Lerp(m_WeaponBobFactor, characterMovementFactor, BobSharpness * Time.deltaTime);
+
+        float bobAmount = IsAiming ? AimingBobAmount : DefaultBobAmount;
+        float frequency = _elyseCharacter.PlayerMovement.IsGrounded ? BobFrequency : MidAirFrequency;
+        float hBobValue = Mathf.Sin(Time.time * frequency) * bobAmount * m_WeaponBobFactor;
+        float vBobValue = ((Mathf.Sin(Time.time * frequency * 2f) * 0.5f) + 0.5f) * bobAmount * m_WeaponBobFactor;
+
+        m_WeaponBobLocalPosition.x = hBobValue;
+        m_WeaponBobLocalPosition.y = Mathf.Abs(vBobValue);
+
+        m_LastCharacterPosition = transform.position;
+    }
+
+    private void UpdateWeaponRecoil()
+    {
+        if (m_WeaponRecoilLocalPosition.z >= m_AccumulatedRecoil.z * 0.99f)
         {
-            BobOffset();
+            m_WeaponRecoilLocalPosition = Vector3.Lerp(m_WeaponRecoilLocalPosition, m_AccumulatedRecoil,
+                RecoilSharpness * Time.deltaTime);
         }
         else
         {
-            transform.localPosition = Vector3.Lerp(transform.localPosition, idlePosition, Time.deltaTime * smoothIdleReturn);
+            m_WeaponRecoilLocalPosition = Vector3.Lerp(m_WeaponRecoilLocalPosition, Vector3.zero,
+                RecoilRestitutionSharpness * Time.deltaTime);
+            m_AccumulatedRecoil = m_WeaponRecoilLocalPosition;
         }
-
-        HandleRecoil();
     }
 
-    private void BobOffset()
+    private void UpdateWeaponPosition()
     {
-        speedCurve += Time.deltaTime * bobSpeed * (_elyseCharacter.PlayerMovement.IsGrounded ? 1f : 0f) + 0.01f;
-
-        bobPosition.x = Mathf.Sin(speedCurve) * bobLimit.x;
-        bobPosition.y = Mathf.Sin(speedCurve) * bobLimit.y;
-        bobPosition.z = Mathf.Sin(speedCurve) * bobLimit.z;
-
-        transform.localPosition = Vector3.Lerp(transform.localPosition, bobPosition, Time.deltaTime * smoothRot);
+        transform.localPosition = m_WeaponMainLocalPosition + m_WeaponBobLocalPosition + m_WeaponRecoilLocalPosition;
     }
 
-    private void BobRotation()
+    public void FireRecoil(float recoilForce)
     {
-        bobEulerRotation.x = Mathf.Sin(speedCurve) * multiplier.x;
-        bobEulerRotation.y = Mathf.Sin(speedCurve) * multiplier.y;
-        bobEulerRotation.z = Mathf.Sin(speedCurve) * multiplier.z;
-
-        transform.localRotation = Quaternion.Slerp(transform.localRotation, Quaternion.Euler(bobEulerRotation), Time.deltaTime * smoothRot);
-    }
-
-    private void HandleRecoil()
-    {
-        switch (recoilState)
-        {
-            case RecoilState.Recoiling:
-                if (currentRecoilZ > -recoilAmount)
-                {
-                    float moveAmount = Time.deltaTime * recoilSpeed;
-                    transform.localPosition -= new Vector3(0, 0, moveAmount);
-                    currentRecoilZ -= moveAmount;
-                }
-                else
-                {
-                    recoilState = RecoilState.Returning;
-                }
-                break;
-
-            case RecoilState.Returning:
-                if (currentRecoilZ < 0)
-                {
-                    float moveAmount = Time.deltaTime * returnSpeed;
-                    transform.localPosition += new Vector3(0, 0, moveAmount);
-                    currentRecoilZ += moveAmount;
-                }
-                else
-                {
-                    recoilState = RecoilState.Idle;
-                    transform.localPosition = new Vector3(transform.localPosition.x, transform.localPosition.y, 0);
-                    currentRecoilZ = 0;
-                }
-                break;
-        }
-
-        // Reset rotation and apply new rotation
-        transform.localRotation = Quaternion.identity;
-        float rotationX = Mathf.Clamp(-recoilRotationStrength * (currentRecoilZ / recoilAmount), -90f, 90f);
-        transform.localRotation = Quaternion.Euler(rotationX, 0, 0);
-    }
-
-    public void FireRecoil()
-    {
-        recoilState = RecoilState.Recoiling;
+        m_AccumulatedRecoil += Vector3.back * recoilForce;
+        m_AccumulatedRecoil = Vector3.ClampMagnitude(m_AccumulatedRecoil, MaxRecoilDistance);
     }
 }

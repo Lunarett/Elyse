@@ -35,6 +35,7 @@ public class Weapon : MonoBehaviour
     [SerializeField] private int _burstShotCount = 3;
 
     [Header("Fire Effects")]
+    [SerializeField] private float _fireRecoilForce = 1.0f;
     [SerializeField] private Transform _fireTransform;
     [SerializeField] private ParticleSystem _muzzleEffect;
     [SerializeField] private float _lineRendererDuration = 0.1f;
@@ -150,7 +151,7 @@ public class Weapon : MonoBehaviour
 
     private void PlayFireEffect(Vector3 start, Vector3 end)
     {
-        _weaponAnim.FireRecoil();
+        _weaponAnim.FireRecoil(_fireRecoilForce);
         _muzzleEffect.Play();
 
         _lineRenderer.SetPosition(0, start);

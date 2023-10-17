@@ -90,6 +90,7 @@ MonoBehaviour:
   _range: 100
   _burstFireRate: 0.1
   _burstShotCount: 3
+  _fireRecoilForce: 1
   _fireTransform: {fileID: 1421744972477986983}
   _muzzleEffect: {fileID: 2498030439983877526}
   _lineRendererDuration: 0.1

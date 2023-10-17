@@ -122,21 +122,30 @@ private void ParentWeapon(int weaponViewID, int playerViewID)
     {
         Transform targetPosition = playerPV.IsMine ? _fpsSpawnLocation : _tpsSpawnLocation;
         weaponPV.transform.SetParent(targetPosition, false);
-        weaponPV.transform.localPosition = Vector3.zero;
-        weaponPV.transform.localRotation = Quaternion.identity;
         
-        ElyseCharacter charRef = playerPV.GetComponent<ElyseCharacter>();
         Weapon weaponRef = weaponPV.GetComponent<Weapon>();
-        if (charRef != null && weaponRef != null)
+        if (weaponRef != null)
         {
-            weaponRef.CharacterReference = charRef;  // Set the CharacterReference field on all clients
+            weaponPV.transform.localPosition = weaponRef.WeaponOffset;
+            weaponPV.transform.localRotation = Quaternion.identity;
+            
+            ElyseCharacter charRef = playerPV.GetComponent<ElyseCharacter>();
+            if (charRef != null)
+            {
+                weaponRef.CharacterReference = charRef;  // Set the CharacterReference field on all clients
+            }
+            else
+            {
+                Debug.LogError("ElyseCharacter component not found");
+            }
         }
         else
         {
-            Debug.LogError("ElyseCharacter or Weapon component not found");
+            Debug.LogError("Weapon component not found");
         }
     }
 }
+
 
 
     public Weapon GetActiveWeapon()

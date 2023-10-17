@@ -52,6 +52,7 @@ public class ElyseCharacter : Character
         }
         else
         {
+            _fpsView.SetActive(false);
             Utils.SetLayerRecursively(gameObject, LayerMask.NameToLayer("Remote Player"));
         }
     }
@@ -86,9 +87,9 @@ public class ElyseCharacter : Character
         _tpsAnimator.SetBool(Crouch, _inputManager.GetCrouchInputHeld());
     }
 
-    public void SetViewMode(EViewMode viewMode)
+    public void SetViewMode(EViewMode viewMode, bool setCamera = true)
     {
-        _playerView.SetCameraViewMode(viewMode);
+        if(setCamera) _playerView.SetCameraViewMode(viewMode);
 
         switch (viewMode)
         {
