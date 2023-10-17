@@ -52,6 +52,16 @@ MonoBehaviour:
   - Fire_RPC
   - SpawnPlayerRPC
   - SyncGroundedState
+  - RPC_AddKill
+  - PerformFire
+  - ParentWeapon
+  - RPC_Damage
+  - RPC_Heal
+  - RPC_OnDeath
+  - RPC_UpdateHealth
+  - RPC_AddDeath
+  - OnPawnDestroyed
+  - SetRemotePawn
   DisableAutoOpenWizard: 1
   ShowSettings: 1
   DevRegionSetOnce: 1

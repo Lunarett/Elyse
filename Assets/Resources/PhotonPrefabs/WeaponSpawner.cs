@@ -1,54 +1,146 @@
-using System;
+using System.Collections.Generic;
 using UnityEngine;
 using Photon.Pun;
+using System.IO;
+using Pulsar.Utils;
 
-public class WeaponSpawner : MonoBehaviour
+public class WeaponSpawner : MonoBehaviourPunCallbacks
 {
-    [SerializeField] private GameObject weaponPrefab;
+    [Header("Spawn Location References")]
+    [SerializeField] private Transform _fpsSpawnLocation;
+    [SerializeField] private Transform _tpsSpawnLocation;
+    [Space]
+    [SerializeField] private List<Weapon> weaponPrefabs;
 
-    [SerializeField] private Transform fpsPosition;
-
-    [SerializeField] private Transform tpsPosition;
-
-    private PhotonView pv;
+    private PhotonView _pv;
+    private PlayerInputManager _input;
+    private Weapon _activeWeapon;
+    private ElyseCharacter _character;
+    private int _currentWeaponIndex = 0;
 
     private void Awake()
     {
-        pv = GetComponent<PhotonView>();
+        _pv = GetComponent<PhotonView>();
+        _input = GetComponent<PlayerInputManager>();
+        _character = GetComponent<ElyseCharacter>();
     }
 
     void Start()
     {
-        if (weaponPrefab == null || fpsPosition == null || tpsPosition == null)
+        if (_fpsSpawnLocation == null || _tpsSpawnLocation == null)
         {
-            Debug.LogError("WeaponSpawner: One or more serialized fields are null!");
+            Debug.LogError("WeaponSpawner: Spawn Location references are missing!");
             return;
         }
 
-        AddWeapon();
+        if (weaponPrefabs.Count == 0)
+        {
+            Debug.LogWarning("WeaponSpawner: Your weapon prefabs list is empty!");
+            return;
+        }
+
+        if (_pv.IsMine)
+        {
+            AddWeapon(_currentWeaponIndex);
+        }
     }
 
-    private void AddWeapon()
+    private void Update()
     {
-        // Determine the correct position based on the owner of the PhotonView
-        Transform targetPosition = pv.IsMine ? fpsPosition : tpsPosition;
-        string layerName = pv.IsMine ? "FP_View" : "TP_View";
-
-        if (PhotonNetwork.IsConnectedAndReady && PhotonNetwork.InRoom)
+        if (!_pv.IsMine || _activeWeapon == null) return;
+        
+        // Call Weapon Shooting
+        switch (_activeWeapon.FireModeType)
         {
-            // Instantiate the weapon locally
-            GameObject weaponObject = Instantiate(weaponPrefab, targetPosition.position, targetPosition.rotation);
-            weaponObject.transform.SetParent(targetPosition);
-            weaponObject.transform.localPosition = Vector3.zero;
-            weaponObject.transform.localRotation = Quaternion.identity;
-            weaponObject.transform.localScale = Vector3.one;
+            case FireMode.Auto:
+                if (_input.GetFireInputHeld())
+                {
+                    _activeWeapon.Fire();
+                }
+                break;
+            case FireMode.Single:
+            case FireMode.Burst:
+                if (_input.GetFireInputDown())
+                {
+                    _activeWeapon.Fire();
+                }
+                break;
+        }
 
-            // Set the layer recursively using your utility method
-            Pulsar.Utils.Utils.SetLayerRecursively(weaponObject, LayerMask.NameToLayer(layerName));
+        int switchInput = _input.GetSwitchWeaponInput();
+        if (switchInput != 0)
+        {
+            SwitchWeapon(switchInput);
+        }
+    }
+
+    public void SwitchWeapon(int direction)
+    {
+        _currentWeaponIndex = (_currentWeaponIndex + direction + weaponPrefabs.Count) % weaponPrefabs.Count;
+        PhotonNetwork.Destroy(_activeWeapon.gameObject);
+        AddWeapon(_currentWeaponIndex);
+    }
+
+public void AddWeapon(int weaponIndex)
+{
+    Transform targetPosition = _pv.IsMine ? _fpsSpawnLocation : _tpsSpawnLocation;
+    string layerName = _pv.IsMine ? "FP_Weapon" : "TP_Weapon";
+
+    if (PhotonNetwork.IsConnectedAndReady && PhotonNetwork.InRoom)
+    {
+        GameObject weaponObject = PhotonNetwork.Instantiate(
+            Path.Combine(weaponPrefabs[weaponIndex].gameObject.name),
+            targetPosition.position,
+            targetPosition.rotation,
+            0
+        );
+        
+        Weapon weapon = weaponObject.GetComponent<Weapon>();
+        weaponObject.transform.SetParent(targetPosition);
+        weaponObject.transform.localPosition = weapon.WeaponOffset;
+        weaponObject.transform.localRotation = Quaternion.identity;
+        weaponObject.transform.localScale = Vector3.one;
+
+        Utils.SetLayerRecursively(weaponObject, LayerMask.NameToLayer(layerName));
+
+        _activeWeapon = weapon;
+        _pv.RPC(nameof(ParentWeapon), RpcTarget.AllBuffered, weaponObject.GetPhotonView().ViewID, _pv.ViewID);
+    }
+    else
+    {
+        Debug.LogError("Not connected to network or not in room.");
+    }
+}
+
+[PunRPC]
+private void ParentWeapon(int weaponViewID, int playerViewID)
+{
+    PhotonView weaponPV = PhotonView.Find(weaponViewID);
+    PhotonView playerPV = PhotonView.Find(playerViewID);
+
+    if (weaponPV != null && playerPV != null)
+    {
+        Transform targetPosition = playerPV.IsMine ? _fpsSpawnLocation : _tpsSpawnLocation;
+        weaponPV.transform.SetParent(targetPosition, false);
+        weaponPV.transform.localPosition = Vector3.zero;
+        weaponPV.transform.localRotation = Quaternion.identity;
+        
+        ElyseCharacter charRef = playerPV.GetComponent<ElyseCharacter>();
+        Weapon weaponRef = weaponPV.GetComponent<Weapon>();
+        if (charRef != null && weaponRef != null)
+        {
+            weaponRef.CharacterReference = charRef;  // Set the CharacterReference field on all clients
         }
         else
         {
-            Debug.LogError("Not connected to network or not in room.");
+            Debug.LogError("ElyseCharacter or Weapon component not found");
         }
+    }
+}
+
+
+    public Weapon GetActiveWeapon()
+    {
+        return _activeWeapon;
     }
 }

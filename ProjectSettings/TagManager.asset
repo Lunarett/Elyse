@@ -9,13 +9,13 @@ TagManager:
   - Default
   - TransparentFX
   - Ignore Raycast
-  - Player
+  - Ignore Render
   - Water
   - UI
-  - FP_View
-  - TP_View
-  - CharacterMesh
-  - 
+  - Local Player
+  - Remote Player
+  - FP_Weapon
+  - TP_Weapon
   - 
   - 
   - 

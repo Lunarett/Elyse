@@ -1,6 +1,5 @@
 using UnityEngine;
-using UnityEngine.InputSystem;
-using Pulsar.Player;
+using Pulsar.Utils;
 
 public class WeaponAnimation : MonoBehaviour
 {
@@ -21,6 +20,8 @@ public class WeaponAnimation : MonoBehaviour
     [SerializeField] private float returnSpeed = 2.0f; // Speed at which the gun returns.
     [SerializeField] private float recoilRotationStrength = 5.0f; // Adjust as needed for x rotation.
 
+    private ElyseCharacter _elyseCharacter;
+    
     private Vector3 bobPosition;
     private Vector3 bobEulerRotation;
     private Vector3 idlePosition;
@@ -28,10 +29,8 @@ public class WeaponAnimation : MonoBehaviour
     private float smoothRot = 12f;
 
     private bool isRecoiling = false;
-    private float currentRecoilZ = 0.0f; // To track the current recoil position.
+    private float currentRecoilZ = 0.0f;
 
-    public PlayerCharacter playerCharacter;
-    
     private enum RecoilState
     {
         Idle,
@@ -41,9 +40,15 @@ public class WeaponAnimation : MonoBehaviour
 
     private RecoilState recoilState = RecoilState.Idle;
 
+    private void Awake()
+    {
+        _elyseCharacter = transform.root.GetComponent<ElyseCharacter>();
+        Utils.CheckForNull<ElyseCharacter>(_elyseCharacter);
+    }
+
     private void Update()
     {
-        if (playerCharacter.PlayerMovement.IsMoving())
+        if (_elyseCharacter.PlayerMovement.IsMoving())
         {
             BobOffset();
         }
@@ -53,17 +58,11 @@ public class WeaponAnimation : MonoBehaviour
         }
 
         HandleRecoil();
-        
-        // New Input System for detecting left mouse button
-        if (Mouse.current.leftButton.wasPressedThisFrame)
-        {
-            FireRecoil();
-        }
     }
 
     private void BobOffset()
     {
-        speedCurve += Time.deltaTime * bobSpeed * (playerCharacter.PlayerMovement.IsGrounded ? 1f : 0f) + 0.01f;
+        speedCurve += Time.deltaTime * bobSpeed * (_elyseCharacter.PlayerMovement.IsGrounded ? 1f : 0f) + 0.01f;
 
         bobPosition.x = Mathf.Sin(speedCurve) * bobLimit.x;
         bobPosition.y = Mathf.Sin(speedCurve) * bobLimit.y;

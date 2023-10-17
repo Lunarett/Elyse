@@ -4992,9 +4992,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1550826766}
+  - component: {fileID: 1550826769}
   - component: {fileID: 1550826767}
   - component: {fileID: 1550826768}
-  - component: {fileID: 1550826769}
   m_Layer: 0
   m_Name: GameMode
   m_TagString: Untagged
@@ -5064,10 +5064,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 1550826764}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ccf99c53b42a6e246ac04360edcbc6d2, type: 3}
+  m_Script: {fileID: 11500000, guid: eccc119a478472f4caa1b88e8575e716, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _controller: {fileID: 3251836848820542405, guid: 1d8ddf09b8d46bc47adbad7bd2261903,
+  _playerController: {fileID: -3474249646836248909, guid: 1d8ddf09b8d46bc47adbad7bd2261903,
     type: 3}
 --- !u!850595691 &1666982731
 LightingSettings:
