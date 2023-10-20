@@ -1,5 +1,6 @@
 using UnityEngine;
 using Photon.Pun;
+using Photon.Realtime;
 
 public class RoomManager : MonoBehaviourPunCallbacks
 {
@@ -36,16 +37,19 @@ public class RoomManager : MonoBehaviourPunCallbacks
         PhotonNetwork.JoinRoom(roomName);
     }
 
-    public void CreateRoom(string roomName, int maxPlayers)
+    public void CreateRoom(string roomName, int maxPlayers, string gameMode, string map)
     {
         if (PhotonNetwork.InRoom)
         {
             PhotonNetwork.LeaveRoom();
         }
-        
-        // Set Room Options
-        
-        // Create Room With Options
+    
+        RoomOptions roomOptions = new RoomOptions();
+        roomOptions.MaxPlayers = (byte)maxPlayers;
+        roomOptions.CustomRoomProperties = new ExitGames.Client.Photon.Hashtable() { { "gameMode", gameMode }, { "map", map } };
+        roomOptions.CustomRoomPropertiesForLobby = new string[] { "gameMode", "map" }; // Properties to be listed in the lobby.
+
+        PhotonNetwork.CreateRoom(roomName, roomOptions, null);
     }
 
     public void LeaveRoom()
@@ -56,6 +60,32 @@ public class RoomManager : MonoBehaviourPunCallbacks
     public override void OnJoinedRoom()
     {
         _panelManager.ShowPanel(_roomPanelIndex);
+        AssignTeam();
+    }
+    
+    private void AssignTeam()
+    {
+        int redTeamCount = 0;
+        int blueTeamCount = 0;
+
+        foreach (var player in PhotonNetwork.PlayerList)
+        {
+            object teamId;
+            if (!player.CustomProperties.TryGetValue("team", out teamId))
+                continue;
+            switch ((int)teamId)
+            {
+                case 1:
+                    redTeamCount++;
+                    break;
+                case 2:
+                    blueTeamCount++;
+                    break;
+            }
+        }
+
+        Player localPlayer = PhotonNetwork.LocalPlayer;
+        localPlayer.SetCustomProperties(new ExitGames.Client.Photon.Hashtable() { { "team", (redTeamCount <= blueTeamCount) ? 1 : 2 } });
     }
 
     public override void OnLeftRoom()
