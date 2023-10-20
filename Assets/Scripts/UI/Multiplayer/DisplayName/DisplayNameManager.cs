@@ -9,6 +9,7 @@ using Photon.Pun;
 public class DisplayNameManager : MonoBehaviour
 {
     [Header("References")]
+    [SerializeField] private PanelManager _panelManager;
     [SerializeField] private TMP_Text _errorMessageText;
     [SerializeField] private TMP_InputField _inputField;
     [SerializeField] private Button _confirmButton;
@@ -66,6 +67,7 @@ public class DisplayNameManager : MonoBehaviour
     {
         if (!_confirmButton.interactable) return;
         PhotonNetwork.NickName = _inputField.text;
+        _panelManager.ShowPanel(2);
         OnNameSet?.Invoke();
     }
 }

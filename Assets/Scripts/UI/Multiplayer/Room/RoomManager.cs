@@ -36,6 +36,18 @@ public class RoomManager : MonoBehaviourPunCallbacks
         PhotonNetwork.JoinRoom(roomName);
     }
 
+    public void CreateRoom(string roomName, int maxPlayers)
+    {
+        if (PhotonNetwork.InRoom)
+        {
+            PhotonNetwork.LeaveRoom();
+        }
+        
+        // Set Room Options
+        
+        // Create Room With Options
+    }
+
     public void LeaveRoom()
     {
         PhotonNetwork.LeaveRoom();
