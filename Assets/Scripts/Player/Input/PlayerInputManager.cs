@@ -104,6 +104,11 @@ public class PlayerInputManager : InputManager
         return CheckInputActionPhase("View", InputActionPhase.Performed);
     }
 
+    public bool GetFlyInputHeld()
+    {
+        return CheckInputActionPhase("Fly", InputActionPhase.Performed);
+    }
+
     public int GetSwitchWeaponInput()
     {
         if (!CanProcessInput()) return 0;

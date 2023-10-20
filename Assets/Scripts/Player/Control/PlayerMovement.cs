@@ -67,7 +67,11 @@ public class PlayerMovement : MonoBehaviour
     public float SprintMultiplier => m_sprintMultiplier;
     public float CrouchMultiplier => m_crouchMultiplier;
     public bool IsGrounded => m_isGrounded;
-    public Vector3 CharacterVelocity => m_characterVelocity;
+    public Vector3 CharacterVelocity
+    {
+        get => m_characterVelocity;
+        set => m_characterVelocity = value;
+    }
     public bool EnableMovement = true;
 
     public UnityAction<bool> OnStanceChanged;
