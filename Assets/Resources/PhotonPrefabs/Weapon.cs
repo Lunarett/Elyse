@@ -1,7 +1,7 @@
 using System.Collections;
 using UnityEngine;
 using Photon.Pun;
-using Pulsar.Utils;
+using Pulsar.Debug;
 
 public enum FireMode
 {
@@ -67,13 +67,13 @@ public class Weapon : MonoBehaviour
 
     private void Start()
     {
-        if (Utils.CheckForNull(CharacterReference)) return;
+        if (DebugUtils.CheckForNull(CharacterReference)) return;
 
         _playerCamera = CharacterReference.PlayerView.PlayerCamera.MainCamera;
-        if (Utils.CheckForNull(_playerCamera)) return;
+        if (DebugUtils.CheckForNull(_playerCamera)) return;
 
         _weaponAnim = CharacterReference.WeaponAnim;
-        if (Utils.CheckForNull(_weaponAnim)) return;
+        if (DebugUtils.CheckForNull(_weaponAnim)) return;
 
         HideLine();
     }

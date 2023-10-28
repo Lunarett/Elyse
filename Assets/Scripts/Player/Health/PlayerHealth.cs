@@ -2,7 +2,7 @@ using UnityEngine;
 using Photon.Pun;
 using Photon.Realtime;
 using System;
-using Pulsar.Utils;
+using Pulsar.Debug;
 
 public class PlayerHealth : BaseHealth
 {
@@ -15,7 +15,7 @@ public class PlayerHealth : BaseHealth
     {
         base.Awake();
         _elyseCharacter = GetComponent<ElyseCharacter>();
-        Utils.CheckForNull<ElyseCharacter>(_elyseCharacter);
+        DebugUtils.CheckForNull<ElyseCharacter>(_elyseCharacter);
     }
 
     protected override void OnDeath(WeaponInfo damageCauserInfo)
@@ -28,7 +28,7 @@ public class PlayerHealth : BaseHealth
     private void RPC_OnDeath(Player causerPlayer)
     {
         var causerController = Controller.Find(causerPlayer) as ElyseController;
-        Utils.CheckForNull<ElyseController>(causerController);
+        DebugUtils.CheckForNull<ElyseController>(causerController);
 
         if (causerController != null)
         {

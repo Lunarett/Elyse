@@ -1,4 +1,5 @@
 using Photon.Realtime;
+using Pulsar.Debug;
 using UnityEngine;
 using Pulsar.Utils;
 
@@ -43,7 +44,7 @@ public class ElyseCharacter : Character
         
         // Cast to elyse controller
         _elyseController = (ElyseController) PlayerController;
-        Utils.CheckForNull<ElyseController>(_elyseController);
+        DebugUtils.CheckForNull<ElyseController>(_elyseController);
         
         if (_photonView.IsMine)
         {

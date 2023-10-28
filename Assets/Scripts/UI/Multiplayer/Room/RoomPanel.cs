@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Photon.Pun;
 using TMPro;
+using Pulsar.Debug;  // Add this to use the DebugUtils
 
 public class RoomPanel : MonoBehaviourPunCallbacks
 {
@@ -9,7 +10,6 @@ public class RoomPanel : MonoBehaviourPunCallbacks
     [SerializeField] private Transform redTeamContainer;
     [SerializeField] private Transform blueTeamContainer;
 
-    // Store references to the instantiated player list items to manage them.
     private List<GameObject> playerListItems = new List<GameObject>();
 
     public override void OnPlayerEnteredRoom(Photon.Realtime.Player newPlayer)
@@ -24,14 +24,14 @@ public class RoomPanel : MonoBehaviourPunCallbacks
 
     private void RefreshPlayerList()
     {
-        // Clear existing list items.
         foreach (var item in playerListItems)
         {
             Destroy(item);
         }
         playerListItems.Clear();
 
-        // Add each player to the list again.
+        DebugUtils.LogAllArrayItems(PhotonNetwork.PlayerList);
+
         foreach (var player in PhotonNetwork.PlayerList)
         {
             AddPlayerToList(player);
@@ -40,15 +40,24 @@ public class RoomPanel : MonoBehaviourPunCallbacks
 
     private void AddPlayerToList(Photon.Realtime.Player player)
     {
+        if (DebugUtils.CheckForNull(player)) return;
+
         int teamId = (int)player.CustomProperties["team"];
         Transform parent = (teamId == 1) ? redTeamContainer : blueTeamContainer;
 
+        if (DebugUtils.CheckForNull(parent)) return;
+        if (DebugUtils.CheckForNull(playerListItemPrefab)) return;
+
         GameObject itemGO = Instantiate(playerListItemPrefab, parent);
-        itemGO.GetComponent<TMP_Text>().text = player.NickName; // Make sure your prefab has a TextMeshProUGUI component for this to work.
-        playerListItems.Add(itemGO);                            // Keep a reference for later.
+        if (DebugUtils.CheckForNull(itemGO)) return;
+
+        TMP_Text textComponent = itemGO.GetComponent<TMP_Text>();
+        if (DebugUtils.CheckForNull(textComponent)) return;
+
+        textComponent.text = player.NickName;
+        playerListItems.Add(itemGO);
     }
 
-    // Call this when the RoomPanel is enabled/opened to initialize the player list.
     private void OnEnable()
     {
         RefreshPlayerList();

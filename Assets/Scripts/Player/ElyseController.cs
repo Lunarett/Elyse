@@ -1,7 +1,6 @@
 using System.Collections;
 using UnityEngine;
-using Photon.Pun;
-using Pulsar.Utils;
+using Pulsar.Debug;
 
 public class ElyseController : PlayerController
 {
@@ -15,12 +14,12 @@ public class ElyseController : PlayerController
     {
         base.Awake();
         _elysePlayerState = gameObject.AddComponent<ElysePlayerState>();
-        Utils.CheckForNull<ElysePlayerState>(_elysePlayerState);
+        DebugUtils.CheckForNull<ElysePlayerState>(_elysePlayerState);
     }
 
     public void Die()
     {
-        if (Utils.CheckForNull<Pawn>(_pawn)) return;
+        if (DebugUtils.CheckForNull<Pawn>(_pawn)) return;
         _elysePlayerState.AddDeath();
         StartCoroutine(RespawnCoroutine());
     }

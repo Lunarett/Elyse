@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Pulsar.Debug;
 using UnityEngine;
 
 public class PanelManager : MonoBehaviour
@@ -22,12 +23,20 @@ public class PanelManager : MonoBehaviour
 
     public void ShowPanel(int panelIndex)
     {
+        if (!DebugUtils.CheckValidListIndex<GameObject>(panels, panelIndex)) return;
+        if (panels[panelIndex] == null)
+        {
+            DebugUtils.LogErrorFromCaller("Panel does not exist!");
+            return;
+        }
+        
+        
         if (panelIndex < 0 || panelIndex >= panels.Count) return;
         if (currentActivePanel != null)
         {
             currentActivePanel.SetActive(false);
         }
-
+        
         panels[panelIndex].SetActive(true);
         currentActivePanel = panels[panelIndex];
     }

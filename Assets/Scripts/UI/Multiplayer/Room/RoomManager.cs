@@ -1,7 +1,9 @@
 using UnityEngine;
 using Photon.Pun;
 using Photon.Realtime;
+using Pulsar.Utils;
 
+[RequireComponent(typeof(PanelManager))]
 public class RoomManager : MonoBehaviourPunCallbacks
 {
     [Header("Panel Indexes")]
@@ -24,6 +26,8 @@ public class RoomManager : MonoBehaviourPunCallbacks
             Destroy(gameObject);
             return;
         }
+
+        _panelManager = GetComponent<PanelManager>();
     }
 
     public void JoinRoom(string roomName)

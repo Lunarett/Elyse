@@ -1,8 +1,4 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEditor;
 using UnityEngine;
-using System.Diagnostics;
 
 namespace Pulsar.Utils
 {
@@ -10,38 +6,55 @@ namespace Pulsar.Utils
     {
         public static void SetLayerRecursively(GameObject obj, int newLayer)
         {
-            if (obj == null)
-            {
-                return;
-            }
-
+            if (obj == null) return;
+            
             obj.layer = newLayer;
 
             foreach (Transform child in obj.transform)
             {
-                if (child == null)
-                {
-                    continue;
-                }
                 SetLayerRecursively(child.gameObject, newLayer);
             }
         }
-        
-        public static bool CheckForNull<T>(T objectToCheck) where T : class
-        {
-            if (objectToCheck != null) return false;
-            StackTrace stackTrace = new StackTrace(true);
-            StackFrame frame = stackTrace.GetFrame(1);
-            var method = frame.GetMethod();
-            string callingClassName = method.DeclaringType.Name;
-            string className = typeof(T).Name;
-            string methodName = method.Name;
-            int line = frame.GetFileLineNumber();
 
-            UnityEngine.Debug.LogError($"{callingClassName}: Failed to get {className}. Called from {methodName} at line {line}.");
-            return true;
+        public static Transform FindChildByName(Transform parent, string name)
+        {
+            foreach (Transform child in parent)
+            {
+                if (child.name == name) return child;
+
+                Transform result = FindChildByName(child, name);
+                if (result != null) return result;
+            }
+
+            return null;
         }
 
-    }
+        public static void DestroyAllChildren(GameObject obj)
+        {
+            foreach (Transform child in obj.transform)
+            {
+                GameObject.Destroy(child.gameObject);
+            }
+        }
 
+        public static void ResetTransform(GameObject obj)
+        {
+            obj.transform.position = Vector3.zero;
+            obj.transform.rotation = Quaternion.identity;
+            obj.transform.localScale = Vector3.one;
+        }
+
+        public static void CopyTransform(GameObject source, GameObject destination)
+        {
+            destination.transform.position = source.transform.position;
+            destination.transform.rotation = source.transform.rotation;
+            destination.transform.localScale = source.transform.localScale;
+        }
+
+        public static bool IsVisibleFrom(GameObject obj, Camera camera)
+        {
+            Plane[] planes = GeometryUtility.CalculateFrustumPlanes(camera);
+            return GeometryUtility.TestPlanesAABB(planes, obj.GetComponent<Collider>().bounds);
+        }
+    }
 }

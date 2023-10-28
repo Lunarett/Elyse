@@ -1,13 +1,11 @@
 using Photon.Pun;
 using Photon.Realtime;
-using Pulsar.Utils;
+using Pulsar.Debug;
 using UnityEngine;
-using UnityEngine.PlayerLoop;
 
 [RequireComponent(typeof(PhotonView))]
 public abstract class Pawn : MonoBehaviour
 {
-
     protected PhotonView _photonView;
     
     public PlayerController PlayerController { get; private set; }
@@ -21,10 +19,10 @@ public abstract class Pawn : MonoBehaviour
     protected virtual void Awake()
     {
         _photonView = GetComponent<PhotonView>();
-        if (Utils.CheckForNull<PhotonView>(_photonView)) return;
+        if (DebugUtils.CheckForNull<PhotonView>(_photonView)) return;
         
         PlayerController = PhotonView.Find((int) _photonView.InstantiationData[0]).GetComponent<PlayerController>();
-        if (Utils.CheckForNull<PlayerController>(PlayerController)) return;
+        if (DebugUtils.CheckForNull<PlayerController>(PlayerController)) return;
     }
     
     public void ShowMouseCursor(bool isVisible)
