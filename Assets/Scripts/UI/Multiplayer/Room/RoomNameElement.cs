@@ -31,6 +31,6 @@ public class RoomNameElement : MonoBehaviour
     
     private void HandleButtonClick()
     {
-        RoomManager.Instance.JoinRoom(_roomNameText.text);
+        MultiplayerManager.Instance.JoinRoom(_roomNameText.text);
     }
 }

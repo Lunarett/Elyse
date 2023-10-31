@@ -12,7 +12,23 @@ public class RoomList : MonoBehaviourPunCallbacks
 
     private Dictionary<string, RoomNameElement> _currentRoomElements = new Dictionary<string, RoomNameElement>();
 
+    private void OnEnable()
+    {
+        RefreshRoomList();
+    }
+
     public override void OnRoomListUpdate(List<RoomInfo> roomList)
+    {
+        UpdateRoomList(roomList);
+    }
+
+    private void RefreshRoomList()
+    {
+        // This will trigger the OnRoomListUpdate callback
+        PhotonNetwork.GetCustomRoomList(TypedLobby.Default, "");
+    }
+
+    private void UpdateRoomList(List<RoomInfo> roomList)
     {
         foreach (RoomInfo roomInfo in roomList)
         {

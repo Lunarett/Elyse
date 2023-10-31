@@ -282,6 +282,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5131116326404983645}
   - component: {fileID: 5131116326404983646}
+  - component: {fileID: 691446933555573618}
   - component: {fileID: 5131116326404983647}
   - component: {fileID: 5131116326404983644}
   m_Layer: 0
@@ -321,6 +322,20 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5131116326404983618}
   m_CullTransparentMesh: 1
+--- !u!114 &691446933555573618
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5131116326404983618}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 52a045eb3cde27d49bdc01b658e168d9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _roomNameText: {fileID: 5131116326138968063}
+  _playerCountText: {fileID: 5205241678423553240}
 --- !u!114 &5131116326404983647
 MonoBehaviour:
   m_ObjectHideFlags: 0
