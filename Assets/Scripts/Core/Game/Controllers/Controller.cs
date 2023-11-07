@@ -3,6 +3,7 @@ using Photon.Pun;
 using Photon.Realtime;
 using System.Linq;
 using System.IO;
+using Pulsar.Debug;
 
 [RequireComponent(typeof(PhotonView))]
 public class Controller : MonoBehaviour
@@ -22,7 +23,6 @@ public class Controller : MonoBehaviour
 
     protected virtual void Start()
     {
-        // If this is the local player, create the pawn.
         if (_photonView.IsMine)
         {
             CreatePawn();
@@ -31,29 +31,28 @@ public class Controller : MonoBehaviour
 
     protected void CreatePawn()
     {
-        if (_photonView.IsMine)
+        if (!_photonView.IsMine) return;
+        Transform spawnpoint = PlayerSpawner.Instance.GetSpawnpoint(_photonView.Owner);
+        DebugUtils.CheckForNull(spawnpoint);
+        _pawnObject = PhotonNetwork.Instantiate(
+            Path.Combine("PhotonPrefabs", "Pawns", _pawnPrefab.gameObject.name),
+            spawnpoint.position,
+            spawnpoint.rotation,
+            0,
+            new object[] { _photonView.ViewID }
+        );
+
+        if (_pawnObject == null)
         {
-            Transform spawnpoint = SpawnManager.Instance.GetSpawnpoint();
-            _pawnObject = PhotonNetwork.Instantiate(
-                Path.Combine("PhotonPrefabs", "Pawns", _pawnPrefab.gameObject.name),
-                spawnpoint.position,
-                spawnpoint.rotation,
-                0,
-                new object[] { _photonView.ViewID }
-            );
-
-            if (_pawnObject == null)
-            {
-                Debug.LogError($"Controller: Failed to Instantiate {_pawnPrefab.gameObject.name} Pawn from 'Resources/PhotonPrefabs/Pawns' directory!");
-                return;
-            }
-
-            _pawn = _pawnObject.GetComponent<Pawn>();
-            _pawn.Initialize(_photonView.Owner);
-
-            // Notify remote clients
-            _photonView.RPC("SetRemotePawn", RpcTarget.OthersBuffered, _pawnObject.GetPhotonView().ViewID);
+            Debug.LogError($"Controller: Failed to Instantiate {_pawnPrefab.gameObject.name} Pawn from 'Resources/PhotonPrefabs/Pawns' directory!");
+            return;
         }
+
+        _pawn = _pawnObject.GetComponent<Pawn>();
+        _pawn.Initialize(_photonView.Owner);
+
+        // Notify remote clients
+        _photonView.RPC("SetRemotePawn", RpcTarget.OthersBuffered, _pawnObject.GetPhotonView().ViewID);
     }
 
     [PunRPC]

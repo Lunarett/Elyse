@@ -1,15 +1,18 @@
+using System;
 using UnityEngine;
 using Photon.Pun;
 
 public abstract class BaseHealth : MonoBehaviourPunCallbacks
 {
     [SerializeField]
-    private float _maxHealth = 100f;
+    protected float _maxHealth = 100f;
 
-    private float _currentHealth;
+    protected float _currentHealth;
 
     public float MaxHealth => _maxHealth;
     public float CurrentHealth => _currentHealth;
+    
+    public event Action<float, float> OnHealthChanged;
 
     private GUIStyle _guiStyle = new GUIStyle();
 
@@ -23,6 +26,8 @@ public abstract class BaseHealth : MonoBehaviourPunCallbacks
     public void TakeDamage(float damage, WeaponInfo damageCauserInfo)
     {
         _currentHealth -= damage;
+        OnHealthChanged?.Invoke(_currentHealth, _maxHealth);
+        
         if (_currentHealth <= 0)
         {
             OnDeath(damageCauserInfo);
@@ -33,6 +38,7 @@ public abstract class BaseHealth : MonoBehaviourPunCallbacks
     public void Heal(float amount)
     {
         _currentHealth = Mathf.Min(_currentHealth + amount, _maxHealth);
+        OnHealthChanged?.Invoke(_currentHealth, _maxHealth);
         photonView.RPC(nameof(RPC_UpdateHealth), RpcTarget.Others, _currentHealth);
     }
 

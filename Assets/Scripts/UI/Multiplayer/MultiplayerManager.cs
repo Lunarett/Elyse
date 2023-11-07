@@ -78,8 +78,6 @@ public class MultiplayerManager : MonoBehaviourPunCallbacks
     public override void OnJoinedLobby()
     {
         _panelManager.ShowPanel(1);
-        //RoomInfo[] roomList = PhotonNetwork.GetRoomList();
-        //_availableRooms = new List<RoomInfo>(roomList);
         DisplayAvailableRooms();
     }
 

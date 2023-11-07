@@ -49,13 +49,11 @@ public class RoomPanel : MonoBehaviourPunCallbacks, IOnEventCallback
 
     public override void OnPlayerEnteredRoom(Player newPlayer)
     {
-        Debug.Log("Player entered room: " + newPlayer.NickName);
         UpdatePlayerList();
     }
 
-    public override void OnPlayerLeftRoom(Photon.Realtime.Player otherPlayer)
+    public override void OnPlayerLeftRoom(Player otherPlayer)
     {
-        Debug.Log("Player left room: " + otherPlayer.NickName);
         UpdatePlayerList();
     }
     
@@ -83,7 +81,7 @@ public class RoomPanel : MonoBehaviourPunCallbacks, IOnEventCallback
     
     private bool StartIsValid()
     {
-        return playerListItems.Count > 2;
+        return playerListItems.Count >= 2;
     }
     
     public void SetRoomName(string name)

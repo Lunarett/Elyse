@@ -16,6 +16,12 @@ public class PlayerHealth : BaseHealth
         base.Awake();
         _elyseCharacter = GetComponent<ElyseCharacter>();
         DebugUtils.CheckForNull<ElyseCharacter>(_elyseCharacter);
+        OnHealthChanged += UpdateHealthBar;
+    }
+
+    private void Start()
+    {
+        HUD.Instance.SetHeath(_currentHealth, _maxHealth);
     }
 
     protected override void OnDeath(WeaponInfo damageCauserInfo)
@@ -40,5 +46,10 @@ public class PlayerHealth : BaseHealth
         }
 
         OnPlayerDied?.Invoke(causerPlayer);
+    }
+    
+    private void UpdateHealthBar(float currentHealth, float maxHealth)
+    {
+        HUD.Instance.SetHeath(currentHealth, maxHealth);
     }
 }

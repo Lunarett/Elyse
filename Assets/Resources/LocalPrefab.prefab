@@ -92,7 +92,7 @@ MonoBehaviour:
   _burstShotCount: 3
   _fireRecoilForce: 1
   _fireTransform: {fileID: 1421744972477986983}
-  _muzzleEffect: {fileID: 2498030439983877526}
+  _muzzleEffect: {fileID: 3926806359697900547}
   _lineRendererDuration: 0.1
 --- !u!114 &4783912033031374102
 MonoBehaviour:
@@ -243,7 +243,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 5458826743479392957}
+  - {fileID: 6851592308696945448}
   m_Father: {fileID: 2880120393677373312}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: -90, y: 0, z: 0}
@@ -330,7 +330,7 @@ Transform:
     type: 3}
   m_PrefabInstance: {fileID: 2880120393676973312}
   m_PrefabAsset: {fileID: 0}
---- !u!1001 &5218090876958797392
+--- !u!1001 &6682914027607566277
 PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
@@ -395,24 +395,19 @@ PrefabInstance:
     - target: {fileID: 748781637555137343, guid: 6df0d987032b94f4780c1ad49c18baf2,
         type: 3}
       propertyPath: m_Name
-      value: VFX_MuzzleFlashBlue
-      objectReference: {fileID: 0}
-    - target: {fileID: 7692336672675980230, guid: 6df0d987032b94f4780c1ad49c18baf2,
-        type: 3}
-      propertyPath: playOnAwake
-      value: 0
+      value: PS_ArchtronicMuzzle
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 6df0d987032b94f4780c1ad49c18baf2, type: 3}
---- !u!198 &2498030439983877526 stripped
+--- !u!198 &3926806359697900547 stripped
 ParticleSystem:
   m_CorrespondingSourceObject: {fileID: 7692336672675980230, guid: 6df0d987032b94f4780c1ad49c18baf2,
     type: 3}
-  m_PrefabInstance: {fileID: 5218090876958797392}
+  m_PrefabInstance: {fileID: 6682914027607566277}
   m_PrefabAsset: {fileID: 0}
---- !u!4 &5458826743479392957 stripped
+--- !u!4 &6851592308696945448 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 264520514954343661, guid: 6df0d987032b94f4780c1ad49c18baf2,
     type: 3}
-  m_PrefabInstance: {fileID: 5218090876958797392}
+  m_PrefabInstance: {fileID: 6682914027607566277}
   m_PrefabAsset: {fileID: 0}

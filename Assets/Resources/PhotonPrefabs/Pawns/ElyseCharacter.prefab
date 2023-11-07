@@ -593,7 +593,6 @@ GameObject:
   - component: {fileID: 516533362349361297}
   - component: {fileID: 516533362349361298}
   - component: {fileID: 8297265109742783954}
-  - component: {fileID: 8312820350342350651}
   m_Layer: 6
   m_Name: ElyseCharacter
   m_TagString: Player
@@ -695,9 +694,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e5c3f8968608bee4e89d2649461ac35d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxPower: 100
-  rechargeRate: 5
-  rechargeDelay: 1
+  _maxPower: 100
+  _rechargeRate: 5
+  _rechargeDelay: 1
 --- !u!114 &516533362349361305
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1013,21 +1012,6 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
---- !u!114 &8312820350342350651
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 516533362349361285}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e5c3f8968608bee4e89d2649461ac35d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  maxPower: 100
-  rechargeRate: 5
-  rechargeDelay: 1
 --- !u!1 &516533363047978101
 GameObject:
   m_ObjectHideFlags: 0

@@ -19,8 +19,10 @@ public class Jetpack : MonoBehaviour
 
     private void Update()
     {
-        if (!_inputManager.GetFlyInputHeld() || !power.ConsumePower(powerConsumptionRate * Time.deltaTime)) return;
-        Vector3 jetpackBoost = Vector3.up * jetpackForce * Time.deltaTime;
+        if (!_inputManager.GetFlyInputHeld()) return;
+        float powerNeeded = powerConsumptionRate * Time.deltaTime;
+        if (!power.ConsumePower(powerNeeded)) return;
+        Vector3 jetpackBoost = Vector3.up * (jetpackForce * Time.deltaTime);
         playerMovement.CharacterVelocity += jetpackBoost;
     }
 }
