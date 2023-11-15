@@ -1,24 +1,13 @@
 using System.Collections;
+using System.IO;
 using UnityEngine;
 using Photon.Pun;
 using Pulsar.Debug;
 
-public enum FireMode
-{
-    Auto,
-    Single,
-    Burst
-}
-
-public struct WeaponInfo
-{
-    public Photon.Realtime.Player WeaponOwner;
-    public float BaseDamage;
-}
-
 public class Weapon : MonoBehaviour
 {
     [Header("General")]
+    [SerializeField] private string _weaponName;
     [SerializeField] private Vector3 _weaponOffset;
 
     [Header("Damage Properties")]
@@ -44,7 +33,7 @@ public class Weapon : MonoBehaviour
     private WeaponAnimation _weaponAnim;
     private Camera _playerCamera;
     private LineRenderer _lineRenderer;
-    private WeaponInfo _info;
+    private DamageCauserInfo _info;
 
     private float _lastBurstFireTime;
     private float _lastFireTime;
@@ -58,11 +47,7 @@ public class Weapon : MonoBehaviour
         _photonView = GetComponent<PhotonView>();
         _lineRenderer = GetComponent<LineRenderer>();
 
-        _info = new WeaponInfo()
-        {
-            WeaponOwner = _photonView.Owner,
-            BaseDamage = _damage
-        };
+        _info = new DamageCauserInfo(_photonView.Owner);
     }
 
     private void Start()
@@ -105,8 +90,8 @@ public class Weapon : MonoBehaviour
         _lastFireTime = Time.time;
 
         Quaternion spreadRotation = Quaternion.Euler(
-            UnityEngine.Random.Range(-_maxSpreadAngle, _maxSpreadAngle),
-            UnityEngine.Random.Range(-_maxSpreadAngle, _maxSpreadAngle),
+            Random.Range(-_maxSpreadAngle, _maxSpreadAngle),
+            Random.Range(-_maxSpreadAngle, _maxSpreadAngle),
             0f
         );
 
@@ -119,14 +104,14 @@ public class Weapon : MonoBehaviour
     {
         if (!(Time.time >= _lastBurstFireTime + _burstFireRate)) return;
         _lastBurstFireTime = Time.time;
-        //StartCoroutine(BurstFire(firePosition));
+        StartCoroutine(BurstFire(firePosition));
     }
 
     private IEnumerator BurstFire(Vector3 firePosition)
     {
         for (int i = 0; i < _burstShotCount; i++)
         {
-            //_photonView.RPC("RPC_Fire", RpcTarget.All, firePosition);
+            _photonView.RPC("RPC_Fire", RpcTarget.All, firePosition);
             yield return new WaitForSeconds(_burstFireRate);
         }
     }
@@ -142,11 +127,12 @@ public class Weapon : MonoBehaviour
             BodyDamageMultiplier bodyDamageMultiplier = hitInfo.collider.GetComponent<BodyDamageMultiplier>();
             if (bodyDamageMultiplier != null)
             {
-                bodyDamageMultiplier.TakeDamage(_info.BaseDamage, _info);
+                bodyDamageMultiplier.TakeDamage(_damage, _info);
             }
         }
 
-        PlayFireEffect(_fireTransform.position, _fireTransform.position + finalFireDirection * _range);
+        Vector3 lineEndPoint = hitInfo.point == Vector3.zero ? _fireTransform.position + finalFireDirection * _range : hitInfo.point;
+        PlayFireEffect(_fireTransform.position, lineEndPoint);
     }
 
     private void PlayFireEffect(Vector3 start, Vector3 end)

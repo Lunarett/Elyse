@@ -18,6 +18,7 @@ public class NetworkingManager : MonoBehaviourPunCallbacks
     public override void OnConnectedToMaster()
     {
         PhotonNetwork.AutomaticallySyncScene = true;
+        PhotonNetwork.NickName = $"Player_{Random.Range(0, 99)}";
         _playButton.interactable = true;
     }
     

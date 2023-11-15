@@ -34,6 +34,8 @@ public class Controller : MonoBehaviour
         if (!_photonView.IsMine) return;
         Transform spawnpoint = PlayerSpawner.Instance.GetSpawnpoint(_photonView.Owner);
         DebugUtils.CheckForNull(spawnpoint);
+
+        if (DebugUtils.CheckForNull(_pawnPrefab)) return;
         _pawnObject = PhotonNetwork.Instantiate(
             Path.Combine("PhotonPrefabs", "Pawns", _pawnPrefab.gameObject.name),
             spawnpoint.position,

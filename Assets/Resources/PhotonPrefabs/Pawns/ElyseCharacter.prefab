@@ -159,6 +159,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _damageMultiplier: 1
+  _isHead: 0
 --- !u!1 &349832948870027077
 GameObject:
   m_ObjectHideFlags: 0
@@ -431,6 +432,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _damageMultiplier: 100
+  _isHead: 0
 --- !u!1 &516533361548171023
 GameObject:
   m_ObjectHideFlags: 0
@@ -587,6 +589,7 @@ GameObject:
   - component: {fileID: 516533362349361305}
   - component: {fileID: 3519999513106096428}
   - component: {fileID: 516533362349361296}
+  - component: {fileID: 2915690791224234742}
   - component: {fileID: 516533362349361306}
   - component: {fileID: 516533362349361307}
   - component: {fileID: 516533362349361284}
@@ -634,6 +637,7 @@ MonoBehaviour:
   _fpsView: {fileID: 516533361548171023}
   _tpsView: {fileID: 516533362321128194}
   _tpsAnimator: {fileID: 794201485712210741}
+  _rig: {fileID: 5952895323301543240}
 --- !u!114 &516533362349361308
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -651,11 +655,11 @@ MonoBehaviour:
   m_groundCheckLayers:
     serializedVersion: 2
     m_Bits: 1
-  m_movementSpeed: 6
-  m_speedInAir: 6
-  m_airAccelerationSpeed: 10
+  m_movementSpeed: 15
+  m_speedInAir: 20
+  m_airAccelerationSpeed: 30
   m_movementSharpness: 10
-  m_jumpForce: 8
+  m_jumpForce: 16
   m_downForce: 20
   m_crouchMultiplier: 0.5
   m_sprintMultiplier: 1.8
@@ -667,7 +671,6 @@ MonoBehaviour:
   m_footstepSfxFrequencyWhileSprinting: 1
   m_footstepSfx: {fileID: 0}
   m_jumpSfx: {fileID: 0}
-  EnableMovement: 1
 --- !u!114 &3723548513185817919
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -735,8 +738,10 @@ MonoBehaviour:
   _fpsSpawnLocation: {fileID: 4392748839232346001}
   _tpsSpawnLocation: {fileID: 1165675026994962777}
   weaponPrefabs:
-  - {fileID: 4035233485563539911, guid: 5fc749afbd7cf7645b6833ad8e942d86, type: 3}
-  - {fileID: 4035233485563539911, guid: 98d7432e1ce786c42ad9fb4892c54860, type: 3}
+  - {fileID: 7457221728030768537, guid: aca8478c3184dfc469f3b8609a10fc49, type: 3}
+  - {fileID: 1917782606559623225, guid: 037a18c2ff23cd24ebf274b27bc7444e, type: 3}
+  - {fileID: 5159128229822020944, guid: 9b62240176b1b1846ad48cf39ec838e3, type: 3}
+  - {fileID: 218861631099351297, guid: ef866031eac7ae942bc4cc2023bceff5, type: 3}
 --- !u!114 &516533362349361296
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -750,6 +755,24 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _maxHealth: 100
+--- !u!114 &2915690791224234742
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 516533362349361285}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c1d7596533266bf4fbba19cb031df725, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _enableFallDamage: 1
+  _deathIconPath: Assets/Resources/UI/FeedIcons/FallDamage.png
+  _minSpeed: 20
+  _maxSpeed: 100
+  _minFallDamage: 10
+  _maxFallDamage: 100
 --- !u!143 &516533362349361306
 CharacterController:
   m_ObjectHideFlags: 0
@@ -1153,6 +1176,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _damageMultiplier: 1
+  _isHead: 0
 --- !u!1 &893606710604795928
 GameObject:
   m_ObjectHideFlags: 0
@@ -1541,6 +1565,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _damageMultiplier: 1
+  _isHead: 0
 --- !u!1 &2565122047161941401
 GameObject:
   m_ObjectHideFlags: 0
@@ -1666,6 +1691,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _damageMultiplier: 1
+  _isHead: 0
 --- !u!1 &2987716003151929084
 GameObject:
   m_ObjectHideFlags: 0
@@ -1727,6 +1753,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _damageMultiplier: 1
+  _isHead: 0
 --- !u!1 &3007144385071425531
 GameObject:
   m_ObjectHideFlags: 0
@@ -2131,6 +2158,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _damageMultiplier: 1
+  _isHead: 0
 --- !u!1 &3985468657692238321
 GameObject:
   m_ObjectHideFlags: 0
@@ -2311,6 +2339,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _damageMultiplier: 1
+  _isHead: 0
 --- !u!1 &4184369809841037982
 GameObject:
   m_ObjectHideFlags: 0
@@ -2336,7 +2365,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4184369809841037982}
-  m_LocalRotation: {x: 0.010649507, y: 0.9999428, z: 0.0010257814, w: 0.0000118568505}
+  m_LocalRotation: {x: 0.010670066, y: 0.9996849, z: 0.00078347325, w: -0.022710653}
   m_LocalPosition: {x: -0.000000076293944, y: -0.000000049372115, z: -0.049608663}
   m_LocalScale: {x: 1, y: 0.9999999, z: 0.99999994}
   m_ConstrainProportionsScale: 0
@@ -2344,7 +2373,7 @@ Transform:
   - {fileID: 3931841591011924690}
   m_Father: {fileID: 4760655735630733337}
   m_RootOrder: 1
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: -0.118, y: -177.398, z: 1.22}
 --- !u!136 &3881911059321510651
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -2372,6 +2401,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _damageMultiplier: 1
+  _isHead: 0
 --- !u!1 &4442930493626743515
 GameObject:
   m_ObjectHideFlags: 0
@@ -3029,7 +3059,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6308778966380952816}
-  m_LocalRotation: {x: 0.010649507, y: 0.9999428, z: -0.0010267148, w: -0.000011733627}
+  m_LocalRotation: {x: 0.010674776, y: 0.99952173, z: -0.00071701413, w: 0.02901347}
   m_LocalPosition: {x: 0.000000076293944, y: 0.000000088222485, z: 0.049608663}
   m_LocalScale: {x: 1, y: 0.99999994, z: 0.99999994}
   m_ConstrainProportionsScale: 0
@@ -3037,7 +3067,7 @@ Transform:
   - {fileID: 7056948987417025489}
   m_Father: {fileID: 4760655735630733337}
   m_RootOrder: 0
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 0.118, y: 176.676, z: 1.22}
 --- !u!136 &8546917981121337345
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -3065,6 +3095,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _damageMultiplier: 1
+  _isHead: 0
 --- !u!1 &6375870558520178639
 GameObject:
   m_ObjectHideFlags: 0
@@ -3307,6 +3338,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _damageMultiplier: 1
+  _isHead: 0
 --- !u!1 &7611731512170024777
 GameObject:
   m_ObjectHideFlags: 0

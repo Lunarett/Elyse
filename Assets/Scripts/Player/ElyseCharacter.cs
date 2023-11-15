@@ -2,6 +2,7 @@ using Photon.Realtime;
 using Pulsar.Debug;
 using UnityEngine;
 using Pulsar.Utils;
+using UnityEngine.Animations.Rigging;
 
 public class ElyseCharacter : Character
 {
@@ -11,16 +12,17 @@ public class ElyseCharacter : Character
     [SerializeField] private GameObject _fpsView;
     [SerializeField] private GameObject _tpsView;
 
-    [Header("Animation Properties")] [SerializeField]
-    private Animator _tpsAnimator;
+    [Header("Animation Properties")]
+    [SerializeField] private Animator _tpsAnimator;
+    [SerializeField] private Rig _rig;
     
-    private PlayerInputManager _inputManager;
+    private PlayerInputManager _playerInputManager;
     private PlayerHealth _playerHealth;
     private WeaponAnimation _weaponAnimation;
     private ElyseController _elyseController;
 
     public bool IsDead { get; set; }
-    public PlayerInputManager InputManager => _inputManager;
+    public PlayerInputManager PlayerInputManager => _playerInputManager;
     public EViewMode ViewMode => _viewMode;
     public WeaponAnimation WeaponAnim => _weaponAnimation;
     public ElyseController ElyseElyseController => _elyseController;
@@ -35,9 +37,10 @@ public class ElyseCharacter : Character
     {
         base.Awake();
         
+        _playerInputManager = _inputManager as PlayerInputManager;
+        
         // Find all components in object
         _weaponAnimation = GetComponentInChildren<WeaponAnimation>();
-        _inputManager = GetComponent<PlayerInputManager>();
         _playerHealth = GetComponent<PlayerHealth>();
 
         _playerHealth.OnPlayerDied += OnPlayerDied;
@@ -61,8 +64,8 @@ public class ElyseCharacter : Character
     private void Start()
     {
         ShowMouseCursor(false);
-        EnableMovement(_photonView.IsMine);
         EnableView(_photonView.IsMine);
+        _rig.weight = 1;
     }
 
     private void LateUpdate()
@@ -75,17 +78,17 @@ public class ElyseCharacter : Character
         if (IsDead) return; // Don't update if we are dead
         
         Vector3 velocity = _playerMovement.CharacterVelocity;
-        float verticalValue = _inputManager.GetMoveInput(true).y != 0
+        float verticalValue = _playerInputManager.GetMoveInput().y != 0
             ? Vector3.Dot(velocity.normalized, transform.forward)
             : 0;
-        float horizontalValue = _inputManager.GetMoveInput(true).x != 0
+        float horizontalValue = _playerInputManager.GetMoveInput().x != 0
             ? Vector3.Dot(velocity.normalized, transform.right)
             : 0;
 
         _tpsAnimator.SetFloat(Vertical, verticalValue, 0.1f, Time.deltaTime);
         _tpsAnimator.SetFloat(Horizontal, horizontalValue, 0.1f, Time.deltaTime);
         _tpsAnimator.SetBool(Grounded, _playerMovement.IsGrounded);
-        _tpsAnimator.SetBool(Crouch, _inputManager.GetCrouchInputHeld());
+        _tpsAnimator.SetBool(Crouch, _playerInputManager.GetCrouchInputHeld());
     }
 
     public void SetViewMode(EViewMode viewMode, bool setCamera = true)
@@ -107,10 +110,11 @@ public class ElyseCharacter : Character
         }
     }
 
-    private void OnPlayerDied(Player causerPlayer)
+    private void OnPlayerDied(DamageCauserInfo damageCauserInfo)
     {
         if (!_photonView.IsMine) return;
-        EnableMovement(false);
+        _rig.weight = 0;
+        EnableMovement(false, false);
         SetViewMode(EViewMode.TPS);
         _tpsAnimator.SetBool(Dead, true);
         _elyseController.Die();

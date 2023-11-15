@@ -54,6 +54,7 @@ public class PlayerMovement : MonoBehaviour
     private bool m_isJumping;
     private bool m_hasJumped;
     private bool m_isGrounded;
+    private bool _wasGrounded;
 
     private Vector3 m_movementAxis;
     private Vector3 m_groundNormal;
@@ -66,13 +67,15 @@ public class PlayerMovement : MonoBehaviour
     public float MovementSpeed => m_movementSpeed;
     public float SprintMultiplier => m_sprintMultiplier;
     public float CrouchMultiplier => m_crouchMultiplier;
+    public bool WasGrounded => _wasGrounded;
     public bool IsGrounded => m_isGrounded;
+    public Vector3 LatestImpactSeed => m_latestImpactSpeed;
+    
     public Vector3 CharacterVelocity
     {
         get => m_characterVelocity;
         set => m_characterVelocity = value;
     }
-    public bool EnableMovement = true;
 
     public UnityAction<bool> OnStanceChanged;
     public UnityAction OnLanded;
@@ -88,8 +91,7 @@ public class PlayerMovement : MonoBehaviour
 
     private void Start()
     {
-        if (!EnableMovement) return;
-
+        if (!_pv.IsMine) return;
         m_controller.enableOverlapRecovery = true;
         SetCrouchingState(false, true);
         UpdateCharacterHeight(true);
@@ -97,29 +99,19 @@ public class PlayerMovement : MonoBehaviour
 
     private void Update()
     {
-        if (!EnableMovement) return;
-
+        if (!_pv.IsMine) return;
         Jump(m_inputManager.GetJumpInputDown());
         Crouch(m_inputManager.GetCrouchInputDown());
         Sprint(m_inputManager.GetSprintInputHeld());
-
-        if (m_inputManager == null) UnityEngine.Debug.LogError("input is null");
         UpdateMovement(m_inputManager.GetMoveInput());
     }
 
     public void UpdateMovement(Vector2 rawInputAxis)
     {
+        _wasGrounded = m_isGrounded;
         GroundCheck();
-        //_animator.SetBool("Grounded", m_isGrounded);
-
         UpdateCharacterHeight(false);
         Move(rawInputAxis);
-
-        Vector3 localVelocity = transform.InverseTransformDirection(m_characterVelocity);
-
-        // Update animator parameters based on local velocity
-        //_animator.SetFloat("Horizontal", localVelocity.x);
-        //_animator.SetFloat("Vertical", localVelocity.z);
     }
 
     private void GroundCheck()
@@ -142,7 +134,15 @@ public class PlayerMovement : MonoBehaviour
         if (Vector3.Dot(hit.normal, gameObject.transform.up) < 0f &&
             !IsNormalUnderSlopeLimit(m_groundNormal)) return;
 
-        m_isGrounded = true;
+        if (Vector3.Angle(Vector3.up, m_groundNormal) > m_controller.slopeLimit)
+        {
+            m_isGrounded = false;
+            return; // Early return as we're not on a valid slope
+        }
+        else
+        {
+            m_isGrounded = true;
+        }
 
         if (hit.distance < m_controller.skinWidth) return;
         m_controller.Move(Vector3.down * hit.distance);

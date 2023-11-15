@@ -41,8 +41,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3206497918089847293}
-  - component: {fileID: 8165476489399959861}
-  - component: {fileID: 9074923315560248740}
+  - component: {fileID: 7457221728030768537}
   - component: {fileID: 1772250139392223461}
   m_Layer: 0
   m_Name: W_Mauler
@@ -67,7 +66,7 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &8165476489399959861
+--- !u!114 &7457221728030768537
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -76,41 +75,29 @@ MonoBehaviour:
   m_GameObject: {fileID: 3206497918089847290}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ce7987a4b07f28246a245c849c1fd2a4, type: 3}
+  m_Script: {fileID: 11500000, guid: a7c1493ee5cde71488bdb202d8a1daeb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _fireLocation: {fileID: 4693327681146019319}
-  _impactPrefab: {fileID: 6521945633980296980, guid: e53c980aac40f714e8037076227eeeec,
+  _weaponName: Mauler
+  _weaponOffset: {x: 0.01, y: -0.05, z: 0}
+  _damage: 5
+  _hitLayers:
+    serializedVersion: 2
+    m_Bits: 129
+  _fireMode: 0
+  _fireRate: 0.1
+  _maxSpreadAngle: 2
+  _burstFireRate: 0.1
+  _burstShotCount: 3
+  _fireRecoilForce: 1
+  _fireTransform: {fileID: 4693327681146019319}
+  _muzzleEffect: {fileID: 8885183598234285943}
+  _impactEffectPrefab: {fileID: 744084136304213716, guid: 6138bf7d926d962428ab5814c44daa0d,
     type: 3}
-  _weaponInfo:
-    name: Mauler
-    damage: 5
-  _fireDistance: 500
-  _singleFire: 1
-  _fireRate: 600
-  _offset: {x: -0.001, y: -0.045, z: -0.002}
---- !u!114 &9074923315560248740
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3206497918089847290}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 49771fd5411dd444982609bac5ae2fa8, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _step: 0.005
-  _maxStepDistance: 0.01
-  _rotationStep: 2
-  _maxRotationStep: 3
-  _smooth: 10
-  _speedCurve: 0
-  _travelLimit: {x: 0.01, y: 0.001, z: 0.01}
-  _bobLimit: {x: 0.001, y: 0.001, z: 0.001}
-  _bobExaggeration: 1
-  _multiplier: {x: 1, y: 1, z: 1}
+  _laserPrefab: {fileID: 5041111493687089217, guid: f7e02957011d837458a06a06081b9986,
+    type: 3}
+  _raycastRange: 100
+  _lineRendererDuration: 0.1
 --- !u!114 &1772250139392223461
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -127,7 +114,7 @@ MonoBehaviour:
   Group: 0
   prefixField: -1
   Synchronization: 3
-  OwnershipTransfer: 1
+  OwnershipTransfer: 0
   observableSearch: 2
   ObservedComponents: []
   sceneViewId: 0
@@ -160,10 +147,92 @@ Transform:
   m_LocalPosition: {x: 0.0002, y: -0.15, z: 0.0186}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 1307710869052219484}
   m_Father: {fileID: 7024991797570817473}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1001 &1264992640079647921
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    m_TransformParent: {fileID: 4693327681146019319}
+    m_Modifications:
+    - target: {fileID: 264520514954343661, guid: 4cc5c4827241e7a45bb3cceee96dd3b5,
+        type: 3}
+      propertyPath: m_RootOrder
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 264520514954343661, guid: 4cc5c4827241e7a45bb3cceee96dd3b5,
+        type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 264520514954343661, guid: 4cc5c4827241e7a45bb3cceee96dd3b5,
+        type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 264520514954343661, guid: 4cc5c4827241e7a45bb3cceee96dd3b5,
+        type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 264520514954343661, guid: 4cc5c4827241e7a45bb3cceee96dd3b5,
+        type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 264520514954343661, guid: 4cc5c4827241e7a45bb3cceee96dd3b5,
+        type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 264520514954343661, guid: 4cc5c4827241e7a45bb3cceee96dd3b5,
+        type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 264520514954343661, guid: 4cc5c4827241e7a45bb3cceee96dd3b5,
+        type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 264520514954343661, guid: 4cc5c4827241e7a45bb3cceee96dd3b5,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 264520514954343661, guid: 4cc5c4827241e7a45bb3cceee96dd3b5,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 264520514954343661, guid: 4cc5c4827241e7a45bb3cceee96dd3b5,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 748781637555137343, guid: 4cc5c4827241e7a45bb3cceee96dd3b5,
+        type: 3}
+      propertyPath: m_Name
+      value: PS_MaulerrMuzzle
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 4cc5c4827241e7a45bb3cceee96dd3b5, type: 3}
+--- !u!4 &1307710869052219484 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 264520514954343661, guid: 4cc5c4827241e7a45bb3cceee96dd3b5,
+    type: 3}
+  m_PrefabInstance: {fileID: 1264992640079647921}
+  m_PrefabAsset: {fileID: 0}
+--- !u!198 &8885183598234285943 stripped
+ParticleSystem:
+  m_CorrespondingSourceObject: {fileID: 7692336672675980230, guid: 4cc5c4827241e7a45bb3cceee96dd3b5,
+    type: 3}
+  m_PrefabInstance: {fileID: 1264992640079647921}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &7024991797570688833
 PrefabInstance:
   m_ObjectHideFlags: 0

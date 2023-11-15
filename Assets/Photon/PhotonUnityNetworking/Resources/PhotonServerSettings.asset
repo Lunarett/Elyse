@@ -62,6 +62,8 @@ MonoBehaviour:
   - RPC_AddDeath
   - OnPawnDestroyed
   - SetRemotePawn
+  - ApplyDamage
+  - ApplyRadialDamage
   DisableAutoOpenWizard: 1
   ShowSettings: 1
   DevRegionSetOnce: 1

@@ -10,11 +10,11 @@ public class WeaponSpawner : MonoBehaviourPunCallbacks
     [SerializeField] private Transform _fpsSpawnLocation;
     [SerializeField] private Transform _tpsSpawnLocation;
     [Space]
-    [SerializeField] private List<Weapon> weaponPrefabs;
+    [SerializeField] private List<WeaponBase> weaponPrefabs;
 
     private PhotonView _pv;
     private PlayerInputManager _input;
-    private Weapon _activeWeapon;
+    private WeaponBase _activeWeapon;
     private ElyseCharacter _character;
     private int _currentWeaponIndex = 0;
 
@@ -55,14 +55,14 @@ public class WeaponSpawner : MonoBehaviourPunCallbacks
             case FireMode.Auto:
                 if (_input.GetFireInputHeld())
                 {
-                    _activeWeapon.Fire();
+                    _activeWeapon.StartFire();
                 }
                 break;
             case FireMode.Single:
             case FireMode.Burst:
                 if (_input.GetFireInputDown())
                 {
-                    _activeWeapon.Fire();
+                    _activeWeapon.StartFire();
                 }
                 break;
         }
@@ -89,13 +89,13 @@ public void AddWeapon(int weaponIndex)
     if (PhotonNetwork.IsConnectedAndReady && PhotonNetwork.InRoom)
     {
         GameObject weaponObject = PhotonNetwork.Instantiate(
-            Path.Combine(weaponPrefabs[weaponIndex].gameObject.name),
+            Path.Combine("PhotonPrefabs", "Weapons", weaponPrefabs[weaponIndex].gameObject.name),
             targetPosition.position,
             targetPosition.rotation,
             0
         );
         
-        Weapon weapon = weaponObject.GetComponent<Weapon>();
+        WeaponBase weapon = weaponObject.GetComponent<WeaponBase>();
         weaponObject.transform.SetParent(targetPosition);
         weaponObject.transform.localPosition = weapon.WeaponOffset;
         weaponObject.transform.localRotation = Quaternion.identity;
@@ -123,7 +123,7 @@ private void ParentWeapon(int weaponViewID, int playerViewID)
         Transform targetPosition = playerPV.IsMine ? _fpsSpawnLocation : _tpsSpawnLocation;
         weaponPV.transform.SetParent(targetPosition, false);
         
-        Weapon weaponRef = weaponPV.GetComponent<Weapon>();
+        WeaponBase weaponRef = weaponPV.GetComponent<WeaponBase>();
         if (weaponRef != null)
         {
             weaponPV.transform.localPosition = weaponRef.WeaponOffset;
@@ -148,7 +148,7 @@ private void ParentWeapon(int weaponViewID, int playerViewID)
 
 
 
-    public Weapon GetActiveWeapon()
+    public WeaponBase GetActiveWeapon()
     {
         return _activeWeapon;
     }

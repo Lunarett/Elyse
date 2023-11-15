@@ -8,15 +8,21 @@ public class DeathMatchMode : GameModeBase
     [SerializeField] private float matchDuration = 120.0f;  // 2 minutes
 
     private bool isMatchStarted = false;
+    private HUD _hud;
 
     protected override void Start()
     {
         base.Start();
-        if (PhotonNetwork.IsConnectedAndReady)
-        {
-            DisablePlayerMovement();
-            StartCoroutine(PreMatchCountdown());
-        }
+        _hud = HUD.Instance;
+        if (!PhotonNetwork.IsConnectedAndReady) return;
+        _hud.SetMatchText("Match will begin in...");
+        StartCoroutine(PreMatchCountdown());
+        Invoke(nameof(LateStart), 0.1f);
+    }
+
+    private void LateStart()
+    {
+        DisablePlayerMovement();
     }
 
     private IEnumerator PreMatchCountdown()
@@ -24,8 +30,8 @@ public class DeathMatchMode : GameModeBase
         float countdown = preMatchCountdownTime;
         while (countdown > 0)
         {
-            // You can update a UI element here to show the countdown to the players
             countdown -= Time.deltaTime;
+            _hud.SetTimerText((int)countdown);
             yield return null;
         }
 
@@ -37,6 +43,13 @@ public class DeathMatchMode : GameModeBase
         isMatchStarted = true;
         EnablePlayerMovement();
         StartCoroutine(MatchTimer());
+        _hud.SetMatchText("Match has begun!");
+        Invoke(nameof(TurnOffMatchText), 3.0f);
+    }
+
+    private void TurnOffMatchText()
+    {
+        _hud.SetMatchText("");
     }
 
     private IEnumerator MatchTimer()
@@ -44,8 +57,8 @@ public class DeathMatchMode : GameModeBase
         float remainingTime = matchDuration;
         while (remainingTime > 0)
         {
-            // You can update a UI element here to show the remaining match time to the players
             remainingTime -= Time.deltaTime;
+            _hud.SetTimerText(remainingTime);
             yield return null;
         }
 
@@ -56,7 +69,8 @@ public class DeathMatchMode : GameModeBase
     {
         isMatchStarted = false;
         DisablePlayerMovement();
-        // Display scoreboard here
+        _hud.SetMatchText("Match is over!");
+        _hud.SetTimerText(0, false);
     }
 
     private void EnablePlayerMovement()
@@ -64,10 +78,9 @@ public class DeathMatchMode : GameModeBase
         foreach (var playerController in _playerControllerList)
         {
             var character = playerController.Pawn as Character;
-            if (character != null)
-            {
-                character.EnableMovement(true);
-            }
+            if (character == null) continue;
+            Debug.Log("Enable Move");
+            character.EnableMovement(true, false);
         }
     }
 
@@ -76,10 +89,9 @@ public class DeathMatchMode : GameModeBase
         foreach (var playerController in _playerControllerList)
         {
             var character = playerController.Pawn as Character;
-            if (character != null)
-            {
-                character.EnableMovement(false);
-            }
+            if (character == null) continue;
+            Debug.Log("Disable Move");
+            character.EnableMovement(false, true);
         }
     }
 

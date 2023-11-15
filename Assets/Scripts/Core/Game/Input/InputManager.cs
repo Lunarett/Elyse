@@ -5,33 +5,42 @@ using UnityEngine.InputSystem;
 [RequireComponent(typeof(PlayerInput))]
 public class InputManager : MonoBehaviour
 {
-    private PlayerInput m_playerInput;
-    private PhotonView m_photonView;
-    private bool m_isInputActive = true;
+    private PlayerInput _playerInput;
+    private PhotonView _photonView;
+    private bool _isInputActive = true;
+    
+    protected bool _enableMoveInput = true;
+    protected bool _enableMouseInput = true;
 
     private void Awake()
     {
-        m_playerInput = GetComponent<PlayerInput>();
-        m_photonView = GetComponent<PhotonView>();
+        _playerInput = GetComponent<PlayerInput>();
+        _photonView = GetComponent<PhotonView>();
     }
 
     public void SetInputActive(bool isActive)
     {
-        m_isInputActive = isActive;
+        _isInputActive = isActive;
     }
 
     protected bool CanProcessInput()
     {
-        return m_isInputActive && m_photonView.IsMine;
+        return _isInputActive && _photonView.IsMine;
     }
 
     protected bool CheckInputActionPhase(string actionName, InputActionPhase phase)
     {
-        return CanProcessInput() && m_playerInput.actions[actionName].phase == phase;
+        return _enableMoveInput && CanProcessInput() && _playerInput.actions[actionName].phase == phase;
     }
 
     protected T GetInputActionValue<T>(string actionName) where T : struct
     {
-        return m_playerInput.actions[actionName].ReadValue<T>();
+        return _playerInput.actions[actionName].ReadValue<T>();
+    }
+
+    public void EnableControl(bool isEnabled, bool ignoreMouse = false)
+    {
+        _enableMoveInput = isEnabled;
+        if (!ignoreMouse) _enableMouseInput = isEnabled;
     }
 }

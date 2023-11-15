@@ -18,7 +18,6 @@ public class ElysePlayerState : PlayerState
     [PunRPC]
     public void RPC_AddDeath()
     {
-        Debug.Log($"{_photonView.Owner.NickName} has died!");
         _numberOfDeaths++;
         UpdatePlayerProperty("Deaths", _numberOfDeaths);
     }
@@ -31,7 +30,6 @@ public class ElysePlayerState : PlayerState
     [PunRPC]
     public void RPC_AddKill()
     {
-        Debug.Log($"{_photonView.Owner.NickName} has killed!");
         _numberOfKills++;
         UpdatePlayerProperty("Kills", _numberOfKills);
     }

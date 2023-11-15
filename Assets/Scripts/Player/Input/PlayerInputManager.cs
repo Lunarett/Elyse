@@ -18,29 +18,24 @@ public class PlayerInputManager : InputManager
 
     public Vector3 GetMoveInputVector3()
     {
-        if (!CanProcessInput()) return Vector3.zero;
+        if (!_enableMoveInput && !CanProcessInput()) return Vector3.zero;
         Vector2 inputAxis = GetInputActionValue<Vector2>("Movement");
         return new Vector3(inputAxis.x, 0, inputAxis.y);
     }
 
-    public Vector2 GetMoveInput(bool forceAllowInput = false)
+    public Vector2 GetMoveInput()
     {
-        if (forceAllowInput)
-        {
-            return GetInputActionValue<Vector2>("Movement");
-        }
-
-        return CanProcessInput() ? GetInputActionValue<Vector2>("Movement") : Vector2.zero;
+        return _enableMoveInput && CanProcessInput() ? GetInputActionValue<Vector2>("Movement") : Vector2.zero;
     }
 
     public Vector2 GetMouseInput()
     {
-        return CanProcessInput() ? GetInputActionValue<Vector2>("Look") : Vector2.zero;
+        return _enableMouseInput && CanProcessInput() ? GetInputActionValue<Vector2>("Look") : Vector2.zero;
     }
 
     public bool GetJumpInputDown()
     {
-        return CanProcessInput() && (GetJumpInputHeld() && !_jumpInputWasHeld);
+        return _enableMoveInput && CanProcessInput() && (GetJumpInputHeld() && !_jumpInputWasHeld);
     }
 
 
@@ -56,12 +51,12 @@ public class PlayerInputManager : InputManager
 
     public bool GetFireInputDown()
     {
-        return CanProcessInput() && (GetFireInputHeld() && !_fireInputWasHeld);
+        return _enableMoveInput && CanProcessInput() && (GetFireInputHeld() && !_fireInputWasHeld);
     }
 
     public bool GetFireInputReleased()
     {
-        return CanProcessInput() && !GetFireInputHeld() && _fireInputWasHeld;
+        return _enableMoveInput && CanProcessInput() && !GetFireInputHeld() && _fireInputWasHeld;
     }
 
     public bool GetFireInputHeld()
