@@ -1,3 +1,4 @@
+using System.IO;
 using UnityEngine;
 using Photon.Pun;
 
@@ -18,7 +19,7 @@ public class ProjectileWeapon : WeaponBase
     [PunRPC]
     private void RPC_Fire(Vector3 position, Vector3 direction)
     {
-        GameObject projectileObject = PhotonNetwork.Instantiate(_projectilePrefab.name, position, Quaternion.LookRotation(direction));
+        GameObject projectileObject = PhotonNetwork.Instantiate(Path.Combine("PhotonPrefabs", "Projectiles", _projectilePrefab.name), position, Quaternion.LookRotation(direction));
         ProjectileBase projectileBaseScript = projectileObject.GetComponent<ProjectileBase>();
 
         projectileBaseScript.Damage = _damage;

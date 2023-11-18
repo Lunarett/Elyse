@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 using Photon.Pun;
 
@@ -5,34 +6,45 @@ public class PointDamageProjectile : ProjectileBase
 {
     protected override void HandleImpact(Vector3 position, Vector3 normal, Collider collider)
     {
-        PhotonView targetView = collider.gameObject.GetPhotonView();
+        BodyDamageMultiplier bodyDamageMultiplier = collider.GetComponent<BodyDamageMultiplier>();
 
-        if (targetView != null)
+        if (bodyDamageMultiplier != null)
         {
-            photonView.RPC(nameof(ApplyDamage), RpcTarget.All, targetView.ViewID, DamageInfo);
+            photonView.RPC(nameof(RPC_ApplyDamage), RpcTarget.All, collider.gameObject.name, Damage, DamageInfo);
         }
-        else
-        {
-            SpawnImpactEffect(position, normal);
-            Destroy(gameObject);
-        }
+
+        photonView.RPC(nameof(RPC_SpawnImpactEffects), RpcTarget.All, position, normal);
+    }
+    
+    [PunRPC]
+    private void RPC_SpawnImpactEffects(Vector3 position, Vector3 normal)
+    {
+        SpawnImpactEffect(position, normal);
+        SafeDestroyProjectile();
     }
 
+
     [PunRPC]
-    private void ApplyDamage(int viewID, DamageCauserInfo damageInfo)
+    private void RPC_ApplyDamage(string partName, float damage, DamageCauserInfo damageInfo)
     {
-        SpawnImpactEffect(transform.position, Vector3.zero);
-        
-        PhotonView targetView = PhotonView.Find(viewID);
-        if (targetView != null)
+        GameObject part = GameObject.Find(partName);
+        if (part != null)
         {
-            BodyDamageMultiplier bodyDamageMultiplier = targetView.GetComponent<BodyDamageMultiplier>();
+            BodyDamageMultiplier bodyDamageMultiplier = part.GetComponent<BodyDamageMultiplier>();
             if (bodyDamageMultiplier != null)
             {
-                bodyDamageMultiplier.TakeDamage(Damage, damageInfo);
+                bodyDamageMultiplier.TakeDamage(damage, damageInfo);
             }
         }
+        
+        SafeDestroyProjectile();
+    }
 
-        Destroy(gameObject);
+    private void SafeDestroyProjectile()
+    {
+        if (photonView.IsMine || PhotonNetwork.IsMasterClient)
+        {
+            PhotonNetwork.Destroy(gameObject);
+        }
     }
 }

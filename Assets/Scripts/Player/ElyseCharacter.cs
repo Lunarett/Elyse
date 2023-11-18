@@ -1,3 +1,4 @@
+using System;
 using Photon.Realtime;
 using Pulsar.Debug;
 using UnityEngine;
@@ -20,6 +21,8 @@ public class ElyseCharacter : Character
     private PlayerHealth _playerHealth;
     private WeaponAnimation _weaponAnimation;
     private ElyseController _elyseController;
+    private HUD _hud;
+    private bool _isPaused;
 
     public bool IsDead { get; set; }
     public PlayerInputManager PlayerInputManager => _playerInputManager;
@@ -38,6 +41,7 @@ public class ElyseCharacter : Character
         base.Awake();
         
         _playerInputManager = _inputManager as PlayerInputManager;
+        _hud = HUD.Instance;
         
         // Find all components in object
         _weaponAnimation = GetComponentInChildren<WeaponAnimation>();
@@ -68,6 +72,17 @@ public class ElyseCharacter : Character
         _rig.weight = 1;
     }
 
+    private void Update()
+    {
+        if (_playerInputManager.GetPauseInputDown())
+        {
+            _isPaused = !_isPaused;
+            ShowMouseCursor(_isPaused);
+            _inputManager.EnableControl(false);
+            _hud.DisplayPauseMenu(_isPaused);
+        }
+    }
+
     private void LateUpdate()
     {
         UpdateCharacterAnimation();
@@ -75,7 +90,7 @@ public class ElyseCharacter : Character
 
     private void UpdateCharacterAnimation()
     {
-        if (IsDead) return; // Don't update if we are dead
+        if (IsDead) return;
         
         Vector3 velocity = _playerMovement.CharacterVelocity;
         float verticalValue = _playerInputManager.GetMoveInput().y != 0

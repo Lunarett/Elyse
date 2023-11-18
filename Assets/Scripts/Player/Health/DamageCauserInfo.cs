@@ -1,4 +1,5 @@
 using System.IO;
+using ExitGames.Client.Photon;
 using Photon.Pun;
 using Photon.Realtime;
 
@@ -37,5 +38,24 @@ public struct DamageCauserInfo : IPhotonSerializable
                 HeadShot = binaryReader.ReadBoolean();
             }
         }
+    }
+    
+    public static short Serialize(StreamBuffer outStream, object customObject)
+    {
+        DamageCauserInfo damageCauserInfo = (DamageCauserInfo)customObject;
+        byte[] data = damageCauserInfo.Serialize();
+        
+        outStream.Write(data, 0, data.Length);
+        return (short)data.Length;
+    }
+
+    public static object Deserialize(StreamBuffer inStream, short length)
+    {
+        byte[] data = new byte[length];
+        inStream.Read(data, 0, length);
+        
+        DamageCauserInfo damageCauserInfo = new DamageCauserInfo();
+        damageCauserInfo.Deserialize(data);
+        return damageCauserInfo;
     }
 }

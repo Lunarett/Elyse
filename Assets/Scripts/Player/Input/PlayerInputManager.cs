@@ -7,6 +7,7 @@ public class PlayerInputManager : InputManager
     private bool _jumpInputWasHeld;
     private bool _viewInputWasHeld;
     private bool _crouchInputWasHeld;
+    private bool _pauseInputWasHeld;
 
     private void LateUpdate()
     {
@@ -14,6 +15,7 @@ public class PlayerInputManager : InputManager
         _jumpInputWasHeld = GetJumpInputHeld();
         _viewInputWasHeld = GetViewInputHeld();
         _crouchInputWasHeld = GetJumpInputHeld();
+        _pauseInputWasHeld = GetPauseInputHeld();
     }
 
     public Vector3 GetMoveInputVector3()
@@ -41,12 +43,12 @@ public class PlayerInputManager : InputManager
 
     public bool GetJumpInputHeld()
     {
-        return CheckInputActionPhase("Jump", InputActionPhase.Performed);
+        return _enableMoveInput && CheckInputActionPhase("Jump", InputActionPhase.Performed);
     }
 
     public bool GetJumpInputReleased()
     {
-        return CheckInputActionPhase("Jump", InputActionPhase.Canceled);
+        return _enableMoveInput && CheckInputActionPhase("Jump", InputActionPhase.Canceled);
     }
 
     public bool GetFireInputDown()
@@ -61,47 +63,57 @@ public class PlayerInputManager : InputManager
 
     public bool GetFireInputHeld()
     {
-        return CheckInputActionPhase("Fire", InputActionPhase.Performed);
+        return _enableMoveInput && CheckInputActionPhase("Fire", InputActionPhase.Performed);
     }
 
     public bool GetAimInputHeld()
     {
-        return CheckInputActionPhase("Aim", InputActionPhase.Performed);
+        return _enableMoveInput && CheckInputActionPhase("Aim", InputActionPhase.Performed);
     }
 
     public bool GetSprintInputHeld()
     {
-        return CheckInputActionPhase("Sprint", InputActionPhase.Performed);
+        return _enableMoveInput && CheckInputActionPhase("Sprint", InputActionPhase.Performed);
     }
 
     public bool GetCrouchInputDown()
     {
-        return CanProcessInput() && (GetCrouchInputHeld() && !_crouchInputWasHeld);
+        return _enableMoveInput && CanProcessInput() && (GetCrouchInputHeld() && !_crouchInputWasHeld);
     }
 
     public bool GetCrouchInputHeld()
     {
-        return CheckInputActionPhase("Crouch", InputActionPhase.Performed);
+        return _enableMoveInput && CheckInputActionPhase("Crouch", InputActionPhase.Performed);
     }
 
     public bool GetCrouchInputReleased()
     {
-        return CheckInputActionPhase("Crouch", InputActionPhase.Canceled);
+        return _enableMoveInput && CheckInputActionPhase("Crouch", InputActionPhase.Canceled);
     }
 
     public bool GetViewInputDown()
     {
-        return CanProcessInput() && (GetViewInputHeld() && !_viewInputWasHeld);
+        return _enableMoveInput && CanProcessInput() && (GetViewInputHeld() && !_viewInputWasHeld);
     }
 
     public bool GetViewInputHeld()
     {
-        return CheckInputActionPhase("View", InputActionPhase.Performed);
+        return _enableMoveInput && CheckInputActionPhase("View", InputActionPhase.Performed);
     }
 
     public bool GetFlyInputHeld()
     {
-        return CheckInputActionPhase("Fly", InputActionPhase.Performed);
+        return _enableMoveInput && CheckInputActionPhase("Fly", InputActionPhase.Performed);
+    }
+    
+    private bool GetPauseInputHeld()
+    {
+        return CheckInputActionPhase("Pause", InputActionPhase.Performed);
+    }
+    
+    public bool GetPauseInputDown()
+    {
+        return CanProcessInput() && (GetPauseInputHeld() && !_pauseInputWasHeld);
     }
 
     public int GetSwitchWeaponInput()

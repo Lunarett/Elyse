@@ -34,11 +34,8 @@ public abstract class ProjectileBase : MonoBehaviourPun
 
         if (Physics.Raycast(ray, out hit, distanceToMove, HitLayers))
         {
-            if (photonView.IsMine)
-            {
-                Debug.Log("Base Impact");
-                HandleImpact(hit.point, hit.normal, hit.collider);
-            }
+            if (!photonView.IsMine) return;
+            HandleImpact(hit.point, hit.normal, hit.collider);
         }
         else
         {

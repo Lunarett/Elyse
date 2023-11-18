@@ -7,6 +7,10 @@ using UnityEngine.UI;
 
 public class HUD : MonoBehaviour
 {
+    [Header("Panel Manager")]
+    [SerializeField] private int _pauseMenuPanelIndex = 1;
+    [SerializeField] private int _heighScoreIndex = 2;
+    
     [Header("Match Text")]
     [SerializeField] private TMP_Text _matchText;
     [SerializeField] private TMP_Text _timerText;
@@ -21,11 +25,12 @@ public class HUD : MonoBehaviour
     [SerializeField] private Image _damageScreen;
 
     [Header("Game Feed")]
+    [SerializeField] private GameFeedHandler _gameFeedHandler;
     [SerializeField] private float _feedLifetime = 5.0f;
     [SerializeField] private int _maxFeedCount = 5;
     
     private PhotonView _photonView;
-    private GameFeedHandler _gameFeedHandler;
+    private PanelManager _panelManager;
     
     public static HUD Instance { get; private set; }
 
@@ -43,6 +48,7 @@ public class HUD : MonoBehaviour
 
         _photonView = GetComponent<PhotonView>();
         _gameFeedHandler = GetComponentInChildren<GameFeedHandler>();
+        _panelManager = GetComponent<PanelManager>();
     }
 
     public void SetHeath(float current, float max)
@@ -102,6 +108,13 @@ public class HUD : MonoBehaviour
 
     public void BroadcastGameFeed(string causerName, string affectedName)
     {
+        if(_gameFeedHandler == null) Debug.LogError("GameFeed is null");
         _gameFeedHandler.AddMessage(causerName, affectedName, _maxFeedCount, _feedLifetime);
+    }
+
+    public void DisplayPauseMenu(bool show = true)
+    {
+        Debug.Log("Pause");
+        _panelManager.ShowPanel(show ? _pauseMenuPanelIndex : 0);
     }
 }

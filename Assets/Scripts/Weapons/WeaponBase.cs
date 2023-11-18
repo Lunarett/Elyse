@@ -1,4 +1,5 @@
 using System.Collections;
+using ExitGames.Client.Photon;
 using UnityEngine;
 using Photon.Pun;
 using Pulsar.Debug;
@@ -49,6 +50,13 @@ public abstract class WeaponBase : MonoBehaviour
     {
         _photonView = GetComponent<PhotonView>();
         _info = new DamageCauserInfo(_photonView.Owner);
+
+        PhotonPeer.RegisterType(
+            typeof(DamageCauserInfo), 
+            (byte)'D', 
+            DamageCauserInfo.Serialize, 
+            DamageCauserInfo.Deserialize
+        );
     }
 
     protected virtual void Start()

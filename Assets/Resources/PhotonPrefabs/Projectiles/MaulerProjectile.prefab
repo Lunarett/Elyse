@@ -55,7 +55,7 @@ MonoBehaviour:
   HitLayers:
     serializedVersion: 2
     m_Bits: 129
-  ImpactEffectPrefab: {fileID: 198000010585806678, guid: 9d88080470b9cd545afd3fcb1e4e77a1,
+  ImpactEffectPrefab: {fileID: 744084136304213716, guid: 6138bf7d926d962428ab5814c44daa0d,
     type: 3}
 --- !u!33 &5791652140936233541
 MeshFilter:

@@ -1,6 +1,7 @@
 using System.Collections;
 using UnityEngine;
 using Photon.Pun;
+using Photon.Realtime;
 
 public class DeathMatchMode : GameModeBase
 {
@@ -95,4 +96,35 @@ public class DeathMatchMode : GameModeBase
         }
     }
 
+    public void LeaveMatch()
+    {
+        PhotonNetwork.LeaveRoom();
+    }
+
+    public override void OnLeftRoom()
+    {
+        StartDisconnect();
+    }
+
+    private void StartDisconnect()
+    {
+        if(PhotonNetwork.IsConnected)
+        {
+            PhotonNetwork.Disconnect();
+        }
+        else
+        {
+            OnDisconnectedFromPhoton();
+        }
+    }
+
+    public override void OnDisconnected(DisconnectCause cause)
+    {
+        OnDisconnectedFromPhoton();
+    }
+
+    private void OnDisconnectedFromPhoton()
+    {
+        PhotonNetwork.LoadLevel(0);
+    }
 }
