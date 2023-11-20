@@ -42,23 +42,27 @@ public class RaycastWeapon : WeaponBase
             {
                 bodyDamageMultiplier.TakeDamage(_damage, _info);
             }
+            
+            PlayImpactEffect(hitInfo.point);
         }
-
+        
         Vector3 lineEndPoint = hitInfo.point == Vector3.zero ? position + direction * _raycastRange : hitInfo.point;
         PlayFireEffect(position, lineEndPoint);
     }
     
     private void PlayFireEffect(Vector3 start, Vector3 end)
     {
-        _impactEffect = Instantiate(_impactEffectPrefab, end, quaternion.identity);
-        
         _muzzleEffect.Play();
-        _impactEffect.Play();
-
         _lr.SetPosition(0, start);
         _lr.SetPosition(1, end);
         _lr.enabled = true;
         Invoke(nameof(HideLine), _lineRendererDuration);
+    }
+
+    private void PlayImpactEffect(Vector3 pos)
+    {
+        _impactEffect = Instantiate(_impactEffectPrefab, pos, quaternion.identity);
+        _impactEffect.Play();
         Invoke(nameof(DestroyImpactParticle), 0.5f);
     }
 

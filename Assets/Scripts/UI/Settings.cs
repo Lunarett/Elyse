@@ -166,4 +166,35 @@ public class Settings : MonoBehaviour
                 break;
         }
     }
+    
+    public void ApplySettings()
+    {
+        // Apply resolution
+        string selectedResolution = _resolutionDropdown.options[_resolutionDropdown.value].text;
+        string[] resolutionParts = selectedResolution.Split('x');
+        int width = int.Parse(resolutionParts[0]);
+        int height = int.Parse(resolutionParts[1]);
+        Screen.SetResolution(width, height, Screen.fullScreenMode);
+
+        // Apply screen mode
+        FullScreenMode selectedMode = (FullScreenMode)_screenModeDropdown.value;
+        Screen.fullScreenMode = selectedMode;
+
+        // Apply quality
+        int selectedQuality = _qualityDropdown.value;
+        QualitySettings.SetQualityLevel(selectedQuality, true);
+
+        // Apply VSync
+        QualitySettings.vSyncCount = _vsyncDropdown.value;
+
+        // Apply anti-aliasing
+        int selectedAA = _antiAliasingDropdown.value == 0 ? 0 : (int)Mathf.Pow(2, _antiAliasingDropdown.value);
+        QualitySettings.antiAliasing = selectedAA;
+
+        // Apply shadow quality
+        ShadowQuality selectedShadowQuality = (ShadowQuality)_shadowQualityDropdown.value;
+        QualitySettings.shadows = selectedShadowQuality;
+
+        Debug.Log("Settings Applied");
+    }
 }

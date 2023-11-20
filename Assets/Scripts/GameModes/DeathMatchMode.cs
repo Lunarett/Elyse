@@ -2,11 +2,12 @@ using System.Collections;
 using UnityEngine;
 using Photon.Pun;
 using Photon.Realtime;
+using Pulsar.Debug;
 
 public class DeathMatchMode : GameModeBase
 {
     [SerializeField] private float preMatchCountdownTime = 3.0f;
-    [SerializeField] private float matchDuration = 120.0f;  // 2 minutes
+    [SerializeField] private float matchDuration = 120.0f; // 2 minutes
 
     private bool isMatchStarted = false;
     private HUD _hud;
@@ -32,7 +33,7 @@ public class DeathMatchMode : GameModeBase
         while (countdown > 0)
         {
             countdown -= Time.deltaTime;
-            _hud.SetTimerText((int)countdown);
+            _hud.SetTimerText((int) countdown);
             yield return null;
         }
 
@@ -72,7 +73,64 @@ public class DeathMatchMode : GameModeBase
         DisablePlayerMovement();
         _hud.SetMatchText("Match is over!");
         _hud.SetTimerText(0, false);
+        Invoke(nameof(DisplayScoreBoard), 3.0f);
     }
+
+    private void DisplayScoreBoard()
+    {
+        _hud.DisplayScoreBoard();
+
+        foreach (var player in PhotonNetwork.PlayerList)
+        {
+            if (player.CustomProperties.TryGetValue("Kills", out object kills) &&
+                player.CustomProperties.TryGetValue("Deaths", out object deaths))
+            {
+                _hud.AddPlayerScore(player.NickName, (int) kills, (int) deaths);
+            }
+        }
+
+        StartCoroutine(ResetGame());
+    }
+
+    private IEnumerator ResetGame()
+    {
+        yield return new WaitForSeconds(5.0f);
+        
+        isMatchStarted = false;
+    
+        // Destroy only the pawns
+        foreach (var controller in _playerControllerList)
+        {
+            if (controller != null)
+            {
+                controller.DestroyPawn();
+            }
+        }
+
+        // Optionally, wait for a frame to ensure all pawns are destroyed
+        yield return null;
+
+        // Recreate the pawns
+        foreach (var controller in _playerControllerList)
+        {
+            if (controller != null)
+            {
+                ElyseController elyseController = controller as ElyseController;
+                if (elyseController != null)
+                {
+                    elyseController.ResetPlayerState();
+                    elyseController.CreatePawn();
+                }
+            }
+        }
+
+        // Reset the HUD and start the pre-match countdown
+        _hud.ResetHUD();
+        _hud.SetMatchText("Match will begin in...");
+        StartCoroutine(PreMatchCountdown());
+        Invoke(nameof(LateStart), 0.1f);
+    }
+
 
     private void EnablePlayerMovement()
     {
@@ -108,7 +166,7 @@ public class DeathMatchMode : GameModeBase
 
     private void StartDisconnect()
     {
-        if(PhotonNetwork.IsConnected)
+        if (PhotonNetwork.IsConnected)
         {
             PhotonNetwork.Disconnect();
         }

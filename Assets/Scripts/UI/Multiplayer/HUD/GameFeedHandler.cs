@@ -1,4 +1,3 @@
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -24,6 +23,16 @@ public class GameFeedHandler : MonoBehaviour
         _messageQueue.Enqueue(newMessage);
 
         StartCoroutine(RemoveMessageAfterTime(newMessage, feedLifetime));
+    }
+
+    public void ClearAllMessages()
+    {
+        Debug.Log(_messageQueue.Count);
+        while (_messageQueue.Count > 0)
+        {
+            var message = _messageQueue.Dequeue();
+            Destroy(message.gameObject);
+        }
     }
 
     private IEnumerator RemoveMessageAfterTime(GameFeedElement message, float delay)

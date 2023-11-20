@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using Photon.Pun;
+using Pulsar.Debug;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -25,12 +26,18 @@ public class HUD : MonoBehaviour
     [SerializeField] private Image _damageScreen;
 
     [Header("Game Feed")]
-    [SerializeField] private GameFeedHandler _gameFeedHandler;
     [SerializeField] private float _feedLifetime = 5.0f;
     [SerializeField] private int _maxFeedCount = 5;
+
+    [Header("Score Board")]
+    [SerializeField] private PlayerScoreElement _playerScoreELement;
+    [SerializeField] private Transform _scoreBoardContent;
     
     private PhotonView _photonView;
+    private GameFeedHandler _gameFeedHandler;
     private PanelManager _panelManager;
+
+    public event Action OnGameResume;
     
     public static HUD Instance { get; private set; }
 
@@ -47,8 +54,11 @@ public class HUD : MonoBehaviour
         }
 
         _photonView = GetComponent<PhotonView>();
-        _gameFeedHandler = GetComponentInChildren<GameFeedHandler>();
+        DebugUtils.CheckForNull<PhotonView>(_photonView);
+        _gameFeedHandler = GetComponent<GameFeedHandler>();
+        DebugUtils.CheckForNull<GameFeedHandler>(_gameFeedHandler);
         _panelManager = GetComponent<PanelManager>();
+        DebugUtils.CheckForNull<PanelManager>(_panelManager);
     }
 
     public void SetHeath(float current, float max)
@@ -108,13 +118,46 @@ public class HUD : MonoBehaviour
 
     public void BroadcastGameFeed(string causerName, string affectedName)
     {
-        if(_gameFeedHandler == null) Debug.LogError("GameFeed is null");
+        if(_gameFeedHandler == null) _gameFeedHandler = GetComponent<GameFeedHandler>();
         _gameFeedHandler.AddMessage(causerName, affectedName, _maxFeedCount, _feedLifetime);
     }
 
     public void DisplayPauseMenu(bool show = true)
     {
-        Debug.Log("Pause");
         _panelManager.ShowPanel(show ? _pauseMenuPanelIndex : 0);
+    }
+
+    public void ResumeGame()
+    {
+        _panelManager.ShowPanel(0);
+        OnGameResume?.Invoke();
+    }
+
+    public void DisplayScoreBoard()
+    {
+        _panelManager.ShowPanel(_heighScoreIndex);
+    }
+
+    public void AddPlayerScore(string name, int kills, int deaths)
+    {
+        var element = Instantiate(_playerScoreELement, _scoreBoardContent);
+        element.SetPlayerName(name);
+        element.SetKills(kills);
+        element.SetDeaths(deaths);
+    }
+
+    public void ResetHUD()
+    {
+        DestroyAllChildren(_scoreBoardContent.gameObject);
+        _gameFeedHandler.ClearAllMessages();
+        _panelManager.ShowPanel(0);
+    }
+    
+    void DestroyAllChildren(GameObject parentObject)
+    {
+        foreach (Transform child in parentObject.transform)
+        {
+            Destroy(child.gameObject);
+        }
     }
 }

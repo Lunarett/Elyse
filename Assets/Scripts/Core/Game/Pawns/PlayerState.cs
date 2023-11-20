@@ -12,12 +12,12 @@ public class PlayerState : MonoBehaviour
         _photonView = GetComponent<PhotonView>();
     }
 
-    protected void UpdatePlayerProperty(string propertyName, object propertyValue)
+    protected void UpdatePlayerProperty(Photon.Realtime.Player player, string propertyName, object propertyValue)
     {
         Hashtable hash = new Hashtable
         {
             { propertyName, propertyValue }
         };
-        PhotonNetwork.LocalPlayer.SetCustomProperties(hash);
+        player.SetCustomProperties(hash);
     }
 }

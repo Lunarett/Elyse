@@ -1,5 +1,4 @@
-using System;
-using Photon.Realtime;
+using Photon.Pun;
 using Pulsar.Debug;
 using UnityEngine;
 using Pulsar.Utils;
@@ -63,10 +62,13 @@ public class ElyseCharacter : Character
             _fpsView.SetActive(false);
             Utils.SetLayerRecursively(gameObject, LayerMask.NameToLayer("Remote Player"));
         }
+
+        _hud.OnGameResume += UnpauseGame;
     }
 
     private void Start()
     {
+        _hud.SetDamageScreenAlpha(0);
         ShowMouseCursor(false);
         EnableView(_photonView.IsMine);
         _rig.weight = 1;
@@ -76,10 +78,7 @@ public class ElyseCharacter : Character
     {
         if (_playerInputManager.GetPauseInputDown())
         {
-            _isPaused = !_isPaused;
-            ShowMouseCursor(_isPaused);
-            _inputManager.EnableControl(false);
-            _hud.DisplayPauseMenu(_isPaused);
+            PauseGame();
         }
     }
 
@@ -132,6 +131,27 @@ public class ElyseCharacter : Character
         EnableMovement(false, false);
         SetViewMode(EViewMode.TPS);
         _tpsAnimator.SetBool(Dead, true);
-        _elyseController.Die();
+        _elyseController.Die();   
+    }
+
+    private void UnpauseGame()
+    {
+        EnableMovement(true, false);
+        ShowMouseCursor(false);
+    }
+
+    private void PauseGame()
+    {
+        _hud.DisplayPauseMenu();
+        EnableMovement(false, false);
+        ShowMouseCursor(true);
+    }
+    
+    private void OnDestroy()
+    {
+        if (_playerHealth != null)
+        {
+            _playerHealth.OnPlayerDied -= OnPlayerDied;
+        }
     }
 }

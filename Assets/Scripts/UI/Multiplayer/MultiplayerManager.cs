@@ -11,20 +11,21 @@ public class MultiplayerManager : MonoBehaviourPunCallbacks
     [SerializeField] private TMP_Text _connectionStatusText;
     [SerializeField] private int _levelIndex = 1;
 
-    [Header("Room Properties")] [SerializeField]
-    private RoomPanel _roomPanel;
-
-    [Space] [SerializeField] private int _roomPanelIndex;
+    [Header("Room Properties")]
+    [SerializeField] private RoomPanel _roomPanel;
+    [Space]
+    [SerializeField] private int _roomPanelIndex;
     [SerializeField] private int _returnPanelIndex;
 
-    [Header("Room List Properties")] [SerializeField]
-    private Transform _roomListParent; // The parent object for all room list items
-
+    [Header("Room List Properties")]
+    [SerializeField] private Transform _roomListParent;
     [SerializeField] private GameObject _roomListItemPrefab;
 
     private PanelManager _panelManager;
     private List<RoomInfo> _availableRooms = new List<RoomInfo>();
     private TypedLobby sqlLobby = new TypedLobby("mySqlLobby", LobbyType.SqlLobby);
+
+    public TypedLobby SqlLobby => sqlLobby;
 
     private const int maxConnectionAttempts = 5;
     private int currentConnectionAttempts = 0;
@@ -76,11 +77,12 @@ public class MultiplayerManager : MonoBehaviourPunCallbacks
         _connectionStatusText.text = "Joining Lobby...";
         currentConnectionAttempts = 0;
         PhotonNetwork.AutomaticallySyncScene = true;
-        PhotonNetwork.JoinLobby();
+        PhotonNetwork.JoinLobby(sqlLobby);
     }
 
     public override void OnJoinedLobby()
     {
+        Debug.Log("Joined Lobby: " + PhotonNetwork.CurrentLobby.Name + ", Type: " + PhotonNetwork.CurrentLobby.Type);
         _panelManager.ShowPanel(1);
         DisplayAvailableRooms();
     }
@@ -100,10 +102,21 @@ public class MultiplayerManager : MonoBehaviourPunCallbacks
     public void CreateRoom(string roomName, byte maxPlayers)
     {
         if (PhotonNetwork.InRoom) PhotonNetwork.LeaveRoom();
+
         RoomOptions roomOptions = new RoomOptions();
         roomOptions.MaxPlayers = maxPlayers;
-        PhotonNetwork.CreateRoom(roomName, roomOptions, null);
+
+        // Set custom room properties here
+        ExitGames.Client.Photon.Hashtable customProperties = new ExitGames.Client.Photon.Hashtable();
+        customProperties.Add("C0", "desert"); // The key for the custom property
+        roomOptions.CustomRoomProperties = customProperties;
+
+        // Define which properties are visible in the lobby
+        roomOptions.CustomRoomPropertiesForLobby = new string[] { "C0" };
+
+        PhotonNetwork.CreateRoom(roomName, roomOptions, sqlLobby);
     }
+
 
     public void LeaveRoom()
     {
@@ -135,6 +148,14 @@ public class MultiplayerManager : MonoBehaviourPunCallbacks
 
     public void StartMatch()
     {
-        PhotonNetwork.LoadLevel(_levelIndex);
+        if (PhotonNetwork.IsMasterClient)
+        {
+            Debug.Log("Master Client is loading the level.");
+            PhotonNetwork.LoadLevel(1);
+        }
+        else
+        {
+            Debug.Log("Waiting for Master Client to load the level.");
+        }
     }
 }

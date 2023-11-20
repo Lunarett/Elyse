@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -20,18 +21,23 @@ public class WeaponSway : MonoBehaviour
 
     [Header("Position")]
     [SerializeField] private float positionSwayMultiplier = -1f;
-    
 
+    private ElyseCharacter _character;
     private Vector3 initialPosition;
     private Quaternion initialRotation;
     private Vector2 sway;
     private Vector2 previousMouseDelta;
-    private float smoothingFactor = 1f; 
+    private float smoothingFactor = 1f;
 
     private void Reset()
     {
         Keyframe[] ks = new Keyframe[] { new Keyframe(0, 0, 0, 2), new Keyframe(1, 1) };
         swayCurve = new AnimationCurve(ks);
+    }
+
+    private void Awake()
+    {
+        _character = transform.root.GetComponent<ElyseCharacter>();
     }
 
     private void Start()
@@ -44,7 +50,7 @@ public class WeaponSway : MonoBehaviour
 
     private void Update()
     {
-        Vector2 currentMouseDelta = InputSystem.GetDevice<Mouse>().delta.ReadValue();
+        Vector2 currentMouseDelta = _character.PlayerInputManager.GetMouseInput();
         Vector2 smoothedMouseDelta = Vector2.Lerp(previousMouseDelta, currentMouseDelta, smoothingFactor);
         
         float mouseX = (smoothedMouseDelta.x / mouseSmoother) * swayAmount;  // Dividing by 10 as an example

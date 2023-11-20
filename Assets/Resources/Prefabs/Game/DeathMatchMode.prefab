@@ -48,7 +48,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _playerController: {fileID: -3474249646836248909, guid: 1d8ddf09b8d46bc47adbad7bd2261903,
     type: 3}
-  preMatchCountdownTime: 3
+  preMatchCountdownTime: 5
   matchDuration: 120
 --- !u!114 &5823806229379229262
 MonoBehaviour:
