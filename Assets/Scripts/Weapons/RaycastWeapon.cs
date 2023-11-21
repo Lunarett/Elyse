@@ -22,6 +22,7 @@ public class RaycastWeapon : WeaponBase
     {
         base.Start();
         _lr = Instantiate(_laserPrefab, _fireTransform);
+        HideLine();
     }
     
     protected override void Fire(Vector3 position, Vector3 direction)
