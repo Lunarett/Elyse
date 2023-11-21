@@ -669,12 +669,12 @@ MonoBehaviour:
   m_groundCheckLayers:
     serializedVersion: 2
     m_Bits: 1
-  m_movementSpeed: 15
-  m_speedInAir: 20
-  m_airAccelerationSpeed: 30
+  m_movementSpeed: 10
+  m_speedInAir: 15
+  m_airAccelerationSpeed: 25
   m_movementSharpness: 10
-  m_jumpForce: 16
-  m_downForce: 20
+  m_jumpForce: 8
+  m_downForce: 23
   m_crouchMultiplier: 0.5
   m_sprintMultiplier: 1.8
   m_cameraHeightRatio: 0.6
@@ -698,7 +698,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   jetpackForce: 25
-  powerConsumptionRate: 10
+  powerConsumptionRate: 15
 --- !u!114 &983760228339771482
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -712,7 +712,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _maxPower: 100
-  _rechargeRate: 5
+  _rechargeRate: 8
   _rechargeDelay: 1
 --- !u!114 &516533362349361305
 MonoBehaviour:

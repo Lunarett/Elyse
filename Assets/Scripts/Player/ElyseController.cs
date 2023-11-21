@@ -20,6 +20,12 @@ public class ElyseController : PlayerController
     protected override void Start()
     {
         base.Start();
+
+        if (!_photonView.Owner.CustomProperties.TryGetValue("Kills", out object kills) &&
+            !_photonView.Owner.CustomProperties.TryGetValue("Deaths", out object deaths))
+        {
+            _elysePlayerState.ResetStats();
+        }
     }
 
     public void Die()

@@ -85,7 +85,12 @@ public class DeathMatchMode : GameModeBase
             if (player.CustomProperties.TryGetValue("Kills", out object kills) &&
                 player.CustomProperties.TryGetValue("Deaths", out object deaths))
             {
+                Debug.Log("Added");
                 _hud.AddPlayerScore(player.NickName, (int) kills, (int) deaths);
+            }
+            else
+            {
+                Debug.LogError("Found none");
             }
         }
 

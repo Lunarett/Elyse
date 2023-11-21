@@ -127,6 +127,7 @@ public class ElyseCharacter : Character
     private void OnPlayerDied(DamageCauserInfo damageCauserInfo)
     {
         if (!_photonView.IsMine) return;
+        _hud.SetDamageScreenAlpha(0.5f);
         _rig.weight = 0;
         EnableMovement(false, false);
         SetViewMode(EViewMode.TPS);

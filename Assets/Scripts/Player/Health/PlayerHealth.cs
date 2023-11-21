@@ -55,12 +55,6 @@ public class PlayerHealth : BaseHealth
         // Trigger the OnPlayerDied event
         OnPlayerDied?.Invoke(damageCauserInfo);
 
-        // Check if this is the local player
-        if (photonView.IsMine)
-        {
-            _hud.SetDamageScreenAlpha(0.5f);
-        }
-
         if (PhotonNetwork.LocalPlayer == damageCauserInfo.CauserOwner)
         {
             var attackerElysePlayerState = GetComponent<ElysePlayerState>();
