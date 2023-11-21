@@ -123,8 +123,7 @@ MonoBehaviour:
   _burstShotCount: 0
   _fireRecoilForce: 4
   _fireTransform: {fileID: 8561565236990601452}
-  _muzzleEffect: {fileID: 7692336672675980230, guid: 471c1b343e512f945b5a6c18bef67216,
-    type: 3}
+  _muzzleEffect: {fileID: 2098190134485057311}
   _projectilePrefab: {fileID: 7008870097288492170, guid: 568d63239647f4046b17ed04cb9b3ede,
     type: 3}
   _projectileSpeed: 100
@@ -224,6 +223,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 2300000, guid: fccd8e251d698f7449ed9aca4bacc50e, type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: 812b14b156207c14c9609451642f667a, type: 2}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: fccd8e251d698f7449ed9aca4bacc50e, type: 3}
 --- !u!4 &3555694955548213802 stripped
@@ -311,6 +314,12 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 471c1b343e512f945b5a6c18bef67216, type: 3}
+--- !u!198 &2098190134485057311 stripped
+ParticleSystem:
+  m_CorrespondingSourceObject: {fileID: 7692336672675980230, guid: 471c1b343e512f945b5a6c18bef67216,
+    type: 3}
+  m_PrefabInstance: {fileID: 8637604731289214169}
+  m_PrefabAsset: {fileID: 0}
 --- !u!4 &8391661571273795636 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 264520514954343661, guid: 471c1b343e512f945b5a6c18bef67216,

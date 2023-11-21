@@ -17,6 +17,17 @@ public class ElyseController : PlayerController
         DebugUtils.CheckForNull<ElysePlayerState>(_elysePlayerState);
     }
 
+    protected override void Start()
+    {
+        base.Start();
+
+        if (!_photonView.Owner.CustomProperties.TryGetValue("Kills", out object kills) &&
+            !_photonView.Owner.CustomProperties.TryGetValue("Deaths", out object deaths))
+        {
+            _elysePlayerState.ResetStats();
+        }
+    }
+
     public void Die()
     {
         if (DebugUtils.CheckForNull<Pawn>(_pawn)) return;
@@ -29,5 +40,10 @@ public class ElyseController : PlayerController
         yield return new WaitForSeconds(_respawnTimeSeconds);
         DestroyPawn();
         CreatePawn();
+    }
+
+    public void ResetPlayerState()
+    {
+        _elysePlayerState.ResetStats();
     }
 }

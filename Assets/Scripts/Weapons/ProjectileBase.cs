@@ -1,7 +1,7 @@
 using UnityEngine;
 using Photon.Pun;
 
-public abstract class ProjectileBase : MonoBehaviourPun
+public class ProjectileBase : MonoBehaviourPun
 {
     public float Damage = 10.0f;
     public float Speed = 100f;
@@ -36,8 +36,8 @@ public abstract class ProjectileBase : MonoBehaviourPun
         {
             if (photonView.IsMine)
             {
-                Debug.Log("Base Impact");
                 HandleImpact(hit.point, hit.normal, hit.collider);
+                photonView.RPC(nameof(RPC_ConfirmImpact), RpcTarget.Others, hit.point, hit.normal, hit.collider.gameObject.name);
             }
         }
         else
@@ -45,18 +45,44 @@ public abstract class ProjectileBase : MonoBehaviourPun
             transform.position += _velocity * Time.deltaTime;
             if (Vector3.Distance(_startPosition, transform.position) >= MaxDistance)
             {
-                Destroy(gameObject);
+                PhotonNetwork.Destroy(gameObject);
             }
         }
     }
 
-    protected abstract void HandleImpact(Vector3 position, Vector3 normal, Collider collider);
+    protected void HandleImpact(Vector3 position, Vector3 normal, Collider collider)
+    {
+        // Apply impact logic here (e.g., visual effects)
+        SpawnImpactEffect(position, normal);
+
+        // Apply damage if the collider has a BodyDamageMultiplier component
+        BodyDamageMultiplier bodyDamageMultiplier = collider.GetComponent<BodyDamageMultiplier>();
+        if (bodyDamageMultiplier != null)
+        {
+            bodyDamageMultiplier.TakeDamage(Damage, DamageInfo);
+        }
+
+        // Destroy the projectile
+        PhotonNetwork.Destroy(gameObject);
+    }
+
 
     protected void SpawnImpactEffect(Vector3 position, Vector3 normal)
     {
         if (ImpactEffectPrefab != null)
         {
             Instantiate(ImpactEffectPrefab, position, Quaternion.LookRotation(normal));
+        }
+    }
+
+    [PunRPC]
+    private void RPC_ConfirmImpact(Vector3 position, Vector3 normal, string colliderName)
+    {
+        // Find the collider by name and confirm the impact
+        var collider = GameObject.Find(colliderName).GetComponent<Collider>();
+        if (collider != null)
+        {
+            HandleImpact(position, normal, collider);
         }
     }
 }

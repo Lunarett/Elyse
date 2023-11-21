@@ -24,9 +24,17 @@ public class RoomList : MonoBehaviourPunCallbacks
 
     private void RefreshRoomList()
     {
-        // This will trigger the OnRoomListUpdate callback
-        PhotonNetwork.GetCustomRoomList(TypedLobby.Default, "");
+        if (PhotonNetwork.CurrentLobby.Type == LobbyType.SqlLobby)
+        {
+            string sqlFilter = "C0 <> ''"; // Assuming 'C0' is a non-empty string property in all rooms
+            PhotonNetwork.GetCustomRoomList(MultiplayerManager.Instance.SqlLobby, sqlFilter);
+        }
+        else
+        {
+            Debug.LogError("Not in a SqlLobby. Cannot fetch custom game list.");
+        }
     }
+
 
     private void UpdateRoomList(List<RoomInfo> roomList)
     {

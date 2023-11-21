@@ -583,6 +583,7 @@ GameObject:
   m_Component:
   - component: {fileID: 516533362349361311}
   - component: {fileID: 4541208221886268781}
+  - component: {fileID: 4837358976231567950}
   - component: {fileID: 516533362349361308}
   - component: {fileID: 3723548513185817919}
   - component: {fileID: 983760228339771482}
@@ -610,7 +611,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 516533362349361285}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: 0, y: 1, z: 0, w: 0}
   m_LocalPosition: {x: 4.32, y: 2.28, z: 4.48}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -620,7 +621,7 @@ Transform:
   - {fileID: 516533363047978100}
   m_Father: {fileID: 0}
   m_RootOrder: 0
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 180, z: 0}
 --- !u!114 &4541208221886268781
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -638,6 +639,19 @@ MonoBehaviour:
   _tpsView: {fileID: 516533362321128194}
   _tpsAnimator: {fileID: 794201485712210741}
   _rig: {fileID: 5952895323301543240}
+--- !u!114 &4837358976231567950
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 516533362349361285}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ded7cfd5d50dd814d95889da5aa04dae, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  teleportLocation: {x: 0, y: 10, z: 0}
 --- !u!114 &516533362349361308
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -655,12 +669,12 @@ MonoBehaviour:
   m_groundCheckLayers:
     serializedVersion: 2
     m_Bits: 1
-  m_movementSpeed: 15
-  m_speedInAir: 20
-  m_airAccelerationSpeed: 30
+  m_movementSpeed: 10
+  m_speedInAir: 15
+  m_airAccelerationSpeed: 25
   m_movementSharpness: 10
-  m_jumpForce: 16
-  m_downForce: 20
+  m_jumpForce: 8
+  m_downForce: 23
   m_crouchMultiplier: 0.5
   m_sprintMultiplier: 1.8
   m_cameraHeightRatio: 0.6
@@ -684,7 +698,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   jetpackForce: 25
-  powerConsumptionRate: 10
+  powerConsumptionRate: 15
 --- !u!114 &983760228339771482
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -698,7 +712,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _maxPower: 100
-  _rechargeRate: 5
+  _rechargeRate: 8
   _rechargeDelay: 1
 --- !u!114 &516533362349361305
 MonoBehaviour:
@@ -741,7 +755,6 @@ MonoBehaviour:
   - {fileID: 7457221728030768537, guid: aca8478c3184dfc469f3b8609a10fc49, type: 3}
   - {fileID: 1917782606559623225, guid: 037a18c2ff23cd24ebf274b27bc7444e, type: 3}
   - {fileID: 5159128229822020944, guid: 9b62240176b1b1846ad48cf39ec838e3, type: 3}
-  - {fileID: 218861631099351297, guid: ef866031eac7ae942bc4cc2023bceff5, type: 3}
 --- !u!114 &516533362349361296
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -881,6 +894,10 @@ MonoBehaviour:
       m_Calls: []
     m_ActionId: 497b9ad6-c254-4b6f-a42b-89a85e5fa61f
     m_ActionName: Player/Fly[/Mouse/rightButton]
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 84ecb997-c038-4396-8eab-aac94068768c
+    m_ActionName: Player/Pause[/Keyboard/escape]
   m_NeverAutoSwitchControlSchemes: 0
   m_DefaultControlScheme: 
   m_DefaultActionMap: Player

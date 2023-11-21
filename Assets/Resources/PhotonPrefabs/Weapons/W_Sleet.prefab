@@ -41,7 +41,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3206497918089847293}
-  - component: {fileID: 8165476489399959861}
   - component: {fileID: 5271511376138307533}
   m_Layer: 0
   m_Name: W_Sleet
@@ -66,28 +65,6 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &8165476489399959861
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3206497918089847290}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ce7987a4b07f28246a245c849c1fd2a4, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _fireLocation: {fileID: 9037875148801702324}
-  _impactPrefab: {fileID: 6521945633980296980, guid: e53c980aac40f714e8037076227eeeec,
-    type: 3}
-  _weaponInfo:
-    name: Sleet
-    damage: 50
-  _fireDistance: 1000
-  _singleFire: 1
-  _fireRate: 200
-  _offset: {x: 0, y: 0, z: 0}
 --- !u!114 &5271511376138307533
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -212,6 +189,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 2300000, guid: 808d8bedf2d978e47a4a056a0c33f3d9, type: 3}
+      propertyPath: m_Materials.Array.data[0]
+      value: 
+      objectReference: {fileID: 2100000, guid: 6d48a3a13b0fa584f860c7940154fdf3, type: 2}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 808d8bedf2d978e47a4a056a0c33f3d9, type: 3}
 --- !u!4 &2059122799339795410 stripped

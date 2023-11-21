@@ -1,38 +1,81 @@
+using System.Collections;
 using UnityEngine;
 using Photon.Pun;
 
 public class PointDamageProjectile : ProjectileBase
 {
-    protected override void HandleImpact(Vector3 position, Vector3 normal, Collider collider)
-    {
-        PhotonView targetView = collider.gameObject.GetPhotonView();
+    private bool _isDestroyed = false;
+    
+    // protected override void HandleImpact(Vector3 position, Vector3 normal, Collider collider)
+    // {
+    //     string localIdentifier = collider.gameObject.name; // Example, use any unique identifier
+    //     int parentViewID = collider.transform.root.GetComponent<PhotonView>().ViewID;
+    //
+    //     photonView.RPC(nameof(RPC_ApplyDamage), RpcTarget.All, parentViewID, localIdentifier, Damage, DamageInfo);
+    //     photonView.RPC(nameof(RPC_SpawnImpactEffects), RpcTarget.All, position, normal);
+    // }
 
-        if (targetView != null)
+
+    [PunRPC]
+    private void RPC_ApplyDamage(int parentViewID, string localIdentifier, float damage, DamageCauserInfo damageInfo)
+    {
+        PhotonView parentPV = PhotonView.Find(parentViewID);
+        if (parentPV != null)
         {
-            photonView.RPC(nameof(ApplyDamage), RpcTarget.All, targetView.ViewID, DamageInfo);
+            Transform targetTransform = parentPV.transform.Find(localIdentifier); // Or any other method to find the child
+            if (targetTransform != null)
+            {
+                BodyDamageMultiplier bodyDamageMultiplier = targetTransform.GetComponent<BodyDamageMultiplier>();
+                if (bodyDamageMultiplier != null)
+                {
+                    bodyDamageMultiplier.TakeDamage(damage, damageInfo);
+                }
+            }
+            else
+            {
+                Debug.LogError("Target object not found for damage application.");
+            }
         }
         else
         {
-            SpawnImpactEffect(position, normal);
-            Destroy(gameObject);
+            Debug.LogError("Parent object with PhotonView ID " + parentViewID + " not found.");
+        }
+    }
+
+    
+    [PunRPC]
+    private void RPC_SpawnImpactEffects(Vector3 position, Vector3 normal)
+    {
+        SpawnImpactEffect(position, normal);
+        PhotonNetwork.Destroy(gameObject);
+    }
+
+    private void SafeDestroyProjectile()
+    {
+        if (_isDestroyed) return;
+
+        if (photonView.IsMine || PhotonNetwork.IsMasterClient)
+        {
+            PhotonNetwork.Destroy(gameObject);
+            _isDestroyed = true;
+        }
+        else
+        {
+            // Request the MasterClient to destroy this object
+            photonView.RPC(nameof(RequestMasterClientDestroy), RpcTarget.MasterClient);
         }
     }
 
     [PunRPC]
-    private void ApplyDamage(int viewID, DamageCauserInfo damageInfo)
+    private void RequestMasterClientDestroy()
     {
-        SpawnImpactEffect(transform.position, Vector3.zero);
-        
-        PhotonView targetView = PhotonView.Find(viewID);
-        if (targetView != null)
-        {
-            BodyDamageMultiplier bodyDamageMultiplier = targetView.GetComponent<BodyDamageMultiplier>();
-            if (bodyDamageMultiplier != null)
-            {
-                bodyDamageMultiplier.TakeDamage(Damage, damageInfo);
-            }
-        }
+        if (_isDestroyed) return;
 
-        Destroy(gameObject);
+        // Only the MasterClient will execute this
+        if (PhotonNetwork.IsMasterClient)
+        {
+            PhotonNetwork.Destroy(gameObject);
+            _isDestroyed = true;
+        }
     }
 }

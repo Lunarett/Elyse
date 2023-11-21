@@ -32,6 +32,17 @@ public class PlayerHealth : BaseHealth
     protected override void OnDeath(DamageCauserInfo damageCauserInfo)
     {
         photonView.RPC(nameof(RPC_OnDeath), RpcTarget.All, damageCauserInfo.Serialize());
+
+        // Assuming damageCauserInfo.CauserOwner is the Photon.Realtime.Player who caused the death
+        var attackerController = Controller.Find(damageCauserInfo.CauserOwner);
+        if (attackerController != null)
+        {
+            var attackerElysePlayerState = attackerController.GetComponent<ElysePlayerState>();
+            if (attackerElysePlayerState != null)
+            {
+                attackerElysePlayerState.AddKill();
+            }
+        }
     }
 
     [PunRPC]
@@ -40,17 +51,23 @@ public class PlayerHealth : BaseHealth
         DamageCauserInfo damageCauserInfo = new DamageCauserInfo();
         damageCauserInfo.Deserialize(serializedDamageCauserInfo);
         _hud.BroadcastGameFeed(damageCauserInfo.CauserOwner.NickName, photonView.Owner.NickName);
-        
+    
         // Trigger the OnPlayerDied event
         OnPlayerDied?.Invoke(damageCauserInfo);
-        
-        if (!photonView.IsMine) return;
-        _hud.SetDamageScreenAlpha(0.5f);
+
+        if (PhotonNetwork.LocalPlayer == damageCauserInfo.CauserOwner)
+        {
+            var attackerElysePlayerState = GetComponent<ElysePlayerState>();
+            if (attackerElysePlayerState != null)
+            {
+                attackerElysePlayerState.AddKill();
+            }
+        }
     }
     
     public void TakeDamage(float damage, DamageCauserInfo damageCauserInfo)
     {
-        Debug.Log("HealthBase TakeDamage Local");
+        if (IsDead()) return;
         _currentHealth -= damage;
         OnHealthChanged?.Invoke(_currentHealth, _maxHealth);
         
@@ -73,8 +90,7 @@ public class PlayerHealth : BaseHealth
     [PunRPC]
     public void RPC_TakeDamage(float damage)
     {
-        // Apply damage remotely
-        Debug.Log("HealthBase TakeDamage RPC");
+        if (IsDead()) return;
         _currentHealth -= damage;
         OnHealthChanged?.Invoke(_currentHealth, _maxHealth);
         if(!photonView.IsMine) return;
@@ -85,7 +101,7 @@ public class PlayerHealth : BaseHealth
     [PunRPC]
     public void RPC_Heal(float amount)
     {
-        // Heal remotely
+        if (IsDead()) return;
         _currentHealth = Mathf.Min(_currentHealth + amount, _maxHealth);
         OnHealthChanged?.Invoke(_currentHealth, _maxHealth);
         if(!photonView.IsMine) return;
@@ -94,6 +110,10 @@ public class PlayerHealth : BaseHealth
     
     private void UpdateHealthBar(float currentHealth, float maxHealth)
     {
-        _hud.SetHeath(currentHealth, maxHealth);
+        if (IsDead()) return;
+        if (photonView.IsMine)
+        {
+            _hud.SetHeath(currentHealth, maxHealth);
+        }
     }
 }

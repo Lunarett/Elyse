@@ -9,7 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 995851623584238501}
-  - component: {fileID: 1843087109848024314}
+  - component: {fileID: 3327335123970947308}
   - component: {fileID: 5791652140936233541}
   - component: {fileID: 3987715864417287581}
   - component: {fileID: 3622531284094830374}
@@ -36,7 +36,7 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1843087109848024314
+--- !u!114 &3327335123970947308
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -45,7 +45,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 7008870097288492170}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 08f34deee49ed434da30a90792b6d8b9, type: 3}
+  m_Script: {fileID: 11500000, guid: e6316090645a9e448a8b5f9b6f12fe6c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   Damage: 10
@@ -55,7 +55,7 @@ MonoBehaviour:
   HitLayers:
     serializedVersion: 2
     m_Bits: 129
-  ImpactEffectPrefab: {fileID: 198000010585806678, guid: 9d88080470b9cd545afd3fcb1e4e77a1,
+  ImpactEffectPrefab: {fileID: 744084136304213716, guid: 6138bf7d926d962428ab5814c44daa0d,
     type: 3}
 --- !u!33 &5791652140936233541
 MeshFilter:

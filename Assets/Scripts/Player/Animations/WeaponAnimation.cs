@@ -51,8 +51,6 @@ public class WeaponAnimation : MonoBehaviour
     {
         if (!(Time.deltaTime > 0f)) return;
         
-        
-        
         Vector3 playerCharacterVelocity =
             (transform.position - m_LastCharacterPosition) / Time.deltaTime;
 

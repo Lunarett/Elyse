@@ -1,4 +1,4 @@
-using Photon.Realtime;
+using Photon.Pun;
 using Pulsar.Debug;
 using UnityEngine;
 using Pulsar.Utils;
@@ -20,6 +20,8 @@ public class ElyseCharacter : Character
     private PlayerHealth _playerHealth;
     private WeaponAnimation _weaponAnimation;
     private ElyseController _elyseController;
+    private HUD _hud;
+    private bool _isPaused;
 
     public bool IsDead { get; set; }
     public PlayerInputManager PlayerInputManager => _playerInputManager;
@@ -38,6 +40,7 @@ public class ElyseCharacter : Character
         base.Awake();
         
         _playerInputManager = _inputManager as PlayerInputManager;
+        _hud = HUD.Instance;
         
         // Find all components in object
         _weaponAnimation = GetComponentInChildren<WeaponAnimation>();
@@ -59,13 +62,24 @@ public class ElyseCharacter : Character
             _fpsView.SetActive(false);
             Utils.SetLayerRecursively(gameObject, LayerMask.NameToLayer("Remote Player"));
         }
+
+        _hud.OnGameResume += UnpauseGame;
     }
 
     private void Start()
     {
+        _hud.SetDamageScreenAlpha(0);
         ShowMouseCursor(false);
         EnableView(_photonView.IsMine);
         _rig.weight = 1;
+    }
+
+    private void Update()
+    {
+        if (_playerInputManager.GetPauseInputDown())
+        {
+            PauseGame();
+        }
     }
 
     private void LateUpdate()
@@ -75,7 +89,7 @@ public class ElyseCharacter : Character
 
     private void UpdateCharacterAnimation()
     {
-        if (IsDead) return; // Don't update if we are dead
+        if (IsDead) return;
         
         Vector3 velocity = _playerMovement.CharacterVelocity;
         float verticalValue = _playerInputManager.GetMoveInput().y != 0
@@ -113,10 +127,32 @@ public class ElyseCharacter : Character
     private void OnPlayerDied(DamageCauserInfo damageCauserInfo)
     {
         if (!_photonView.IsMine) return;
+        _hud.SetDamageScreenAlpha(0.5f);
         _rig.weight = 0;
         EnableMovement(false, false);
         SetViewMode(EViewMode.TPS);
         _tpsAnimator.SetBool(Dead, true);
-        _elyseController.Die();
+        _elyseController.Die();   
+    }
+
+    private void UnpauseGame()
+    {
+        EnableMovement(true, false);
+        ShowMouseCursor(false);
+    }
+
+    private void PauseGame()
+    {
+        _hud.DisplayPauseMenu();
+        EnableMovement(false, false);
+        ShowMouseCursor(true);
+    }
+    
+    private void OnDestroy()
+    {
+        if (_playerHealth != null)
+        {
+            _playerHealth.OnPlayerDied -= OnPlayerDied;
+        }
     }
 }

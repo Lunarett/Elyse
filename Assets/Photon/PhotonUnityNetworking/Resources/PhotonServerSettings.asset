@@ -64,6 +64,11 @@ MonoBehaviour:
   - SetRemotePawn
   - ApplyDamage
   - ApplyRadialDamage
+  - RPC_SpawnImpactEffects
+  - RequestMasterClientDestroy
+  - RPC_ConfirmImpact
+  - RPC_PlayerDied
+  - RPC_ResetStats
   DisableAutoOpenWizard: 1
   ShowSettings: 1
   DevRegionSetOnce: 1

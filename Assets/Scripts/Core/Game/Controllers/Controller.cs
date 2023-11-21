@@ -29,13 +29,13 @@ public class Controller : MonoBehaviour
         }
     }
 
-    protected void CreatePawn()
+    public virtual void CreatePawn()
     {
         if (!_photonView.IsMine) return;
         Transform spawnpoint = PlayerSpawner.Instance.GetSpawnpoint(_photonView.Owner);
         DebugUtils.CheckForNull(spawnpoint);
 
-        if (DebugUtils.CheckForNull(_pawnPrefab)) return;
+        if (_pawnPrefab == null) { Debug.LogError("MissingReference: Pawn Prefab is missing!"); return;}
         _pawnObject = PhotonNetwork.Instantiate(
             Path.Combine("PhotonPrefabs", "Pawns", _pawnPrefab.gameObject.name),
             spawnpoint.position,
