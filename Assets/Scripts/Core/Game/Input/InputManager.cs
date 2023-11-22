@@ -30,7 +30,7 @@ public class InputManager : MonoBehaviour
 
     protected bool CheckInputActionPhase(string actionName, InputActionPhase phase)
     {
-        return _enableMoveInput && CanProcessInput() && _playerInput.actions[actionName].phase == phase;
+        return CanProcessInput() && _playerInput.actions[actionName].phase == phase;
     }
 
     protected T GetInputActionValue<T>(string actionName) where T : struct
