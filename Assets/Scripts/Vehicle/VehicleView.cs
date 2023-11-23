@@ -1,42 +1,26 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
+using Cinemachine;
 
 public class VehicleView : MonoBehaviour
 {
-    [SerializeField] private Transform _cameraFollowTarget;
-    [Range(0.0f, 0.5f)] [SerializeField] private float _lookSpeed = 0.1f;
-    [SerializeField] private Vector2 _pitchClamp = new Vector2(-89.0f, 89.0f);
-
-    private float _CameraVerticalAngle;
-    private AutomobileInputManager _input;
+    public CinemachineVirtualCamera cinemachineCamera;
+    private AutomobileInputManager _inputManager;
+    public float yawSpeed = 10f;
+    public float pitchSpeed = 10f;
 
     private void Awake()
     {
-        _input = GetComponent<AutomobileInputManager>();
+        _inputManager = GetComponent<AutomobileInputManager>();
     }
 
     private void Update()
     {
-        MouseYAWRotation(_cameraFollowTarget, _input.GetMouseLook());
-        MousePitchRotation(_input.GetMouseLook());
-    }
+        Vector2 lookInput = _inputManager.GetMouseLook();
+        Vector3 rotation = cinemachineCamera.transform.rotation.eulerAngles;
 
-    public void MouseYAWRotation(Transform targetTransform, Vector2 mouseInputAxis)
-    {
-        targetTransform.Rotate
-        (
-            new Vector3(0f, (mouseInputAxis.x * _lookSpeed),
-                0f),
-            Space.Self
-        );
-    }
+        float yaw = rotation.y + lookInput.x * yawSpeed * Time.deltaTime;
+        float pitch = rotation.x - lookInput.y * pitchSpeed * Time.deltaTime;
 
-    public void MousePitchRotation(Vector2 mouseInputAxis)
-    {
-        _CameraVerticalAngle += mouseInputAxis.y * _lookSpeed;
-        _CameraVerticalAngle = Mathf.Clamp(_CameraVerticalAngle, _pitchClamp.x, _pitchClamp.y);
-        _cameraFollowTarget.transform.localEulerAngles = new Vector3(_CameraVerticalAngle, 0, 0);
+        cinemachineCamera.transform.rotation = Quaternion.Euler(pitch, yaw, 0f); // Setting roll to 0 prevents the camera from rolling
     }
 }
