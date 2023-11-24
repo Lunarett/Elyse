@@ -12,7 +12,7 @@ public class WeaponSpawner : MonoBehaviourPunCallbacks
     [Space]
     [SerializeField] private List<WeaponBase> weaponPrefabs;
 
-    private PhotonView _pv;
+    private PhotonView _photonView;
     private PlayerInputManager _input;
     private WeaponBase _activeWeapon;
     private ElyseCharacter _character;
@@ -20,7 +20,7 @@ public class WeaponSpawner : MonoBehaviourPunCallbacks
 
     private void Awake()
     {
-        _pv = GetComponent<PhotonView>();
+        _photonView = GetComponent<PhotonView>();
         _input = GetComponent<PlayerInputManager>();
         _character = GetComponent<ElyseCharacter>();
     }
@@ -39,7 +39,7 @@ public class WeaponSpawner : MonoBehaviourPunCallbacks
             return;
         }
 
-        if (_pv.IsMine)
+        if (_photonView.IsMine)
         {
             AddWeapon(_currentWeaponIndex);
         }
@@ -47,7 +47,7 @@ public class WeaponSpawner : MonoBehaviourPunCallbacks
 
     private void Update()
     {
-        if (!_pv.IsMine || _activeWeapon == null) return;
+        if (!_photonView.IsMine || _activeWeapon == null) return;
         
         // Call Weapon Shooting
         switch (_activeWeapon.FireModeType)
@@ -83,8 +83,8 @@ public class WeaponSpawner : MonoBehaviourPunCallbacks
 
 public void AddWeapon(int weaponIndex)
 {
-    Transform targetPosition = _pv.IsMine ? _fpsSpawnLocation : _tpsSpawnLocation;
-    string layerName = _pv.IsMine ? "FP_Weapon" : "TP_Weapon";
+    Transform targetPosition = _photonView.IsMine ? _fpsSpawnLocation : _tpsSpawnLocation;
+    string layerName = _photonView.IsMine ? "FP_Weapon" : "TP_Weapon";
 
     if (PhotonNetwork.IsConnectedAndReady && PhotonNetwork.InRoom)
     {
@@ -104,7 +104,7 @@ public void AddWeapon(int weaponIndex)
         Utils.SetLayerRecursively(weaponObject, LayerMask.NameToLayer(layerName));
 
         _activeWeapon = weapon;
-        _pv.RPC(nameof(ParentWeapon), RpcTarget.AllBuffered, weaponObject.GetPhotonView().ViewID, _pv.ViewID);
+        _photonView.RPC(nameof(ParentWeapon), RpcTarget.AllBuffered, weaponObject.GetPhotonView().ViewID, _photonView.ViewID);
     }
     else
     {
@@ -132,7 +132,7 @@ private void ParentWeapon(int weaponViewID, int playerViewID)
             ElyseCharacter charRef = playerPV.GetComponent<ElyseCharacter>();
             if (charRef != null)
             {
-                weaponRef.CharacterReference = charRef;  // Set the CharacterReference field on all clients
+                weaponRef.CharacterReference = charRef;
             }
             else
             {

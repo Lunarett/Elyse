@@ -1,66 +1,83 @@
 using System;
 using System.Diagnostics;
+using UnityEngine;
 using System.Collections.Generic;
 
 namespace Pulsar.Debug
 {
     public static class DebugUtils
     {
-        public static bool CheckForNull<T>(T objectToCheck) where T : class
-        {
-            if (objectToCheck != null) return false;
-            
-            LogErrorFromCaller($"Failed to get {typeof(T).Name}");
-            return true;
-        }
+        private static LogDisplayManager _display;
 
-        public static bool CheckValidListIndex<T>(List<T> list, int index)
+        private static void CreateAndDisplayMessage(string message, float duration, Color color, [System.Runtime.CompilerServices.CallerMemberName] string callerName = "")
         {
-            if (index >= 0 && index < list.Count) return true;
+            if (_display == null)
+            {
+                GameObject displayObject = new GameObject("MessageDisplayManager");
+                _display = displayObject.AddComponent<LogDisplayManager>();
+            }
 
-            LogErrorFromCaller($"Index {index} is out of range for list of type {typeof(T).Name} with size {list.Count}");
-            return false;
-        }
-
-        public static void LogErrorFromCaller(string errorMessage)
-        {
             StackTrace stackTrace = new StackTrace(true);
-            StackFrame frame = stackTrace.GetFrame(1);
+            StackFrame frame = stackTrace.GetFrame(2);
             var method = frame.GetMethod();
-            string callingClassName = method.DeclaringType.Name;
+
+            string className = method.DeclaringType.Name;
             string methodName = method.Name;
             int line = frame.GetFileLineNumber();
 
-            UnityEngine.Debug.LogError($"{callingClassName}: {errorMessage} Called from {methodName} at line {line}.");
+            string formattedMessage = $"{callerName} {className}::{methodName} Line: {line} - {message}";
+            _display.AddMessage(formattedMessage, duration, color);
         }
-        
-        public static bool CheckRange(float value, float min, float max)
-        {
-            if (value >= min && value <= max) return true;
 
-            LogErrorFromCaller($"Value {value} is out of range. Expected between {min} and {max}.");
+        public static void Log(string message, float duration = 5f)
+        {
+            UnityEngine.Debug.Log(message);
+            CreateAndDisplayMessage(message, duration, Color.cyan);
+        }
+
+        public static void Warn(string message, float duration = 5f)
+        {
+            UnityEngine.Debug.LogWarning(message);
+            CreateAndDisplayMessage($"Warning! {message}", duration, Color.yellow);
+        }
+
+        public static void Error(string message, float duration = 5f)
+        {
+            UnityEngine.Debug.LogError(message);
+            CreateAndDisplayMessage($"Error! {message}", duration, Color.red);
+        }
+
+        public static void Success(string message, float duration = 5f)
+        {
+            UnityEngine.Debug.Log(message);
+            CreateAndDisplayMessage($"Success! {message}", duration, Color.green);
+        }
+
+        public static void Print(string message, Color color, float duration = 5f)
+        {
+            UnityEngine.Debug.Log(message);
+            CreateAndDisplayMessage(message, duration, color);
+        }
+
+        public static bool CheckForNull<T>(T objectToCheck, string message = "", float duration = 5.0f) where T : class
+        {
+            if (objectToCheck != null) return false;
+            Error(string.IsNullOrEmpty(message) ? $"The class {typeof(T).Name} has returned null!" : message, duration);
+            return true;
+        }
+
+        public static bool CheckValidListIndex<T>(List<T> list, int index, string message = "", float duration = 5.0f)
+        {
+            if (list != null && index >= 0 && index < list.Count) return true;
+            Error(string.IsNullOrEmpty(message) ? $"List error for {typeof(T).Name} at index {index}." : message, duration);
             return false;
         }
-        
-        public static void LogAllListItems<T>(List<T> list)
+
+        public static bool CheckRange(float value, float min, float max, string message = "", float duration = 5.0f)
         {
-            string items = string.Join(", ", list);
-            UnityEngine.Debug.Log($"List items: {items}");
-        }
-        
-        public static void LogAllArrayItems<T>(T[] array)
-        {
-            string items = string.Join(", ", array);
-            UnityEngine.Debug.Log($"Array items: {items}");
-        }
-        
-        public static void TimeMethodExecution(Action action)
-        {
-            Stopwatch stopwatch = new Stopwatch();
-            stopwatch.Start();
-            action();
-            stopwatch.Stop();
-            UnityEngine.Debug.Log($"Method execution time: {stopwatch.ElapsedMilliseconds} ms");
+            if (!(value < min) && !(value > max)) return true;
+            Error(string.IsNullOrEmpty(message) ? $"Value {value} out of range ({min} to {max})." : message, duration);
+            return false;
         }
     }
 }
