@@ -3,50 +3,82 @@ using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
 using Photon.Pun;
+using Pulsar.Debug;
 
-public abstract class GameModeBase : MonoBehaviourPunCallbacks
+public class GameModeBase : MonoBehaviourPunCallbacks
 {
-    [SerializeField] private PlayerController _playerController;
+    [Header("Player Settings")]
+    [SerializeField] private PlayerController _playerControllerPrefab;
 
-    protected PhotonView _photonView;
-    protected List<PlayerController> _playerControllerList = new List<PlayerController>();
+    [SerializeField] private Pawn _playerPawn;
+    [SerializeField] private Pawn _spectatorPawn;
+
+    protected List<PlayerController> _playerControllers = new List<PlayerController>();
+    private PhotonView _photonView;
 
     protected virtual void Awake()
     {
         _photonView = GetComponent<PhotonView>();
+        DebugUtils.CheckForNull<PhotonView>(_photonView, "GameMode: PhotonView is missing!");
     }
 
     protected virtual void Start()
     {
-        if (!PhotonNetwork.IsConnectedAndReady) return;
-        InstantiateController();
+        InstantiatePlayerController();
     }
 
     public override void OnJoinedRoom()
     {
-        InstantiateController();
+        InstantiatePlayerController();
     }
 
-    protected void InstantiateController()
+    protected void InstantiatePlayerController()
     {
-        if (_playerController == null)
-        {
-            Debug.LogError("GameModeBase: Cannot instantiate PlayerController! Missing reference!");
+        if (DebugUtils.CheckForNull(_playerControllerPrefab, "GameModeBase: PlayerController prefab is null!"))
             return;
-        }
 
         PlayerController controller = PhotonNetwork.Instantiate(
-            Path.Combine("PhotonPrefabs", "Controllers", _playerController.gameObject.name),
+            Path.Combine("PhotonPrefabs", "Controllers", _playerControllerPrefab.gameObject.name),
             Vector3.zero,
             Quaternion.identity
         ).GetComponent<PlayerController>();
 
-        if (controller == null)
-        {
-            Debug.LogError($"GameModeBase: Failed to find {_playerController.gameObject.name} prefab at 'Resources/PhotonPrefabs/Controllers' directory!");
+        if (DebugUtils.CheckForNull(controller,
+                $"GameModeBase: Failed to find {_playerControllerPrefab.gameObject.name} prefab in 'Resources/PhotonPrefabs/Controllers' directory!"))
             return;
-        }
 
-        _playerControllerList.Add(controller);
+        _playerControllers.Add(controller);
+    }
+
+    protected void DestroyAllPawns()
+    {
+        foreach (var controller in _playerControllers)
+        {
+            if (DebugUtils.CheckForNull(controller)) return;
+            controller.DestroyPawn();
+        }
+    }
+
+    protected void InstantiateAllPawns()
+    {
+        foreach (var controller in _playerControllers)
+        {
+            if (DebugUtils.CheckForNull(controller)) return;
+            controller.CreatePawn();
+        }
+    }
+
+    protected void EnableAllPlayerControl(bool isEnabled)
+    {
+        foreach (var playerController in _playerControllers)
+        {
+            if (DebugUtils.CheckForNull<PlayerController>(playerController,
+                    "EnableAllPlayerControl() failed because the controller from list returned null!!",
+                    20.0f)) return;
+            if (DebugUtils.CheckForNull<Pawn>(playerController.Pawn,
+                    "EnableAllPlayerControl() failed because the Pawn from the PlayerController returned null!!",
+                    20.0f)) return;
+            playerController.Pawn.EnableControl(isEnabled, true);
+        }
     }
 }

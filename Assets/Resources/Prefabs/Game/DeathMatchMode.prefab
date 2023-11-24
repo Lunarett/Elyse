@@ -10,8 +10,8 @@ GameObject:
   m_Component:
   - component: {fileID: 5823806229379229263}
   - component: {fileID: 5823806229379229264}
+  - component: {fileID: 7860581009146472723}
   - component: {fileID: 5823806229379229262}
-  - component: {fileID: 5823806229379229265}
   m_Layer: 0
   m_Name: DeathMatchMode
   m_TagString: Untagged
@@ -46,10 +46,26 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 145e4d67e8b5aa345a43acd78e451d9c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _playerController: {fileID: -3474249646836248909, guid: 1d8ddf09b8d46bc47adbad7bd2261903,
+  _playerControllerPrefab: {fileID: -3474249646836248909, guid: 1d8ddf09b8d46bc47adbad7bd2261903,
     type: 3}
-  preMatchCountdownTime: 5
-  matchDuration: 120
+  _playerPawn: {fileID: 4541208221886268781, guid: c3caec05c727e924587744dd3aa9361c,
+    type: 3}
+  _spectatorPawn: {fileID: 0}
+--- !u!114 &7860581009146472723
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5823806229379229261}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: af1d90b9dda301e4f89d2a57f99dff72, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _preMatchCountdownTime: 3
+  _matchDuration: 120
+  _postMatchDuration: 8
 --- !u!114 &5823806229379229262
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -62,25 +78,3 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a0be4914403d4b8499d9f1adb0e61bef, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!114 &5823806229379229265
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5823806229379229261}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: aa584fbee541324448dd18d8409c7a41, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  ObservedComponentsFoldoutOpen: 1
-  Group: 0
-  prefixField: -1
-  Synchronization: 3
-  OwnershipTransfer: 0
-  observableSearch: 2
-  ObservedComponents: []
-  sceneViewId: 0
-  InstantiationId: 0
-  isRuntimeInstantiated: 0

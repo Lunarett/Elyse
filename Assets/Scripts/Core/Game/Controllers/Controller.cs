@@ -19,6 +19,7 @@ public class Controller : MonoBehaviour
     protected virtual void Awake()
     {
         _photonView = GetComponent<PhotonView>();
+        if (DebugUtils.CheckForNull<PhotonView>(_photonView, "Controller: PhotonView is missing!")) return;
     }
 
     protected virtual void Start()
@@ -29,13 +30,13 @@ public class Controller : MonoBehaviour
         }
     }
 
-    public virtual void CreatePawn()
+    public void CreatePawn()
     {
         if (!_photonView.IsMine) return;
         Transform spawnpoint = PlayerSpawner.Instance.GetSpawnpoint(_photonView.Owner);
-        DebugUtils.CheckForNull(spawnpoint);
+        DebugUtils.CheckForNull<Transform>(spawnpoint, "Controller: Failed to get Spawnpoint!");
 
-        if (_pawnPrefab == null) { Debug.LogError("MissingReference: Pawn Prefab is missing!"); return;}
+        if (DebugUtils.CheckForNull<Pawn>(_pawnPrefab, "Controller: Pawn prefab is missing!")) return;
         _pawnObject = PhotonNetwork.Instantiate(
             Path.Combine("PhotonPrefabs", "Pawns", _pawnPrefab.gameObject.name),
             spawnpoint.position,
@@ -44,38 +45,36 @@ public class Controller : MonoBehaviour
             new object[] { _photonView.ViewID }
         );
 
-        if (_pawnObject == null)
-        {
-            Debug.LogError($"Controller: Failed to Instantiate {_pawnPrefab.gameObject.name} Pawn from 'Resources/PhotonPrefabs/Pawns' directory!");
-            return;
-        }
+        if (DebugUtils.CheckForNull<GameObject>(_pawnObject, "Controller: Instantiation of PawnPrefab has failed!")) return;
 
         _pawn = _pawnObject.GetComponent<Pawn>();
+        if (DebugUtils.CheckForNull<Pawn>(_pawn, "Controller: Pawn is missing form PawnPrefab")) return;
         _pawn.Initialize(_photonView.Owner);
 
         // Notify remote clients
-        _photonView.RPC("SetRemotePawn", RpcTarget.OthersBuffered, _pawnObject.GetPhotonView().ViewID);
+        _photonView.RPC(nameof(RPC_SetRemotePawn), RpcTarget.OthersBuffered, _pawnObject.GetPhotonView().ViewID);
     }
 
     [PunRPC]
-    protected void SetRemotePawn(int pawnViewID)
+    protected void RPC_SetRemotePawn(int pawnViewID)
     {
         _pawnObject = PhotonView.Find(pawnViewID).gameObject;
+        if (DebugUtils.CheckForNull<GameObject>(_pawnObject,
+                "Controller RPC_SetRemote: Failed to find PawnObject by ViewID")) return;
         _pawn = _pawnObject.GetComponent<Pawn>();
+        if (DebugUtils.CheckForNull<GameObject>(_pawnObject,
+                "Controller RPC_SetRemote: Pawn isn't found on the object")) return;
     }
 
     public void DestroyPawn()
     {
-        // If this is the owner of the pawn, destroy it and notify others
-        if (_photonView.IsMine)
-        {
-            PhotonNetwork.Destroy(_pawnObject);
-            _photonView.RPC("OnPawnDestroyed", RpcTarget.OthersBuffered);
-        }
+        if (!_photonView.IsMine) return;
+        PhotonNetwork.Destroy(_pawnObject);
+        _photonView.RPC(nameof(RPC_DestroyPawn), RpcTarget.OthersBuffered);
     }
 
     [PunRPC]
-    protected void OnPawnDestroyed()
+    protected void RPC_DestroyPawn()
     {
         _pawnObject = null;
         _pawn = null;

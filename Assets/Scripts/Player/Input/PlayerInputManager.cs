@@ -118,6 +118,7 @@ public class PlayerInputManager : InputManager
 
     public int GetSwitchWeaponInput()
     {
+        if (!_enableMoveInput) return 0;
         if (!CanProcessInput()) return 0;
         float scrollVal = GetInputActionValue<float>("Switch");
 
@@ -131,6 +132,7 @@ public class PlayerInputManager : InputManager
 
     public int GetSelectWeaponInput()
     {
+        if (!_enableMoveInput) return 0;
         if (!CanProcessInput()) return 0;
 
         for (int i = 1; i <= 4; i++)

@@ -8,7 +8,6 @@ public abstract class Character : Pawn
 {
     protected PlayerMovement _playerMovement;
     protected PlayerView _playerView;
-    protected InputManager _inputManager;
     
     public PlayerMovement PlayerMovement => _playerMovement;
     public PlayerView PlayerView => _playerView;
