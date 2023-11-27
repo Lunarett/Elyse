@@ -1,6 +1,5 @@
 using System;
 using System.Collections;
-using Photon.Pun;
 using Pulsar.Debug;
 using TMPro;
 using UnityEngine;
@@ -33,7 +32,6 @@ public class HUD : MonoBehaviour
     [SerializeField] private PlayerScoreElement _playerScoreELement;
     [SerializeField] private Transform _scoreBoardContent;
     
-    private PhotonView _photonView;
     private GameFeedHandler _gameFeedHandler;
     private PanelManager _panelManager;
 
@@ -52,9 +50,7 @@ public class HUD : MonoBehaviour
             Destroy(gameObject);
             return;
         }
-
-        _photonView = GetComponent<PhotonView>();
-        DebugUtils.CheckForNull<PhotonView>(_photonView);
+        
         _gameFeedHandler = GetComponent<GameFeedHandler>();
         DebugUtils.CheckForNull<GameFeedHandler>(_gameFeedHandler);
         _panelManager = GetComponent<PanelManager>();

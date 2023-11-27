@@ -1,7 +1,0 @@
-<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
-    <Style src="project://database/Assets/Scripts/Core/Debug/UI/DebugDisplay/LogElement/Styles/LogStyle.uss?fileID=7433441132597879392&amp;guid=5ed3c34eed9ff26428e112aaec97dda3&amp;type=3#LogStyle" />
-    <ui:VisualElement name="LogElementFoldout" style="flex-direction: row; -unity-text-align: middle-left; align-items: center; margin-top: 0; margin-bottom: 0; margin-left: 0; margin-right: 0; padding-left: 5px; padding-right: 5px; padding-top: 5px; padding-bottom: 5px;">
-        <ui:VisualElement name="Icon" style="background-image: url(&apos;project://database/Assets/Scripts/Core/Debug/UI/DebugDisplay/LogElement/Icons/icn_error.png?fileID=2800000&amp;guid=4d25158a1448eec469dee1d77c8bbf07&amp;type=3#icn_error&apos;); width: 20px; height: 20px; padding-left: 0; padding-right: 0; padding-top: 0; padding-bottom: 0; margin-left: 10px; margin-right: 10px; margin-top: 10px; margin-bottom: 10px;" />
-        <ui:Label text="LogState: Sample Log message" display-tooltip-when-elided="true" name="LogMessage" class="log-label" />
-    </ui:VisualElement>
-</ui:UXML>

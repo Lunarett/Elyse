@@ -1,5 +1,5 @@
-using Photon.Pun;
 using Pulsar.Debug;
+using UnityEngine;
 
 public class DeathMatchMode : GameModeBase
 {
@@ -65,33 +65,10 @@ public class DeathMatchMode : GameModeBase
     
     private void ResetGame()
     {
-        DestroyAllPawns();
-        InstantiateAllPawns();
         _hud.ResetHUD();
     }
 
     public void LeaveMatch()
     {
-        PhotonNetwork.LeaveRoom();
-    }
-    
-    public override void OnLeftRoom()
-    {
-        StartDisconnect();
-    }
-    
-    private void StartDisconnect()
-    {
-        if (PhotonNetwork.IsConnected)
-        {
-            PhotonNetwork.Disconnect();
-        }
-        
-        OnDisconnectedFromPhoton();
-    }
-    
-    private void OnDisconnectedFromPhoton()
-    {
-        PhotonNetwork.LoadLevel(0);
     }
 }

@@ -1,5 +1,4 @@
 using System;
-using ExitGames.Client.Photon.StructWrapping;
 using UnityEngine;
 
 public class WeaponAnimation : MonoBehaviour

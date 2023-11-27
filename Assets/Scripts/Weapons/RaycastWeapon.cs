@@ -1,5 +1,5 @@
+using System.Collections;
 using UnityEngine;
-using Photon.Pun;
 using Unity.Mathematics;
 
 public class RaycastWeapon : WeaponBase
@@ -11,12 +11,6 @@ public class RaycastWeapon : WeaponBase
     [SerializeField] private float _lineRendererDuration = 0.1f;
 
     private LineRenderer _lr;
-    private ParticleSystem _impactEffect;
-    
-    protected override void Awake()
-    {
-        base.Awake();
-    }
 
     protected override void Start()
     {
@@ -27,12 +21,6 @@ public class RaycastWeapon : WeaponBase
     
     protected override void Fire(Vector3 position, Vector3 direction)
     {
-        _photonView.RPC(nameof(RPC_Fire), RpcTarget.All, position, direction);
-    }
-
-    [PunRPC]
-    private void RPC_Fire(Vector3 position, Vector3 direction)
-    {
         Vector3 eyeFirePosition = _playerCamera.transform.position;
         Ray ray = new Ray(eyeFirePosition, direction);
         RaycastHit hitInfo;
@@ -41,7 +29,7 @@ public class RaycastWeapon : WeaponBase
             BodyDamageMultiplier bodyDamageMultiplier = hitInfo.collider.GetComponent<BodyDamageMultiplier>();
             if (bodyDamageMultiplier != null)
             {
-                bodyDamageMultiplier.TakeDamage(_damage, _info);
+                bodyDamageMultiplier.TakeDamage(_damage);
             }
             
             PlayImpactEffect(hitInfo.point);
@@ -62,18 +50,19 @@ public class RaycastWeapon : WeaponBase
 
     private void PlayImpactEffect(Vector3 pos)
     {
-        _impactEffect = Instantiate(_impactEffectPrefab, pos, quaternion.identity);
-        _impactEffect.Play();
-        Invoke(nameof(DestroyImpactParticle), 0.5f);
+        ParticleSystem impactEffect = Instantiate(_impactEffectPrefab, pos, quaternion.identity);
+        impactEffect.Play();
+        StartCoroutine(DestroyParticleAfterSeconds(impactEffect, 1.0f));
+    }
+
+    private IEnumerator DestroyParticleAfterSeconds(ParticleSystem particleEffect, float seconds)
+    {
+        yield return new WaitForSeconds(seconds);
+        Destroy(particleEffect);
     }
 
     private void HideLine()
     {
         _lr.enabled = false;
-    }
-
-    private void DestroyImpactParticle()
-    {
-        if(_impactEffect != null) Destroy(_impactEffect.gameObject);   
     }
 }

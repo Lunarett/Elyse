@@ -1,5 +1,3 @@
-using System.IO;
-using Photon.Pun;
 using UnityEngine;
 
 public class FallDamage : MonoBehaviour
@@ -15,16 +13,11 @@ public class FallDamage : MonoBehaviour
     
     private PlayerMovement _playerMovement;
     private PlayerHealth _playerHealth;
-    private DamageCauserInfo _info;
-    private PhotonView _photonView;
 
     private void Awake()
     {
         _playerMovement = GetComponent<PlayerMovement>();
         _playerHealth = GetComponent<PlayerHealth>();
-        _photonView = GetComponent<PhotonView>();
-
-        _info = new DamageCauserInfo(_photonView.Owner);
     }
 
     private void Update()
@@ -36,7 +29,7 @@ public class FallDamage : MonoBehaviour
         if (_enableFallDamage && fallSpeedRatio > 0f)
         {
             float dmgFromFall = Mathf.Lerp(_minFallDamage, _maxFallDamage, fallSpeedRatio);
-            _playerHealth.TakeDamage(dmgFromFall, _info);
+            _playerHealth.TakeDamage(dmgFromFall);
 
             // fall damage SFX
         }

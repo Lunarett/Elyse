@@ -1,48 +1,96 @@
+using System.Collections.Generic;
+using System.IO;
+using Pulsar.Debug;
 using UnityEngine;
-using Photon.Pun;
 using Pulsar.Utils;
+using Unity.Mathematics;
 
 public class WeaponManager : MonoBehaviour
 {
-    [Header("Position References")] 
-    [SerializeField] private Transform _fpsSpawnPosition;
-    [SerializeField] private Transform _tpsSpawnPosition;
+    [Header("Spawn Location References")]
+    [SerializeField] private Transform _fpsSpawnLocation;
+    [SerializeField] private Transform _tpsSpawnLocation;
 
-    [SerializeField] private GameObject weaponPrefab;
-
-    private PhotonView pv;
+    [Space] 
+    [SerializeField] private int _startingIndex;
+    [SerializeField] private List<WeaponBase> _weaponPrefabs;
+    
+    private PlayerInputManager _inputManager;
+    private WeaponBase _activeWeapon;
+    private ElyseCharacter _elyseCharacter;
+    private int _currentWeaponIndex;
 
     private void Awake()
     {
-        pv = GetComponent<PhotonView>();
+        _inputManager = GetComponent<PlayerInputManager>();
+        if (DebugUtils.CheckForNull<PlayerInputManager>(_inputManager, $"WeaponManager: PlayerInputManager not attached to {gameObject.name}!")) return;
+        
+        _elyseCharacter = GetComponent<ElyseCharacter>();
+        if (DebugUtils.CheckForNull<ElyseCharacter>(_elyseCharacter, $"WeaponManager: ElyseCharacter not attached to {gameObject.name}!")) return;
     }
 
     void Start()
     {
-        AddWeapon();
+        if (DebugUtils.CheckForNull<Transform>(_fpsSpawnLocation, "WeaponManager: FPS spawn point is missing!")) return;
+        if (DebugUtils.CheckForNull<Transform>(_tpsSpawnLocation, "WeaponManager: TPS spawn point is missing!")) return;
+        _currentWeaponIndex = _startingIndex;
+        AddWeapon(_currentWeaponIndex);
     }
 
-    private void AddWeapon()
+    private void Update()
     {
-        // Determine the correct position based on the owner of the PhotonView
-        Transform targetPosition = pv.IsMine ? _fpsSpawnPosition : _tpsSpawnPosition;
-        string layerName = pv.IsMine ? "FP_View" : "TP_View";
+        if (_activeWeapon == null) return;
+        UpdateWeaponFire();
+        UpdateWeaponSwitching();
+    }
 
-        if (PhotonNetwork.IsConnectedAndReady && PhotonNetwork.InRoom)
+    public void SwitchWeapon(int direction)
+    {
+        _currentWeaponIndex = (_currentWeaponIndex + direction + _weaponPrefabs.Count) % _weaponPrefabs.Count;
+        Destroy(_activeWeapon.gameObject);
+        AddWeapon(_currentWeaponIndex);
+    }
+
+    public void AddWeapon(int weaponIndex)
+    {
+        WeaponBase weapon = Instantiate(_weaponPrefabs[weaponIndex], _fpsSpawnLocation);
+        Utils.SetLayerRecursively(weapon.gameObject, LayerMask.NameToLayer("FP_Weapon"));
+        weapon.CharacterReference = _elyseCharacter;
+        weapon.transform.localPosition = weapon.WeaponOffset;
+        weapon.transform.localRotation = quaternion.identity;
+        weapon.transform.localScale = Vector3.one;
+
+        _activeWeapon = weapon;
+    }
+
+    private void UpdateWeaponFire()
+    {
+        switch (_activeWeapon.FireModeType)
         {
-            // Instantiate the weapon locally
-            GameObject weaponObject = Instantiate(weaponPrefab, targetPosition.position, targetPosition.rotation);
-            weaponObject.transform.SetParent(targetPosition);
-            weaponObject.transform.localPosition = Vector3.zero;
-            weaponObject.transform.localRotation = Quaternion.identity;
-            weaponObject.transform.localScale = Vector3.one;
+            case FireMode.Auto:
+                if (_inputManager.GetFireInputHeld())
+                {
+                    _activeWeapon.StartFire();
+                }
 
-            // Set the layer recursively using your utility method
-            Utils.SetLayerRecursively(weaponObject, LayerMask.NameToLayer(layerName));
+                break;
+            case FireMode.Single:
+            case FireMode.Burst:
+                if (_inputManager.GetFireInputDown())
+                {
+                    _activeWeapon.StartFire();
+                }
+
+                break;
         }
-        else
+    }
+
+    private void UpdateWeaponSwitching()
+    {
+        int switchInput = _inputManager.GetSwitchWeaponInput();
+        if (switchInput != 0)
         {
-            Debug.LogError("Not connected to network or not in room.");
+            SwitchWeapon(switchInput);
         }
     }
 }

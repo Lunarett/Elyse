@@ -1,21 +1,18 @@
-using Photon.Pun;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
 [RequireComponent(typeof(PlayerInput))]
 public class InputManager : MonoBehaviour
 {
-    private PlayerInput _playerInput;
-    private PhotonView _photonView;
+    protected PlayerInput _playerInput;
     private bool _isInputActive = true;
     
     protected bool _enableMoveInput = true;
     protected bool _enableMouseInput = true;
 
-    private void Awake()
+    protected virtual void Awake()
     {
         _playerInput = GetComponent<PlayerInput>();
-        _photonView = GetComponent<PhotonView>();
     }
 
     public void SetInputActive(bool isActive)
@@ -25,7 +22,7 @@ public class InputManager : MonoBehaviour
 
     protected bool CanProcessInput()
     {
-        return _isInputActive && _photonView.IsMine;
+        return _isInputActive;
     }
 
     protected bool CheckInputActionPhase(string actionName, InputActionPhase phase)

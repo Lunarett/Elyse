@@ -20,30 +20,16 @@ public class ElyseController : PlayerController
     protected override void Start()
     {
         base.Start();
+    }
 
-        if (!_photonView.Owner.CustomProperties.TryGetValue("Kills", out object kills) &&
-            !_photonView.Owner.CustomProperties.TryGetValue("Deaths", out object deaths))
-        {
-            _elysePlayerState.ResetStats();
-        }
+    public override void CreatePawn(Pawn pawn)
+    {
+        base.CreatePawn(pawn);
+        _controlledPawn.Owner = this;
     }
 
     public void Die()
     {
-        if (DebugUtils.CheckForNull<Pawn>(_pawn)) return;
-        _elysePlayerState.AddDeath();
-        StartCoroutine(RespawnCoroutine());
-    }
-
-    private IEnumerator RespawnCoroutine()
-    {
-        yield return new WaitForSeconds(_respawnTimeSeconds);
-        DestroyPawn();
-        CreatePawn();
-    }
-
-    public void ResetPlayerState()
-    {
-        _elysePlayerState.ResetStats();
+        RespawnPawn(_respawnTimeSeconds);
     }
 }

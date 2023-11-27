@@ -1,25 +1,18 @@
-using System;
 using System.Collections.Generic;
-using System.IO;
 using UnityEngine;
-using Photon.Pun;
 using Pulsar.Debug;
 
-public class GameModeBase : MonoBehaviourPunCallbacks
+public class GameModeBase : MonoBehaviour
 {
     [Header("Player Settings")]
     [SerializeField] private PlayerController _playerControllerPrefab;
-
     [SerializeField] private Pawn _playerPawn;
     [SerializeField] private Pawn _spectatorPawn;
 
     protected List<PlayerController> _playerControllers = new List<PlayerController>();
-    private PhotonView _photonView;
 
     protected virtual void Awake()
     {
-        _photonView = GetComponent<PhotonView>();
-        DebugUtils.CheckForNull<PhotonView>(_photonView, "GameMode: PhotonView is missing!");
     }
 
     protected virtual void Start()
@@ -27,27 +20,11 @@ public class GameModeBase : MonoBehaviourPunCallbacks
         InstantiatePlayerController();
     }
 
-    public override void OnJoinedRoom()
-    {
-        InstantiatePlayerController();
-    }
-
     protected void InstantiatePlayerController()
     {
-        if (DebugUtils.CheckForNull(_playerControllerPrefab, "GameModeBase: PlayerController prefab is null!"))
-            return;
-
-        PlayerController controller = PhotonNetwork.Instantiate(
-            Path.Combine("PhotonPrefabs", "Controllers", _playerControllerPrefab.gameObject.name),
-            Vector3.zero,
-            Quaternion.identity
-        ).GetComponent<PlayerController>();
-
-        if (DebugUtils.CheckForNull(controller,
-                $"GameModeBase: Failed to find {_playerControllerPrefab.gameObject.name} prefab in 'Resources/PhotonPrefabs/Controllers' directory!"))
-            return;
-
-        _playerControllers.Add(controller);
+        if(DebugUtils.CheckForNull<PlayerController>(_playerControllerPrefab, "GameModeBase: Controller prefab missing!")) return;
+        PlayerController controller = Instantiate(_playerControllerPrefab, Vector3.zero, Quaternion.identity);
+        controller.CreatePawn(_playerPawn);
     }
 
     protected void DestroyAllPawns()
@@ -64,7 +41,7 @@ public class GameModeBase : MonoBehaviourPunCallbacks
         foreach (var controller in _playerControllers)
         {
             if (DebugUtils.CheckForNull(controller)) return;
-            controller.CreatePawn();
+            controller.CreatePawn(_playerPawn);
         }
     }
 
@@ -75,10 +52,10 @@ public class GameModeBase : MonoBehaviourPunCallbacks
             if (DebugUtils.CheckForNull<PlayerController>(playerController,
                     "EnableAllPlayerControl() failed because the controller from list returned null!!",
                     20.0f)) return;
-            if (DebugUtils.CheckForNull<Pawn>(playerController.Pawn,
+            if (DebugUtils.CheckForNull<Pawn>(playerController.ControlledPawn,
                     "EnableAllPlayerControl() failed because the Pawn from the PlayerController returned null!!",
                     20.0f)) return;
-            playerController.Pawn.EnableControl(isEnabled, true);
+            playerController.ControlledPawn.EnableControl(isEnabled, true);
         }
     }
 }

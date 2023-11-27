@@ -1,5 +1,4 @@
 using System;
-using Photon.Pun;
 using Pulsar.Debug;
 using UnityEngine;
 
@@ -47,18 +46,14 @@ public class PlayerView : MonoBehaviour
     public float WeaponFOV => m_weaponCamera.fieldOfView;
     public bool EnableView = true;
 
-    private PhotonView pv;
-
     private void Awake()
     {
         m_playerCamera = FindObjectOfType<PlayerCamera>();
         m_inputManager = GetComponent<PlayerInputManager>();
-        pv = GetComponent<PhotonView>();
     }
 
     private void Start()
     {
-        if (!pv.IsMine) return;
         if (!EnableView) return;
 
         m_playerCamera.SetFollowTarget(m_cameraFollowTarget);

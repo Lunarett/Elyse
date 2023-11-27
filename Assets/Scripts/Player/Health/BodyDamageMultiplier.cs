@@ -17,11 +17,10 @@ public class BodyDamageMultiplier : MonoBehaviour
         DebugUtils.CheckForNull<PlayerHealth>(_playerHealth);
     }
 
-    public void TakeDamage(float baseDamage, DamageCauserInfo damageCauserInfo)
+    public void TakeDamage(float baseDamage)
     {
-        Debug.Log("BodyDamageMultiplier called!");
         float modifiedDamage = baseDamage * _damageMultiplier;
-        damageCauserInfo.HeadShot = _isHead;
-        _playerHealth.TakeDamage(modifiedDamage, damageCauserInfo);
+        Debug.Log($"BodyDamageMultiplier: Base damage {baseDamage}, new damage {modifiedDamage}");
+        _playerHealth.TakeDamage(modifiedDamage);
     }
 }

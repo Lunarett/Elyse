@@ -1,4 +1,4 @@
-using Photon.Pun;
+
 using Pulsar.Debug;
 using UnityEngine;
 using Pulsar.Utils;
@@ -22,6 +22,7 @@ public class ElyseCharacter : Character
     private ElyseController _elyseController;
     private HUD _hud;
     private bool _isPaused;
+    private bool _isDead;
 
     public bool IsDead { get; set; }
     public PlayerInputManager PlayerInputManager => _playerInputManager;
@@ -48,37 +49,44 @@ public class ElyseCharacter : Character
 
         _playerHealth.OnPlayerDied += OnPlayerDied;
         
-        // Cast to elyse controller
-        _elyseController = (ElyseController) PlayerController;
-        DebugUtils.CheckForNull<ElyseController>(_elyseController);
-        
-        if (_photonView.IsMine)
-        {
-            Utils.SetLayerRecursively(gameObject, LayerMask.NameToLayer("Local Player"));
-            SetViewMode(EViewMode.FPS);
-        }
-        else
-        {
-            _fpsView.SetActive(false);
-            Utils.SetLayerRecursively(gameObject, LayerMask.NameToLayer("Remote Player"));
-        }
+        // Set to Local player
+        Utils.SetLayerRecursively(gameObject, LayerMask.NameToLayer("Local Player"));
+        SetViewMode(EViewMode.FPS);
 
         _hud.OnGameResume += UnpauseGame;
+
+        _rig.weight = 1;
     }
 
     private void Start()
     {
+        if (!DebugUtils.CheckForNull<Controller>(Owner, "ElyseCharacter: Owner is null!"))
+        {
+            Debug.Log("Attempting to cast Owner to ElyseController...");
+            _elyseController = Owner as ElyseController;
+            DebugUtils.CheckForNull<ElyseController>(_elyseController, "ElyseCharacter: Failed to cast controller as ElyseController");
+        }
+        
         _hud.SetDamageScreenAlpha(0);
         ShowMouseCursor(false);
-        EnableView(_photonView.IsMine);
-        _rig.weight = 1;
     }
 
     private void Update()
     {
         if (_playerInputManager.GetPauseInputDown())
         {
-            PauseGame();
+            Debug.Log("Pause input fired!");
+            _isPaused = !_isPaused;
+            if (_isPaused)
+            {
+                Debug.Log("Game Paused!");
+                PauseGame();
+            }
+            else
+            {
+                Debug.Log("Game Unpaused!");
+                UnpauseGame();
+            }
         }
     }
 
@@ -124,27 +132,34 @@ public class ElyseCharacter : Character
         }
     }
 
-    private void OnPlayerDied(DamageCauserInfo damageCauserInfo)
+    private void OnPlayerDied()
     {
-        if (!_photonView.IsMine) return;
-        _hud.SetDamageScreenAlpha(0.5f);
+        _isDead = true;
         _rig.weight = 0;
-        EnableMovement(false, false);
+        EnableInput(false, false);
         SetViewMode(EViewMode.TPS);
         _tpsAnimator.SetBool(Dead, true);
-        _elyseController.Die();   
+        _elyseController.Die();
     }
 
     private void UnpauseGame()
     {
-        EnableMovement(true, false);
+        _isPaused = false;
+        _hud.DisplayPauseMenu(false);
+
+        if (!_isDead)
+        {
+            EnableInput(true, false);    
+        }
+        
         ShowMouseCursor(false);
     }
 
     private void PauseGame()
     {
+        _isPaused = true;
         _hud.DisplayPauseMenu();
-        EnableMovement(false, false);
+        EnableInput(false, false);
         ShowMouseCursor(true);
     }
     

@@ -2,7 +2,6 @@ using System;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.Events;
-using Photon.Pun;
 
 [RequireComponent(typeof(CharacterController), typeof(PlayerInputManager))]
 public class PlayerMovement : MonoBehaviour
@@ -43,7 +42,6 @@ public class PlayerMovement : MonoBehaviour
     private PlayerInputManager m_inputManager;
     private AudioSource m_audioSource;
     private Camera m_weaponCamera;
-    private PhotonView _pv;
 
     private float m_lastTimeJumped;
     private float m_footstepDistanceCounter;
@@ -86,12 +84,10 @@ public class PlayerMovement : MonoBehaviour
         m_controller = GetComponent<CharacterController>();
         m_inputManager = GetComponent<PlayerInputManager>();
         m_audioSource = GetComponent<AudioSource>();
-        _pv = GetComponent<PhotonView>();
     }
 
     private void Start()
     {
-        if (!_pv.IsMine) return;
         m_controller.enableOverlapRecovery = true;
         SetCrouchingState(false, true);
         UpdateCharacterHeight(true);
@@ -99,7 +95,6 @@ public class PlayerMovement : MonoBehaviour
 
     private void Update()
     {
-        if (!_pv.IsMine) return;
         Jump(m_inputManager.GetJumpInputDown());
         Crouch(m_inputManager.GetCrouchInputDown());
         Sprint(m_inputManager.GetSprintInputHeld());
@@ -316,14 +311,12 @@ public class PlayerMovement : MonoBehaviour
     public void Jump(bool isJumping)
     {
         m_isJumping = isJumping;
-        //_animator.SetBool("Jump", m_isJumping);
     }
 
     public void Crouch(bool isCrouching)
     {
         m_isCrouching = isCrouching;
         SetCrouchingState(m_isCrouching, false);
-        //_animator.SetBool(Crouch1, m_isCrouching);
     }
 
     public void Sprint(bool isSprinting)

@@ -1,5 +1,4 @@
 using System;
-using Photon.Pun;
 using Pulsar.Debug;
 using UnityEngine;
 
@@ -23,20 +22,12 @@ public class MatchTimeHandler : MonoBehaviour
     private bool _isPaused;
     private bool _beginCountdown;
 
-    private PhotonView _photonView;
-
     public EMatchState CurrentMatchState => _currentMatchState;
     public float ElapsedMatchTime => _elapsedMatchTime;
 
     public event Action OnMatchStarted;
     public event Action OnMatchEnded;
     public event Action OnGameEnded;
-
-    private void Awake()
-    {
-        _photonView = GetComponent<PhotonView>();
-        DebugUtils.CheckForNull<PhotonView>(_photonView, "MatchTimeHandler: PhotonView is missing!");
-    }
 
     private void Update()
     {
@@ -62,19 +53,11 @@ public class MatchTimeHandler : MonoBehaviour
 
     public void StartPreMatchCountdown()
     {
-        if (!PhotonNetwork.IsMasterClient) return;
         _elapsedMatchTime = 0;
         _beginCountdown = true;
     }
 
     public void StartMatch()
-    {
-        if (!PhotonNetwork.IsMasterClient) return;
-        _photonView.RPC(nameof(RPC_StartMatch), RpcTarget.All);
-    }
-
-    [PunRPC]
-    private void RPC_StartMatch()
     {
         _elapsedMatchTime = 0;
         _currentMatchState = EMatchState.InProgress;
@@ -83,26 +66,12 @@ public class MatchTimeHandler : MonoBehaviour
 
     public void EndMatch()
     {
-        if (!PhotonNetwork.IsMasterClient) return;
-        _photonView.RPC(nameof(RPC_EndMatch), RpcTarget.All);
-    }
-
-    [PunRPC]
-    private void RPC_EndMatch()
-    {
         _elapsedMatchTime = 0;
         _currentMatchState = EMatchState.PostMatch;
         OnMatchEnded?.Invoke();
     }
 
     public void PauseMatch(bool isPaused)
-    {
-        if (!PhotonNetwork.IsMasterClient) return;
-        _photonView.RPC(nameof(RPC_PauseMatch), RpcTarget.All, isPaused);
-    }
-
-    [PunRPC]
-    private void RPC_PauseMatch(bool isPaused)
     {
         _isPaused = isPaused;
     }

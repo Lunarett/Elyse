@@ -1,7 +1,5 @@
 using System.Collections;
-using ExitGames.Client.Photon;
 using UnityEngine;
-using Photon.Pun;
 using Pulsar.Debug;
 
 public enum FireMode
@@ -11,7 +9,7 @@ public enum FireMode
     Burst
 }
 
-public abstract class WeaponBase : MonoBehaviour
+public class WeaponBase : MonoBehaviour
 {
     [Header("General")]
     [SerializeField] private string _weaponName;
@@ -34,9 +32,7 @@ public abstract class WeaponBase : MonoBehaviour
     [SerializeField] protected Transform _fireTransform;
     [SerializeField] protected ParticleSystem _muzzleEffect;
 
-    protected PhotonView _photonView;
     protected Camera _playerCamera;
-    protected DamageCauserInfo _info;
     private WeaponAnimation _weaponAnim;
 
     private float _lastBurstFireTime;
@@ -48,15 +44,6 @@ public abstract class WeaponBase : MonoBehaviour
 
     protected virtual void Awake()
     {
-        _photonView = GetComponent<PhotonView>();
-        _info = new DamageCauserInfo(_photonView.Owner);
-
-        PhotonPeer.RegisterType(
-            typeof(DamageCauserInfo), 
-            (byte)'D', 
-            DamageCauserInfo.Serialize, 
-            DamageCauserInfo.Deserialize
-        );
     }
 
     protected virtual void Start()
@@ -72,7 +59,6 @@ public abstract class WeaponBase : MonoBehaviour
 
     public void StartFire()
     {
-        if (!_photonView.IsMine) return;
         switch (_fireMode)
         {
             case FireMode.Auto:
@@ -127,5 +113,7 @@ public abstract class WeaponBase : MonoBehaviour
         return spreadRotation * direction;
     }
 
-    protected abstract void Fire(Vector3 position, Vector3 direction);
+    protected virtual void Fire(Vector3 position, Vector3 direction)
+    {
+    }
 }

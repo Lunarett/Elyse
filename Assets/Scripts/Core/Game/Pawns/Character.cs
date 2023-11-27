@@ -15,18 +15,12 @@ public abstract class Character : Pawn
     protected virtual void Awake()
     {
         base.Awake();
-        _inputManager = GetComponent<InputManager>();
         _playerMovement = GetComponent<PlayerMovement>();
         _playerView = GetComponent<PlayerView>();
     }
 
-    public void EnableMovement(bool isEnabled, bool ignoreMouse)
+    public void EnableInput(bool isEnabled, bool ignoreMouse)
     {
         _inputManager.EnableControl(isEnabled, ignoreMouse);
-    }
-
-    public void EnableView(bool isEnabled)
-    {
-        _playerView.EnableView = isEnabled;
     }
 }
