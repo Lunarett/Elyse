@@ -3,13 +3,13 @@ using System.Collections.Generic;
 using Pulsar.Debug;
 using UnityEngine;
 
-[RequireComponent(typeof(PlayerMovement), typeof(PlayerView))]
+[RequireComponent(typeof(PlayerView))]
 public abstract class Character : Pawn
 {
     protected PlayerMovement _playerMovement;
     protected PlayerView _playerView;
     
-    public PlayerMovement PlayerMovement => _playerMovement;
+    public PlayerMovement DeprecatedPlayerMovement => _playerMovement;
     public PlayerView PlayerView => _playerView;
 
     protected virtual void Awake()

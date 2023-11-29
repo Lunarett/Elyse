@@ -4,38 +4,48 @@ public class FallDamage : MonoBehaviour
 {
     [SerializeField] private bool _enableFallDamage = true;
     [SerializeField][FilePath] private string _deathIconPath;
-    
-    [Header("Fall Damage Properties")]
-    [SerializeField] private float _minSpeed = 10.0f;
-    [SerializeField] private float _maxSpeed = 30.0f;
-    [SerializeField] private float _minFallDamage = 10.0f;
-    [SerializeField] private float _maxFallDamage = 50.0f;
-    
-    private PlayerMovement _playerMovement;
-    private PlayerHealth _playerHealth;
 
+    [Header("Fall Damage Properties")]
+    [SerializeField] private float _minFallSpeedThreshold = 10.0f;
+    [SerializeField] private float _lethalFallSpeed = 30.0f;
+    [SerializeField] private float _minFallDamage = 10.0f;
+    [SerializeField] private float _maxFallDamage = 95.0f;
+
+    private PlayerMovement _movement;
+    private PlayerHealth _playerHealth;
+    private float peakFallSpeed = 0f;
+    
     private void Awake()
     {
-        _playerMovement = GetComponent<PlayerMovement>();
+        _movement = GetComponent<PlayerMovement>();
         _playerHealth = GetComponent<PlayerHealth>();
     }
 
     private void Update()
     {
-        if (!_playerMovement.IsGrounded || _playerMovement.WasGrounded) return;
-        float fallSpeed = -Mathf.Min(_playerMovement.CharacterVelocity.y, _playerMovement.LatestImpactSeed.y);
-        float fallSpeedRatio = (fallSpeed - _minSpeed) / (_maxSpeed - _minSpeed);
-        
-        if (_enableFallDamage && fallSpeedRatio > 0f)
+        if (!_movement.IsGrounded)
         {
-            float dmgFromFall = Mathf.Lerp(_minFallDamage, _maxFallDamage, fallSpeedRatio);
-            _playerHealth.TakeDamage(dmgFromFall);
+            float currentFallSpeed = -_movement.CharacterVelocity.y;
+            peakFallSpeed = Mathf.Max(peakFallSpeed, currentFallSpeed);
+        }
+        else if (_movement.WasGrounded)
+        {
+            if (_enableFallDamage && peakFallSpeed > _minFallSpeedThreshold)
+            {
+                float fallDamage = CalculateFallDamage(peakFallSpeed);
+                _playerHealth.TakeDamage(fallDamage);
+                // Reset peak fall speed
+                peakFallSpeed = 0f;
+            }
+        }
+    }
 
-            // fall damage SFX
-        }
-        else
-        {
-            // land SFX
-        }
+    private float CalculateFallDamage(float fallSpeed)
+    {
+        if (fallSpeed >= _lethalFallSpeed)
+            return _maxFallDamage;
+
+        float normalizedSpeed = (fallSpeed - _minFallSpeedThreshold) / (_lethalFallSpeed - _minFallSpeedThreshold);
+        return Mathf.Lerp(_minFallDamage, _maxFallDamage, normalizedSpeed);
     }
 }

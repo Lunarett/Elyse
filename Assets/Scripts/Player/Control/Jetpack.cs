@@ -1,18 +1,19 @@
 using UnityEngine;
 
-[RequireComponent(typeof(PlayerMovement), typeof(Power))]
+[RequireComponent(typeof(Power))]
 public class Jetpack : MonoBehaviour
 {
-    [SerializeField] private float jetpackForce = 10f;
-    [SerializeField] private float powerConsumptionRate = 1f;
+    [SerializeField] private float _thrustPower = 4.0f;
+    [SerializeField] private float _jetpackForce = 10f;
+    [SerializeField] private float _powerConsumptionRate = 1f;
 
-    private PlayerMovement playerMovement;
+    private PlayerMovement _playerMovement;
     private Power power;
     private PlayerInputManager _inputManager;
 
     private void Awake()
     {
-        playerMovement = GetComponent<PlayerMovement>();
+        _playerMovement = GetComponent<PlayerMovement>();
         power = GetComponent<Power>();
         _inputManager = GetComponent<PlayerInputManager>();
     }
@@ -20,9 +21,16 @@ public class Jetpack : MonoBehaviour
     private void Update()
     {
         if (!_inputManager.GetFlyInputHeld()) return;
-        float powerNeeded = powerConsumptionRate * Time.deltaTime;
+        float powerNeeded = _powerConsumptionRate * Time.deltaTime;
         if (!power.ConsumePower(powerNeeded)) return;
-        Vector3 jetpackBoost = Vector3.up * (jetpackForce * Time.deltaTime);
-        playerMovement.CharacterVelocity += jetpackBoost;
+
+        if (_playerMovement.IsGrounded)
+        {
+            _playerMovement.CharacterVelocity = new Vector3(_playerMovement.CharacterVelocity.x, 0f, _playerMovement.CharacterVelocity.z);
+            _playerMovement.CharacterVelocity += Vector3.up * _thrustPower;
+        }
+        
+        Vector3 jetpackBoost = Vector3.up * (_jetpackForce * Time.deltaTime);
+        _playerMovement.CharacterVelocity += jetpackBoost;
     }
 }

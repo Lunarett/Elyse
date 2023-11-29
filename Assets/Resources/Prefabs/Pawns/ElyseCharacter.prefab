@@ -583,7 +583,7 @@ GameObject:
   m_Component:
   - component: {fileID: 516533362349361311}
   - component: {fileID: 4541208221886268781}
-  - component: {fileID: 516533362349361308}
+  - component: {fileID: 8303751981104048717}
   - component: {fileID: 516533362349361305}
   - component: {fileID: 3723548513185817919}
   - component: {fileID: 983760228339771482}
@@ -636,7 +636,7 @@ MonoBehaviour:
   _tpsView: {fileID: 516533362321128194}
   _tpsAnimator: {fileID: 794201485712210741}
   _rig: {fileID: 5952895323301543240}
---- !u!114 &516533362349361308
+--- !u!114 &8303751981104048717
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -645,30 +645,26 @@ MonoBehaviour:
   m_GameObject: {fileID: 516533362349361285}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 129c3a7b91f512c4cbd4bb599fc5f2de, type: 3}
+  m_Script: {fileID: 11500000, guid: 1d1ea133e3f634a408c63c4e146e86be, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_cameraFollowTarget: {fileID: 516533363047978101}
-  m_groundCheckDistance: 0.05
-  m_groundCheckLayers:
+  _movementSpeed: 10
+  _movementSharpness: 15
+  _movementSpeedInAir: 10
+  _airAccelerationSpeed: 25
+  _jumpForce: 9
+  _downForce: 20
+  _crouchingSharpness: 10
+  _crouchMultiplier: 0.5
+  _sprintMultiplier: 2
+  _eyeTransform: {fileID: 516533363047978100}
+  _eyeHeightRatio: 0.9
+  _capsuleHeightStanding: 1.8
+  _capsuleHeightCrouching: 0.9
+  _groundCheckLayers:
     serializedVersion: 2
-    m_Bits: 1
-  m_movementSpeed: 10
-  m_speedInAir: 15
-  m_airAccelerationSpeed: 25
-  m_movementSharpness: 10
-  m_jumpForce: 8
-  m_downForce: 23
-  m_crouchMultiplier: 0.5
-  m_sprintMultiplier: 1.8
-  m_cameraHeightRatio: 0.6
-  m_capsuleHeightStanding: 1.8
-  m_capsuleHeightCrouching: 0.9
-  m_crouchingSharpness: 10
-  m_footstepSfxFrequency: 1
-  m_footstepSfxFrequencyWhileSprinting: 1
-  m_footstepSfx: {fileID: 0}
-  m_jumpSfx: {fileID: 0}
+    m_Bits: 4294967295
+  _groundCheckDistance: 0.05
 --- !u!114 &516533362349361305
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -704,8 +700,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b5735170fec15ed4181db7498d3c4b0a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  jetpackForce: 25
-  powerConsumptionRate: 15
+  _thrustPower: 4
+  _jetpackForce: 22
+  _powerConsumptionRate: 10
 --- !u!114 &983760228339771482
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -767,10 +764,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _enableFallDamage: 1
   _deathIconPath: Assets/Resources/UI/FeedIcons/FallDamage.png
-  _minSpeed: 20
-  _maxSpeed: 100
-  _minFallDamage: 10
-  _maxFallDamage: 100
+  _minFallSpeedThreshold: 20
+  _lethalFallSpeed: 50
+  _minFallDamage: 5
+  _maxFallDamage: 80
 --- !u!143 &516533362349361306
 CharacterController:
   m_ObjectHideFlags: 0
