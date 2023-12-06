@@ -11,6 +11,8 @@ public class ProjectileWeapon : WeaponBase
 
     protected override void Fire(Vector3 position, Vector3 direction)
     {
+        base.Fire(position, direction);
+        
         ProjectileBase projectile = Instantiate(_projectilePrefab, position, Quaternion.LookRotation(direction));
         projectile.Damage = _damage;
         projectile.Speed = _projectileSpeed;

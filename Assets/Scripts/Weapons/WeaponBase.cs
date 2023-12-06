@@ -1,6 +1,9 @@
+using System;
 using System.Collections;
+using FMODUnity;
 using UnityEngine;
 using Pulsar.Debug;
+using Random = UnityEngine.Random;
 
 public enum FireMode
 {
@@ -32,8 +35,12 @@ public class WeaponBase : MonoBehaviour
     [SerializeField] protected Transform _fireTransform;
     [SerializeField] protected ParticleSystem _muzzleEffect;
 
+    [Header("SFX")]
+    [SerializeField] private EventReference _fireEventRef; 
+
     protected Camera _playerCamera;
     private WeaponAnimation _weaponAnim;
+    private FMOD.Studio.EventInstance weaponSoundInstance;
 
     private float _lastBurstFireTime;
     private float _lastFireTime;
@@ -44,13 +51,14 @@ public class WeaponBase : MonoBehaviour
 
     protected virtual void Awake()
     {
+        weaponSoundInstance = RuntimeManager.CreateInstance(_fireEventRef);
     }
 
     protected virtual void Start()
     {
         if (DebugUtils.CheckForNull(CharacterReference)) return;
 
-        _playerCamera = CharacterReference.PlayerView.PlayerCamera.MainCamera;
+        _playerCamera = CharacterReference.CameraController.SpringArm.AttachedCamera;
         if (DebugUtils.CheckForNull(_playerCamera)) return;
 
         _weaponAnim = CharacterReference.WeaponAnim;
@@ -115,5 +123,13 @@ public class WeaponBase : MonoBehaviour
 
     protected virtual void Fire(Vector3 position, Vector3 direction)
     {
+        FMOD.ATTRIBUTES_3D attributes = gameObject.To3DAttributes();
+        weaponSoundInstance.set3DAttributes(attributes);
+        weaponSoundInstance.start();
+    }
+
+    private void OnDestroy()
+    {
+        weaponSoundInstance.release();
     }
 }

@@ -91,6 +91,13 @@ MonoBehaviour:
   _fireRecoilForce: 1
   _fireTransform: {fileID: 1421744972477986983}
   _muzzleEffect: {fileID: 1657320514282319976}
+  _fireEventRef:
+    Guid:
+      Data1: 422494400
+      Data2: 1205859173
+      Data3: 127166113
+      Data4: 1352823211
+    Path: event:/Player/Weapons/Archtronic
   _impactEffectPrefab: {fileID: 744084136304213716, guid: f4ad68aa2a7063449bd2e580eb161897,
     type: 3}
   _laserPrefab: {fileID: 5041111493687089217, guid: cf27699e3e694c54490414224dce7085,

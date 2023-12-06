@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<objects serializationModel="Studio.02.02.00">
+	<object class="AudioFile" id="{c5fce37f-2b21-4d51-b5dd-be4f613f8a77}">
+		<property name="assetPath">
+			<value>NEON BLAST Post Auditory Welding.wav</value>
+		</property>
+		<property name="isStreaming">
+			<value>true</value>
+		</property>
+		<property name="frequencyInKHz">
+			<value>96</value>
+		</property>
+		<property name="channelCount">
+			<value>2</value>
+		</property>
+		<property name="length">
+			<value>50.5</value>
+		</property>
+		<relationship name="masterAssetFolder">
+			<destination>{af0caffa-e6e9-4ecf-9e7a-77e8bd67bf5c}</destination>
+		</relationship>
+	</object>
+</objects>

@@ -156,4 +156,9 @@ public class HUD : MonoBehaviour
             Destroy(child.gameObject);
         }
     }
+
+    public void ShowEmpty()
+    {
+        _panelManager.ShowPanel(3);
+    }
 }

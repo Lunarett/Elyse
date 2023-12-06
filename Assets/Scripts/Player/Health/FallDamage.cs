@@ -3,7 +3,6 @@ using UnityEngine;
 public class FallDamage : MonoBehaviour
 {
     [SerializeField] private bool _enableFallDamage = true;
-    [SerializeField][FilePath] private string _deathIconPath;
 
     [Header("Fall Damage Properties")]
     [SerializeField] private float _minFallSpeedThreshold = 10.0f;

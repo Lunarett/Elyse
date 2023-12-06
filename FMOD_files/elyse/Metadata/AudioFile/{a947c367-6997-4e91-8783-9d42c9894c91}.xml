@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<objects serializationModel="Studio.02.02.00">
+	<object class="AudioFile" id="{a947c367-6997-4e91-8783-9d42c9894c91}">
+		<property name="assetPath">
+			<value>pl_fallpain3.wav</value>
+		</property>
+		<property name="frequencyInKHz">
+			<value>11.0249996</value>
+		</property>
+		<property name="channelCount">
+			<value>1</value>
+		</property>
+		<property name="length">
+			<value>0.65133786848072561</value>
+		</property>
+		<relationship name="masterAssetFolder">
+			<destination>{af0caffa-e6e9-4ecf-9e7a-77e8bd67bf5c}</destination>
+		</relationship>
+	</object>
+</objects>

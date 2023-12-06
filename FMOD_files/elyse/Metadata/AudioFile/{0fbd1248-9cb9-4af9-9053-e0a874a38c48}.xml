@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<objects serializationModel="Studio.02.02.00">
+	<object class="AudioFile" id="{0fbd1248-9cb9-4af9-9053-e0a874a38c48}">
+		<property name="assetPath">
+			<value>pl_gun3.wav</value>
+		</property>
+		<property name="frequencyInKHz">
+			<value>22.0499992</value>
+		</property>
+		<property name="channelCount">
+			<value>1</value>
+		</property>
+		<property name="length">
+			<value>0.59904761904761905</value>
+		</property>
+		<relationship name="masterAssetFolder">
+			<destination>{af0caffa-e6e9-4ecf-9e7a-77e8bd67bf5c}</destination>
+		</relationship>
+	</object>
+</objects>

@@ -8,6 +8,7 @@ public class PlayerInputManager : InputManager
     private bool _viewInputWasHeld;
     private bool _crouchInputWasHeld;
     private bool _pauseInputWasHeld;
+    private bool _interactInputWasHeld;
 
     private void LateUpdate()
     {
@@ -16,6 +17,7 @@ public class PlayerInputManager : InputManager
         _viewInputWasHeld = GetViewInputHeld();
         _crouchInputWasHeld = GetJumpInputHeld();
         _pauseInputWasHeld = GetPauseInputHeld();
+        _interactInputWasHeld = GetInteractInputHeld();
     }
 
     public Vector3 GetMoveInputVector3()
@@ -114,6 +116,16 @@ public class PlayerInputManager : InputManager
     public bool GetPauseInputDown()
     {
         return CanProcessInput() && (GetPauseInputHeld() && !_pauseInputWasHeld);
+    }
+
+    public bool GetInteractInputDown()
+    {
+        return _enableMoveInput && CanProcessInput() && (GetInteractInputHeld() && !_interactInputWasHeld);
+    }
+
+    public bool GetInteractInputHeld()
+    {
+        return _enableMoveInput && CheckInputActionPhase("Interact", InputActionPhase.Performed);
     }
 
     public int GetSwitchWeaponInput()

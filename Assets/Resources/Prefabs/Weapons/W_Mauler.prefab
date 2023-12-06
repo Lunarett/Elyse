@@ -91,6 +91,13 @@ MonoBehaviour:
   _fireRecoilForce: 1
   _fireTransform: {fileID: 4693327681146019319}
   _muzzleEffect: {fileID: 8885183598234285943}
+  _fireEventRef:
+    Guid:
+      Data1: -1856243412
+      Data2: 1150047364
+      Data3: -1276334694
+      Data4: 198827607
+    Path: event:/Player/Weapons/Mauler
   _impactEffectPrefab: {fileID: 744084136304213716, guid: 6138bf7d926d962428ab5814c44daa0d,
     type: 3}
   _laserPrefab: {fileID: 5041111493687089217, guid: f7e02957011d837458a06a06081b9986,

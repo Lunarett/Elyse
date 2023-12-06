@@ -122,6 +122,13 @@ MonoBehaviour:
   _fireRecoilForce: 4
   _fireTransform: {fileID: 5084123161651506280}
   _muzzleEffect: {fileID: 6971734591215563999}
+  _fireEventRef:
+    Guid:
+      Data1: 140815598
+      Data2: 1084673937
+      Data3: -702835837
+      Data4: 572594010
+    Path: event:/Player/Weapons/Grimbrand
   _projectilePrefab: {fileID: 9127294051415415182, guid: 1364d912587e41343b1c856ff231c71e,
     type: 3}
   _projectileSpeed: 150

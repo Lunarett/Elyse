@@ -21,6 +21,8 @@ public class RaycastWeapon : WeaponBase
     
     protected override void Fire(Vector3 position, Vector3 direction)
     {
+        base.Fire(position, direction);
+        
         Vector3 eyeFirePosition = _playerCamera.transform.position;
         Ray ray = new Ray(eyeFirePosition, direction);
         RaycastHit hitInfo;

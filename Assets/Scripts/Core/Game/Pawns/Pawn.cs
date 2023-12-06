@@ -1,3 +1,4 @@
+using System;
 using Pulsar.Debug;
 using UnityEngine;
 
@@ -10,6 +11,23 @@ public abstract class Pawn : MonoBehaviour
     {
         _inputManager = GetComponent<InputManager>();
         if (DebugUtils.CheckForNull<InputManager>(_inputManager, "Pawn: PhotonView is missing!")) return;
+    }
+
+    protected virtual void Start()
+    {
+        if (Owner == null) _inputManager.SetInputActive(false);
+    }
+
+    public void SetOwner(Controller newOwner)
+    {
+        Owner = newOwner;
+        _inputManager.SetInputActive(true);
+    }
+
+    public void RemoveOwner()
+    {
+        Owner = null;
+        _inputManager.SetInputActive(false);
     }
     
     public void ShowMouseCursor(bool isVisible)
