@@ -1,10 +1,17 @@
 using System;
+using FMODUnity;
 using UnityEngine;
 
 [RequireComponent(typeof(PlayerInputManager))]
 public class PlayerMovement : CharacterMovement
 {
+    [Header("SFX")] 
+    [SerializeField] private EventReference footstepEvent;
+    [SerializeField] private EventReference jumpEvent;
+    
     private PlayerInputManager _input;
+    private float footstepFrequency;
+    private float footstepTimer;
     private float _speedMultiplier = 1.0f;
 
     protected override void Awake()
@@ -18,9 +25,13 @@ public class PlayerMovement : CharacterMovement
         Jump(_input.GetJumpInputDown());
         Crouch(_input.GetCrouchInputDown());
         Sprint(_input.GetSprintInputHeld());
-        
-        if (_isGrounded) UpdateSpeedMultiplier();
-        
+
+        if (_isGrounded)
+        {
+            UpdateSpeedMultiplier();
+            UpdateFootstepTimer();
+        }
+
         base.Update();
         MovePlayer();
     }
@@ -37,14 +48,17 @@ public class PlayerMovement : CharacterMovement
         if (_isCrouching && !_isSprinting)
         {
             _speedMultiplier = _crouchMultiplier;
+            footstepFrequency = 0.4f;
         }
         else if (_isSprinting && !_isCrouching)
         {
             _speedMultiplier = _sprintMultiplier;
+            footstepFrequency = 0.25f;
         }
         else
         {
             _speedMultiplier = 1.0f;
+            footstepFrequency = 0.3f;
         }
     }
     
@@ -62,5 +76,25 @@ public class PlayerMovement : CharacterMovement
     public void Sprint(bool isSprinting)
     {
         _isSprinting = isSprinting;
+    }
+    
+    private void UpdateFootstepTimer()
+    {
+        if (_input.GetMoveInput().sqrMagnitude > 0.1f)
+        {
+            footstepTimer -= Time.deltaTime;
+            if (!(footstepTimer <= 0)) return;
+            PlayFootstepSound();
+            footstepTimer = footstepFrequency;
+        }
+        else
+        {
+            footstepTimer = 0;
+        }
+    }
+
+    private void PlayFootstepSound()
+    {
+        RuntimeManager.PlayOneShot(footstepEvent, transform.position);
     }
 }

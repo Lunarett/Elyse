@@ -666,6 +666,20 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 1
   _groundCheckDistance: 0.05
+  footstepEvent:
+    Guid:
+      Data1: -406748756
+      Data2: 1178886487
+      Data3: 799824052
+      Data4: -5326689
+    Path: event:/Player/Surface/Step_Dirt
+  jumpEvent:
+    Guid:
+      Data1: -406748756
+      Data2: 1178886487
+      Data3: 799824052
+      Data4: -5326689
+    Path: event:/Player/Surface/Step_Dirt
 --- !u!114 &9039744794260978936
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -769,6 +783,20 @@ MonoBehaviour:
   _lethalFallSpeed: 50
   _minFallDamage: 5
   _maxFallDamage: 80
+  landingSoundEvent:
+    Guid:
+      Data1: -406748756
+      Data2: 1178886487
+      Data3: 799824052
+      Data4: -5326689
+    Path: event:/Player/Surface/Step_Dirt
+  damageSoundEvent:
+    Guid:
+      Data1: 626355783
+      Data2: 1295454501
+      Data3: 1057289895
+      Data4: -253076366
+    Path: event:/Player/Damage/FallDamage
 --- !u!143 &516533362349361306
 CharacterController:
   m_ObjectHideFlags: 0
