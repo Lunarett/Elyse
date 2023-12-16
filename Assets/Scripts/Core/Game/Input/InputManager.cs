@@ -1,31 +1,48 @@
-using Photon.Pun;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
 [RequireComponent(typeof(PlayerInput))]
 public class InputManager : MonoBehaviour
 {
-    private PlayerInput _playerInput;
-    private PhotonView _photonView;
+    protected PlayerInput _playerInput;
     private bool _isInputActive = true;
-    
+
     protected bool _enableMoveInput = true;
     protected bool _enableMouseInput = true;
 
-    private void Awake()
+    protected virtual void Awake()
     {
         _playerInput = GetComponent<PlayerInput>();
-        _photonView = GetComponent<PhotonView>();
+    }
+
+    protected virtual void Update()
+    {
+        if (Keyboard.current[Key.Backquote].wasPressedThisFrame)
+        {
+            ToggleInputAndCursor();
+        }
+    }
+
+    private void ToggleInputAndCursor()
+    {
+        SetInputActive(!_isInputActive);
+        _enableMoveInput = !_enableMoveInput;
+        _enableMouseInput = !_enableMouseInput;
+
+        // Toggle mouse cursor visibility and lock state
+        Cursor.visible = !_enableMouseInput;
+        Cursor.lockState = _enableMouseInput ? CursorLockMode.Locked : CursorLockMode.None;
     }
 
     public void SetInputActive(bool isActive)
     {
         _isInputActive = isActive;
+        _playerInput.enabled = isActive;
     }
 
     protected bool CanProcessInput()
     {
-        return _isInputActive && _photonView.IsMine;
+        return _isInputActive && _playerInput.camera.isActiveAndEnabled;
     }
 
     protected bool CheckInputActionPhase(string actionName, InputActionPhase phase)

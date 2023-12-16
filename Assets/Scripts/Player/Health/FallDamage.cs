@@ -1,48 +1,73 @@
-using System.IO;
-using Photon.Pun;
 using UnityEngine;
+using FMODUnity; // Include the FMODUnity namespace
 
 public class FallDamage : MonoBehaviour
 {
+    [Header("Fall Damage Settings")]
     [SerializeField] private bool _enableFallDamage = true;
-    [SerializeField][FilePath] private string _deathIconPath;
-    
-    [Header("Fall Damage Properties")]
-    [SerializeField] private float _minSpeed = 10.0f;
-    [SerializeField] private float _maxSpeed = 30.0f;
+    [SerializeField] private float _minFallSpeedThreshold = 10.0f;
+    [SerializeField] private float _lethalFallSpeed = 30.0f;
     [SerializeField] private float _minFallDamage = 10.0f;
-    [SerializeField] private float _maxFallDamage = 50.0f;
-    
-    private PlayerMovement _playerMovement;
-    private PlayerHealth _playerHealth;
-    private DamageCauserInfo _info;
-    private PhotonView _photonView;
+    [SerializeField] private float _maxFallDamage = 95.0f;
 
+    [Header("FMOD Audio Events")]
+    [SerializeField] private EventReference landingSoundEvent;
+    [SerializeField] private EventReference damageSoundEvent;
+
+    private PlayerMovement _movement;
+    private PlayerHealth _playerHealth;
+    private float peakFallSpeed = 0f;
+    
     private void Awake()
     {
-        _playerMovement = GetComponent<PlayerMovement>();
+        _movement = GetComponent<PlayerMovement>();
         _playerHealth = GetComponent<PlayerHealth>();
-        _photonView = GetComponent<PhotonView>();
-
-        _info = new DamageCauserInfo(_photonView.Owner);
     }
 
     private void Update()
     {
-        if (!_playerMovement.IsGrounded || _playerMovement.WasGrounded) return;
-        float fallSpeed = -Mathf.Min(_playerMovement.CharacterVelocity.y, _playerMovement.LatestImpactSeed.y);
-        float fallSpeedRatio = (fallSpeed - _minSpeed) / (_maxSpeed - _minSpeed);
-        
-        if (_enableFallDamage && fallSpeedRatio > 0f)
+        if (!_movement.IsGrounded)
         {
-            float dmgFromFall = Mathf.Lerp(_minFallDamage, _maxFallDamage, fallSpeedRatio);
-            _playerHealth.TakeDamage(dmgFromFall, _info);
-
-            // fall damage SFX
+            float currentFallSpeed = -_movement.CharacterVelocity.y;
+            peakFallSpeed = Mathf.Max(peakFallSpeed, currentFallSpeed);
         }
-        else
+        else if (_movement.WasGrounded)
         {
-            // land SFX
+            if (peakFallSpeed > _minFallSpeedThreshold)
+            {
+                PlayLandingSound();
+                
+                if (_enableFallDamage)
+                {
+                    float fallDamage = CalculateFallDamage(peakFallSpeed);
+                    _playerHealth.TakeDamage(fallDamage);
+                    PlayDamageSound(fallDamage);
+                }
+            }
+            // Reset peak fall speed
+            peakFallSpeed = 0f;
+        }
+    }
+
+    private float CalculateFallDamage(float fallSpeed)
+    {
+        if (fallSpeed >= _lethalFallSpeed)
+            return _maxFallDamage;
+
+        float normalizedSpeed = (fallSpeed - _minFallSpeedThreshold) / (_lethalFallSpeed - _minFallSpeedThreshold);
+        return Mathf.Lerp(_minFallDamage, _maxFallDamage, normalizedSpeed);
+    }
+
+    private void PlayLandingSound()
+    {
+        RuntimeManager.PlayOneShot(landingSoundEvent, transform.position);
+    }
+
+    private void PlayDamageSound(float damage)
+    {
+        if (damage > 0)
+        {
+            RuntimeManager.PlayOneShot(damageSoundEvent, transform.position);
         }
     }
 }

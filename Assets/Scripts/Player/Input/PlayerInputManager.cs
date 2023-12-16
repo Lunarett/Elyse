@@ -8,6 +8,7 @@ public class PlayerInputManager : InputManager
     private bool _viewInputWasHeld;
     private bool _crouchInputWasHeld;
     private bool _pauseInputWasHeld;
+    private bool _interactInputWasHeld;
 
     private void LateUpdate()
     {
@@ -16,6 +17,7 @@ public class PlayerInputManager : InputManager
         _viewInputWasHeld = GetViewInputHeld();
         _crouchInputWasHeld = GetJumpInputHeld();
         _pauseInputWasHeld = GetPauseInputHeld();
+        _interactInputWasHeld = GetInteractInputHeld();
     }
 
     public Vector3 GetMoveInputVector3()
@@ -116,8 +118,19 @@ public class PlayerInputManager : InputManager
         return CanProcessInput() && (GetPauseInputHeld() && !_pauseInputWasHeld);
     }
 
+    public bool GetInteractInputDown()
+    {
+        return _enableMoveInput && CanProcessInput() && (GetInteractInputHeld() && !_interactInputWasHeld);
+    }
+
+    public bool GetInteractInputHeld()
+    {
+        return _enableMoveInput && CheckInputActionPhase("Interact", InputActionPhase.Performed);
+    }
+
     public int GetSwitchWeaponInput()
     {
+        if (!_enableMoveInput) return 0;
         if (!CanProcessInput()) return 0;
         float scrollVal = GetInputActionValue<float>("Switch");
 
@@ -131,6 +144,7 @@ public class PlayerInputManager : InputManager
 
     public int GetSelectWeaponInput()
     {
+        if (!_enableMoveInput) return 0;
         if (!CanProcessInput()) return 0;
 
         for (int i = 1; i <= 4; i++)

@@ -1,8 +1,9 @@
+using System;
 using System.Collections;
-using ExitGames.Client.Photon;
+using FMODUnity;
 using UnityEngine;
-using Photon.Pun;
 using Pulsar.Debug;
+using Random = UnityEngine.Random;
 
 public enum FireMode
 {
@@ -11,7 +12,7 @@ public enum FireMode
     Burst
 }
 
-public abstract class WeaponBase : MonoBehaviour
+public class WeaponBase : MonoBehaviour
 {
     [Header("General")]
     [SerializeField] private string _weaponName;
@@ -34,10 +35,12 @@ public abstract class WeaponBase : MonoBehaviour
     [SerializeField] protected Transform _fireTransform;
     [SerializeField] protected ParticleSystem _muzzleEffect;
 
-    protected PhotonView _photonView;
+    [Header("SFX")]
+    [SerializeField] private EventReference _fireEventRef; 
+
     protected Camera _playerCamera;
-    protected DamageCauserInfo _info;
     private WeaponAnimation _weaponAnim;
+    private FMOD.Studio.EventInstance weaponSoundInstance;
 
     private float _lastBurstFireTime;
     private float _lastFireTime;
@@ -48,22 +51,14 @@ public abstract class WeaponBase : MonoBehaviour
 
     protected virtual void Awake()
     {
-        _photonView = GetComponent<PhotonView>();
-        _info = new DamageCauserInfo(_photonView.Owner);
-
-        PhotonPeer.RegisterType(
-            typeof(DamageCauserInfo), 
-            (byte)'D', 
-            DamageCauserInfo.Serialize, 
-            DamageCauserInfo.Deserialize
-        );
+        weaponSoundInstance = RuntimeManager.CreateInstance(_fireEventRef);
     }
 
     protected virtual void Start()
     {
         if (DebugUtils.CheckForNull(CharacterReference)) return;
 
-        _playerCamera = CharacterReference.PlayerView.PlayerCamera.MainCamera;
+        _playerCamera = CharacterReference.CameraController.SpringArm.AttachedCamera;
         if (DebugUtils.CheckForNull(_playerCamera)) return;
 
         _weaponAnim = CharacterReference.WeaponAnim;
@@ -72,7 +67,6 @@ public abstract class WeaponBase : MonoBehaviour
 
     public void StartFire()
     {
-        if (!_photonView.IsMine) return;
         switch (_fireMode)
         {
             case FireMode.Auto:
@@ -127,5 +121,15 @@ public abstract class WeaponBase : MonoBehaviour
         return spreadRotation * direction;
     }
 
-    protected abstract void Fire(Vector3 position, Vector3 direction);
+    protected virtual void Fire(Vector3 position, Vector3 direction)
+    {
+        FMOD.ATTRIBUTES_3D attributes = gameObject.To3DAttributes();
+        weaponSoundInstance.set3DAttributes(attributes);
+        weaponSoundInstance.start();
+    }
+
+    private void OnDestroy()
+    {
+        weaponSoundInstance.release();
+    }
 }

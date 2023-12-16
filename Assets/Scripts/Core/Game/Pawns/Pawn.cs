@@ -1,32 +1,42 @@
-using Photon.Pun;
-using Photon.Realtime;
+using System;
 using Pulsar.Debug;
 using UnityEngine;
 
-[RequireComponent(typeof(PhotonView))]
 public abstract class Pawn : MonoBehaviour
 {
-    protected PhotonView _photonView;
-    
-    public PlayerController PlayerController { get; private set; }
-    public Player Owner { get; private set; }
-
-    public void Initialize(Player owner)
-    {
-        Owner = owner;
-    }
+    protected InputManager _inputManager;
+    public Controller Owner { get; set; }
     
     protected virtual void Awake()
     {
-        _photonView = GetComponent<PhotonView>();
-        if (DebugUtils.CheckForNull<PhotonView>(_photonView)) return;
-        
-        PlayerController = PhotonView.Find((int) _photonView.InstantiationData[0]).GetComponent<PlayerController>();
-        if (DebugUtils.CheckForNull<PlayerController>(PlayerController)) return;
+        _inputManager = GetComponent<InputManager>();
+        if (DebugUtils.CheckForNull<InputManager>(_inputManager, "Pawn: PhotonView is missing!")) return;
+    }
+
+    protected virtual void Start()
+    {
+        if (Owner == null) _inputManager.SetInputActive(false);
+    }
+
+    public void SetOwner(Controller newOwner)
+    {
+        Owner = newOwner;
+        _inputManager.SetInputActive(true);
+    }
+
+    public void RemoveOwner()
+    {
+        Owner = null;
+        _inputManager.SetInputActive(false);
     }
     
     public void ShowMouseCursor(bool isVisible)
     {
         Cursor.lockState = isVisible ? CursorLockMode.None : CursorLockMode.Locked;
+    }
+
+    public void EnableControl(bool isEnabled, bool ignoreMouse = false)
+    {
+        _inputManager.EnableControl(isEnabled, ignoreMouse);
     }
 }

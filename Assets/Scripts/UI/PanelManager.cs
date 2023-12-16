@@ -26,7 +26,7 @@ public class PanelManager : MonoBehaviour
         if (!DebugUtils.CheckValidListIndex<GameObject>(panels, panelIndex)) return;
         if (panels[panelIndex] == null)
         {
-            DebugUtils.LogErrorFromCaller("Panel does not exist!");
+            DebugUtils.Error("Panel does not exist!");
             return;
         }
         

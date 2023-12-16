@@ -1,8 +1,6 @@
-using System;
 using UnityEngine;
-using Photon.Pun;
 
-public abstract class BaseHealth : MonoBehaviourPunCallbacks
+public abstract class BaseHealth : MonoBehaviour
 {
     [SerializeField] protected float _maxHealth = 100f;
 
@@ -23,5 +21,5 @@ public abstract class BaseHealth : MonoBehaviourPunCallbacks
         return _currentHealth <= 0;
     }
 
-    protected abstract void OnDeath(DamageCauserInfo damageCauserInfo);
+    protected abstract void OnDeath();
 }

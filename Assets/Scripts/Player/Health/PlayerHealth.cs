@@ -1,13 +1,12 @@
 using UnityEngine;
-using Photon.Pun;
-using Photon.Realtime;
 using System;
 using Pulsar.Debug;
+using QFSW.QC;
 
 public class PlayerHealth : BaseHealth
 {
     // Define an event for when the player dies
-    public event Action<DamageCauserInfo> OnPlayerDied;
+    public event Action OnPlayerDied;
     public event Action<float, float> OnHealthChanged;
 
     private ElyseCharacter _elyseCharacter;
@@ -21,7 +20,6 @@ public class PlayerHealth : BaseHealth
         _hud = HUD.Instance;
         _elyseCharacter = GetComponent<ElyseCharacter>();
         DebugUtils.CheckForNull<ElyseCharacter>(_elyseCharacter);
-        OnHealthChanged += UpdateHealthBar;
     }
 
     private void Start()
@@ -29,91 +27,40 @@ public class PlayerHealth : BaseHealth
         _hud.SetHeath(_currentHealth, _maxHealth);
     }
 
-    protected override void OnDeath(DamageCauserInfo damageCauserInfo)
+    protected override void OnDeath()
     {
-        photonView.RPC(nameof(RPC_OnDeath), RpcTarget.All, damageCauserInfo.Serialize());
-
-        // Assuming damageCauserInfo.CauserOwner is the Photon.Realtime.Player who caused the death
-        var attackerController = Controller.Find(damageCauserInfo.CauserOwner);
-        if (attackerController != null)
-        {
-            var attackerElysePlayerState = attackerController.GetComponent<ElysePlayerState>();
-            if (attackerElysePlayerState != null)
-            {
-                attackerElysePlayerState.AddKill();
-            }
-        }
-    }
-
-    [PunRPC]
-    private void RPC_OnDeath(byte[] serializedDamageCauserInfo)
-    {
-        DamageCauserInfo damageCauserInfo = new DamageCauserInfo();
-        damageCauserInfo.Deserialize(serializedDamageCauserInfo);
-        _hud.BroadcastGameFeed(damageCauserInfo.CauserOwner.NickName, photonView.Owner.NickName);
-    
-        // Trigger the OnPlayerDied event
-        OnPlayerDied?.Invoke(damageCauserInfo);
-
-        if (PhotonNetwork.LocalPlayer == damageCauserInfo.CauserOwner)
-        {
-            var attackerElysePlayerState = GetComponent<ElysePlayerState>();
-            if (attackerElysePlayerState != null)
-            {
-                attackerElysePlayerState.AddKill();
-            }
-        }
+        Debug.LogWarning("PlayerHealth: Player has died!");
+        _hud.BroadcastGameFeed("CauserName", "AffectedName");
+        OnPlayerDied?.Invoke();
     }
     
-    public void TakeDamage(float damage, DamageCauserInfo damageCauserInfo)
+    public void TakeDamage(float damage)
     {
         if (IsDead()) return;
+        Debug.LogWarning($"PlayerHealth: Damage hit! Current Health: {_currentHealth}, Damage: {damage}");
         _currentHealth -= damage;
-        OnHealthChanged?.Invoke(_currentHealth, _maxHealth);
-        
+        _hud.SetHeath(_currentHealth, _maxHealth);
         if (_currentHealth <= 0)
         {
-            OnDeath(damageCauserInfo);
+            _hud.SetDamageScreenAlpha(0.5f);
+            OnDeath();
+            return;
         }
-
-        photonView.RPC(nameof(RPC_TakeDamage), RpcTarget.Others, damage);
+        
+        _hud.PlayDamageEffect();
     }
 
     public void Heal(float amount)
     {
-        if (!photonView.IsMine) return;
-        _currentHealth = Mathf.Min(_currentHealth + amount, _maxHealth);
-        OnHealthChanged?.Invoke(_currentHealth, _maxHealth);
-        photonView.RPC(nameof(RPC_Heal), RpcTarget.Others, amount);
-    }
-
-    [PunRPC]
-    public void RPC_TakeDamage(float damage)
-    {
-        if (IsDead()) return;
-        _currentHealth -= damage;
-        OnHealthChanged?.Invoke(_currentHealth, _maxHealth);
-        if(!photonView.IsMine) return;
-        _hud.PlayDamageEffect();
-        _hud.SetHeath(_currentHealth, _maxHealth);
-    }
-
-    [PunRPC]
-    public void RPC_Heal(float amount)
-    {
         if (IsDead()) return;
         _currentHealth = Mathf.Min(_currentHealth + amount, _maxHealth);
-        OnHealthChanged?.Invoke(_currentHealth, _maxHealth);
-        if(!photonView.IsMine) return;
         _hud.SetHeath(_currentHealth, _maxHealth);
     }
     
-    private void UpdateHealthBar(float currentHealth, float maxHealth)
+    [Command("kill.self", "Instantly kills you")]
+    public void killSelf()
     {
         if (IsDead()) return;
-        if (photonView.IsMine)
-        {
-            _hud.SetHeath(currentHealth, maxHealth);
-        }
+        TakeDamage(_currentHealth);
     }
 }
