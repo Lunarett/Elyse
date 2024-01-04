@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using FMODUnity; // Include the FMODUnity namespace
 
@@ -15,13 +16,26 @@ public class FallDamage : MonoBehaviour
     [SerializeField] private EventReference damageSoundEvent;
 
     private PlayerMovement _movement;
-    private PlayerHealth _playerHealth;
+    private Player _player;
+    private DamageCauseInfo _info;
+    private Pawn _pawn;
     private float peakFallSpeed = 0f;
     
     private void Awake()
     {
+        _pawn = GetComponent<Pawn>();
         _movement = GetComponent<PlayerMovement>();
-        _playerHealth = GetComponent<PlayerHealth>();
+        _player = GetComponent<Player>();
+    }
+
+    private void Start()
+    {
+        _info = new DamageCauseInfo()
+        {
+            damage = 0.0f,
+            causer = _pawn,
+            CauseOfDeath = ECauseOfDeath.FellToDeath
+        };
     }
 
     private void Update()
@@ -39,9 +53,9 @@ public class FallDamage : MonoBehaviour
                 
                 if (_enableFallDamage)
                 {
-                    float fallDamage = CalculateFallDamage(peakFallSpeed);
-                    _playerHealth.TakeDamage(fallDamage);
-                    PlayDamageSound(fallDamage);
+                    _info.damage = CalculateFallDamage(peakFallSpeed);
+                    _player.ApplyDamage(_info);
+                    PlayDamageSound(_info.damage);
                 }
             }
             // Reset peak fall speed

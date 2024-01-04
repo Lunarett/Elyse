@@ -39,13 +39,15 @@ public class WeaponBase : MonoBehaviour
     [SerializeField] private EventReference _fireEventRef; 
 
     protected Camera _playerCamera;
-    private WeaponAnimation _weaponAnim;
+    protected DamageCauseInfo _damageInfo;
     private FMOD.Studio.EventInstance weaponSoundInstance;
 
     private float _lastBurstFireTime;
     private float _lastFireTime;
 
-    public ElyseCharacter CharacterReference { get; set; }
+    public event Action<float> OnWeaponFired; 
+    
+    public Pawn Pawn { get; set; }
     public Vector3 WeaponOffset => _weaponOffset;
     public FireMode FireModeType => _fireMode;
 
@@ -56,13 +58,16 @@ public class WeaponBase : MonoBehaviour
 
     protected virtual void Start()
     {
-        if (DebugUtils.CheckForNull(CharacterReference)) return;
+        if (DebugUtils.CheckForNull(Pawn)) return;
+        _playerCamera = Pawn.GetComponentInChildren<SpringArm>().AttachedCamera;
+        if (DebugUtils.CheckForNull(_playerCamera, "WeaponBase: SpringArm was not found")) return;
 
-        _playerCamera = CharacterReference.CameraController.SpringArm.AttachedCamera;
-        if (DebugUtils.CheckForNull(_playerCamera)) return;
-
-        _weaponAnim = CharacterReference.WeaponAnim;
-        if (DebugUtils.CheckForNull(_weaponAnim)) return;
+        _damageInfo = new DamageCauseInfo()
+        {
+            damage = _damage,
+            causer = Pawn,
+            CauseOfDeath = ECauseOfDeath.KilledByPlayer
+        };
     }
 
     public void StartFire()
@@ -87,7 +92,7 @@ public class WeaponBase : MonoBehaviour
         if (!(Time.time >= _lastFireTime + _fireRate)) return;
         _lastFireTime = Time.time;
         
-        _weaponAnim.FireRecoil(_fireRecoilForce);
+        OnWeaponFired?.Invoke(_fireRecoilForce);
         Vector3 finalFireDirection = GetFireSpreadDirection(_playerCamera.transform.forward);
         Fire(_fireTransform.position, finalFireDirection);
     }
@@ -104,7 +109,7 @@ public class WeaponBase : MonoBehaviour
         for (int i = 0; i < _burstShotCount; i++)
         {
             Vector3 direction = GetFireSpreadDirection(_playerCamera.transform.forward);
-            _weaponAnim.FireRecoil(_fireRecoilForce);
+            OnWeaponFired?.Invoke(_fireRecoilForce);
             Fire(_fireTransform.position, direction);
             yield return new WaitForSeconds(_burstFireRate);
         }

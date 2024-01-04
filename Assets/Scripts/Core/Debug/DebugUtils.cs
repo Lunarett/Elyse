@@ -9,7 +9,7 @@ namespace Pulsar.Debug
     {
         private static LogDisplayManager _display;
 
-        private static void CreateAndDisplayMessage(string message, float duration, Color color, [System.Runtime.CompilerServices.CallerMemberName] string callerName = "")
+        private static string CreateAndDisplayMessage(string message, float duration, Color color, bool printToScrn = false, [System.Runtime.CompilerServices.CallerMemberName] string callerName = "")
         {
             if (_display == null)
             {
@@ -26,37 +26,34 @@ namespace Pulsar.Debug
             int line = frame.GetFileLineNumber();
 
             string formattedMessage = $"{callerName} {className}::{methodName} Line: {line} - {message}";
-            _display.AddMessage(formattedMessage, duration, color);
+            if(printToScrn) _display.AddMessage(formattedMessage, duration, color);
+            return formattedMessage;
         }
 
         public static void Log(string message, float duration = 5f)
         {
-            UnityEngine.Debug.Log(message);
-            CreateAndDisplayMessage(message, duration, Color.cyan);
+            UnityEngine.Debug.Log(CreateAndDisplayMessage(message, duration, Color.cyan));
+            
         }
 
         public static void Warn(string message, float duration = 5f)
         {
-            UnityEngine.Debug.LogWarning(message);
-            CreateAndDisplayMessage($"Warning! {message}", duration, Color.yellow);
+            UnityEngine.Debug.LogWarning(CreateAndDisplayMessage($"Warning! {message}", duration, Color.yellow));
         }
 
         public static void Error(string message, float duration = 5f)
         {
-            UnityEngine.Debug.LogError(message);
-            CreateAndDisplayMessage($"Error! {message}", duration, Color.red);
+            UnityEngine.Debug.LogError(CreateAndDisplayMessage($"Error! {message}", duration, Color.red));
         }
 
         public static void Success(string message, float duration = 5f)
         {
-            UnityEngine.Debug.Log(message);
-            CreateAndDisplayMessage($"Success! {message}", duration, Color.green);
+            UnityEngine.Debug.Log(CreateAndDisplayMessage($"Success! {message}", duration, Color.green));
         }
 
         public static void Print(string message, Color color, float duration = 5f)
         {
-            UnityEngine.Debug.Log(message);
-            CreateAndDisplayMessage(message, duration, color);
+            UnityEngine.Debug.Log(CreateAndDisplayMessage(message, duration, color));
         }
 
         public static bool CheckForNull<T>(T objectToCheck, string message = "", float duration = 5.0f) where T : class

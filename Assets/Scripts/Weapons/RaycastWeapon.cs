@@ -31,7 +31,7 @@ public class RaycastWeapon : WeaponBase
             BodyDamageMultiplier bodyDamageMultiplier = hitInfo.collider.GetComponent<BodyDamageMultiplier>();
             if (bodyDamageMultiplier != null)
             {
-                bodyDamageMultiplier.TakeDamage(_damage);
+                bodyDamageMultiplier.ApplyDamage(_damageInfo);
             }
             
             PlayImpactEffect(hitInfo.point);

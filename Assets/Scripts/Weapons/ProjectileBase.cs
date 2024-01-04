@@ -3,11 +3,11 @@ using UnityEngine;
 
 public class ProjectileBase : MonoBehaviour
 {
-    public float Damage = 10.0f;
     public float Speed = 100f;
     public float DownForce = 0.0f;
     public float MaxDistance = 100f;
     public LayerMask HitLayers;
+    public DamageCauseInfo DamageInfo;
     public ParticleSystem ImpactEffectPrefab;
     
     private Vector3 _velocity; 

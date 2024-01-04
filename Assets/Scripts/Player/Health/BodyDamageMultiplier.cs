@@ -9,18 +9,17 @@ public class BodyDamageMultiplier : MonoBehaviour
     [SerializeField] private float _damageMultiplier = 1.0f;
     [SerializeField] private bool _isHead;
     
-    private PlayerHealth _playerHealth;
+    private HealthBase _health;
     
     private void Awake()
     {
-        _playerHealth = transform.root.GetComponent<PlayerHealth>();
-        DebugUtils.CheckForNull<PlayerHealth>(_playerHealth);
+        _health = transform.root.GetComponent<HealthBase>();
+        DebugUtils.CheckForNull<HealthBase>(_health);
     }
 
-    public void TakeDamage(float baseDamage)
+    public void ApplyDamage(DamageCauseInfo damageInfo)
     {
-        float modifiedDamage = baseDamage * _damageMultiplier;
-        Debug.Log($"BodyDamageMultiplier: Base damage {baseDamage}, new damage {modifiedDamage}");
-        _playerHealth.TakeDamage(modifiedDamage);
+        damageInfo.damage *= _damageMultiplier;
+        _health.ApplyDamage(damageInfo);
     }
 }

@@ -59,7 +59,7 @@ public class WeaponAnimation : MonoBehaviour
         m_WeaponBobFactor = Mathf.Lerp(m_WeaponBobFactor, characterMovementFactor, BobSharpness * Time.deltaTime);
 
         float bobAmount = IsAiming ? AimingBobAmount : DefaultBobAmount;
-        float frequency = _elyseCharacter.DeprecatedPlayerMovement.IsGrounded ? BobFrequency : MidAirFrequency;
+        float frequency = _elyseCharacter.PlayerMovement.IsGrounded ? BobFrequency : MidAirFrequency;
         float hBobValue = Mathf.Sin(Time.time * frequency) * bobAmount * m_WeaponBobFactor;
         float vBobValue = ((Mathf.Sin(Time.time * frequency * 2f) * 0.5f) + 0.5f) * bobAmount * m_WeaponBobFactor;
 

@@ -3,7 +3,7 @@ using System;
 using Pulsar.Debug;
 using QFSW.QC;
 
-public class PlayerHealth : BaseHealth
+public class Player : HealthBase
 {
     // Define an event for when the player dies
     public event Action OnPlayerDied;
@@ -33,12 +33,11 @@ public class PlayerHealth : BaseHealth
         _hud.BroadcastGameFeed("CauserName", "AffectedName");
         OnPlayerDied?.Invoke();
     }
-    
-    public void TakeDamage(float damage)
+
+    public override void ApplyDamage(DamageCauseInfo damageInfo)
     {
         if (IsDead()) return;
-        Debug.LogWarning($"PlayerHealth: Damage hit! Current Health: {_currentHealth}, Damage: {damage}");
-        _currentHealth -= damage;
+        _currentHealth -= damageInfo.damage;
         _hud.SetHeath(_currentHealth, _maxHealth);
         if (_currentHealth <= 0)
         {
@@ -50,10 +49,10 @@ public class PlayerHealth : BaseHealth
         _hud.PlayDamageEffect();
     }
 
-    public void Heal(float amount)
+    public override void ApplyHeal(float heal)
     {
         if (IsDead()) return;
-        _currentHealth = Mathf.Min(_currentHealth + amount, _maxHealth);
+        _currentHealth = Mathf.Min(_currentHealth + heal, _maxHealth);
         _hud.SetHeath(_currentHealth, _maxHealth);
     }
     
@@ -61,6 +60,12 @@ public class PlayerHealth : BaseHealth
     public void killSelf()
     {
         if (IsDead()) return;
-        TakeDamage(_currentHealth);
+
+        DamageCauseInfo info = new DamageCauseInfo();
+        info.damage = _currentHealth;
+        info.causer = _pawn;
+        info.CauseOfDeath = ECauseOfDeath.SelfKill;
+        
+        ApplyDamage(info);
     }
 }

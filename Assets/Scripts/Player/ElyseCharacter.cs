@@ -5,6 +5,12 @@ using UnityEngine;
 using Pulsar.Utils;
 using UnityEngine.Animations.Rigging;
 
+public enum EViewMode
+{
+    FPS,
+    TPS
+}
+
 public class ElyseCharacter : Character
 {
     [SerializeField] private EViewMode _viewMode = EViewMode.FPS;
@@ -23,7 +29,7 @@ public class ElyseCharacter : Character
     [SerializeField] private Rig _rig;
     
     private PlayerInputManager _playerInputManager;
-    private PlayerHealth _playerHealth;
+    private Player _player;
     private WeaponAnimation _weaponAnimation;
     private ElyseController _elyseController;
     private HUD _hud;
@@ -54,9 +60,9 @@ public class ElyseCharacter : Character
         
         // Find all components in object
         _weaponAnimation = GetComponentInChildren<WeaponAnimation>();
-        _playerHealth = GetComponent<PlayerHealth>();
+        _player = GetComponent<Player>();
 
-        _playerHealth.OnPlayerDied += OnPlayerDied;
+        _player.OnPlayerDied += OnPlayerDied;
         
         // Set to Local player
         Utils.SetLayerRecursively(gameObject, LayerMask.NameToLayer("Local Player"));
@@ -70,9 +76,9 @@ public class ElyseCharacter : Character
 
     private void Start()
     {
-        if (!DebugUtils.CheckForNull<PlayerCameraController>(_cameraController, "ElyseCharacter: CameraController is null!"))
+        if (!DebugUtils.CheckForNull<PawnCameraController>(_pawnCameraController, "ElyseCharacter: CameraController is null!"))
         {
-            _weaponCamera.transform.position = _cameraController.SpringArm.transform.position;
+            _weaponCamera.transform.position = _pawnCameraController.SpringArm.transform.position;
         }
         
         if (!DebugUtils.CheckForNull<Controller>(Owner, "ElyseCharacter: Owner is null!"))
@@ -138,7 +144,7 @@ public class ElyseCharacter : Character
 
     public void SetViewMode(EViewMode viewMode)
     {
-        if (DebugUtils.CheckForNull<PlayerCameraController>(_cameraController,
+        if (DebugUtils.CheckForNull<PawnCameraController>(_pawnCameraController,
                 "ElyseCharacter: PlayerCameraController is null")) return;
         
         
@@ -147,15 +153,15 @@ public class ElyseCharacter : Character
             case EViewMode.FPS:
                 
                 _fpsView.SetActive(true);
-                _cameraController.SpringArm.SetArmLength(0);
-                _cameraController.SpringArm.SetCameraOffset(Vector3.zero);
+                _pawnCameraController.SpringArm.SetArmLength(0);
+                _pawnCameraController.SpringArm.SetCameraOffset(Vector3.zero);
                 OnViewChanged?.Invoke(EViewMode.FPS);
                 Utils.SetLayerRecursively(_tpsView, LayerMask.NameToLayer("Ignore Render"));
                 break;
             case EViewMode.TPS:
                 _fpsView.SetActive(false);
-                _cameraController.SpringArm.SetArmLength(_tpsArmLength);
-                _cameraController.SpringArm.SetCameraOffset(_tpsOffset);
+                _pawnCameraController.SpringArm.SetArmLength(_tpsArmLength);
+                _pawnCameraController.SpringArm.SetCameraOffset(_tpsOffset);
                 OnViewChanged?.Invoke(EViewMode.TPS);
                 Utils.SetLayerRecursively(_tpsView, LayerMask.NameToLayer("Local Player"));
                 break;
@@ -197,9 +203,9 @@ public class ElyseCharacter : Character
     
     private void OnDestroy()
     {
-        if (_playerHealth != null)
+        if (_player != null)
         {
-            _playerHealth.OnPlayerDied -= OnPlayerDied;
+            _player.OnPlayerDied -= OnPlayerDied;
         }
     }
 }

@@ -14,7 +14,7 @@ public class ProjectileWeapon : WeaponBase
         base.Fire(position, direction);
         
         ProjectileBase projectile = Instantiate(_projectilePrefab, position, Quaternion.LookRotation(direction));
-        projectile.Damage = _damage;
+        projectile.DamageInfo = _damageInfo;
         projectile.Speed = _projectileSpeed;
         projectile.MaxDistance = _projectileMaxDistance;
         projectile.HitLayers = _hitLayers;
