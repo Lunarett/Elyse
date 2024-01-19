@@ -47,6 +47,7 @@ public class ProjectileBase : MonoBehaviour
 
     protected virtual void HandleImpact(Vector3 position, Vector3 normal, Collider collider)
     {
+        Debug.LogWarning("Impact Initiate");
         SpawnImpactEffect(position, normal);
     }
 
@@ -54,6 +55,7 @@ public class ProjectileBase : MonoBehaviour
     protected void SpawnImpactEffect(Vector3 position, Vector3 normal)
     {
         if (ImpactEffectPrefab == null) return;
+        Debug.Log("Effect Spawned");
         Instantiate(ImpactEffectPrefab, position, Quaternion.LookRotation(normal));
     }
 }

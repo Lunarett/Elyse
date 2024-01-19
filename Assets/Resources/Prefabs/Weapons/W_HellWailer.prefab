@@ -123,12 +123,20 @@ MonoBehaviour:
   _fireRecoilForce: 4
   _fireTransform: {fileID: 8561565236990601452}
   _muzzleEffect: {fileID: 2098190134485057311}
-  _projectilePrefab: {fileID: 7008870097288492170, guid: 568d63239647f4046b17ed04cb9b3ede,
+  _fireEventRef:
+    Guid:
+      Data1: 517945762
+      Data2: 1078832426
+      Data3: 965504409
+      Data4: -621128104
+    Path: event:/Player/Weapons/Hellwailer
+  _projectilePrefab: {fileID: 3228266857497530306, guid: 071db60607ad84b40b9f22f1f106fad6,
     type: 3}
   _projectileSpeed: 100
   _projectileMaxDistance: 100
   _projectileDownForce: 0
-  _impactEffectPrefab: {fileID: 0}
+  _impactEffectPrefab: {fileID: 2141399773629437770, guid: 9d88080470b9cd545afd3fcb1e4e77a1,
+    type: 3}
 --- !u!1001 &3555694955548612778
 PrefabInstance:
   m_ObjectHideFlags: 0
