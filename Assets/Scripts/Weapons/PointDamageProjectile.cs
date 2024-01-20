@@ -9,7 +9,7 @@ public class PointDamageProjectile : ProjectileBase
         BodyDamageMultiplier bodyDamageMultiplier = collider.GetComponent<BodyDamageMultiplier>();
         if (bodyDamageMultiplier != null)
         {
-            bodyDamageMultiplier.TakeDamage(Damage);
+            bodyDamageMultiplier.ApplyDamage(DamageInfo);
         }
         
         Destroy(gameObject);
