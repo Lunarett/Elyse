@@ -519,6 +519,34 @@
                     "isPartOfComposite": true
                 }
             ]
+        },
+        {
+            "name": "Automobile",
+            "id": "c64de1d9-fc48-4064-a2f2-d2fc9b6f1aa7",
+            "actions": [
+                {
+                    "name": "New action",
+                    "type": "Button",
+                    "id": "4b5250e0-a741-43fb-8a26-7aa53e86b81a",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "",
+                    "id": "cf24ee9f-5bd3-41a0-b2aa-c569db4fed00",
+                    "path": "",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "New action",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                }
+            ]
         }
     ],
     "controlSchemes": []
