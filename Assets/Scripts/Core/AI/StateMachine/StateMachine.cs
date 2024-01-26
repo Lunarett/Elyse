@@ -2,9 +2,9 @@ public class StateMachine
 {
     private IState[] states;
     private EStateID CurrentStateID;
-    private Pawn _pawn;
+    private AIPawn _pawn;
 
-    public StateMachine(Pawn pawn)
+    public StateMachine(AIPawn pawn)
     {
         this._pawn = pawn;
         int len = System.Enum.GetNames(typeof(EStateID)).Length;

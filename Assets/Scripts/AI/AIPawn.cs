@@ -1,4 +1,4 @@
-using System;
+using UnityEditor.Search;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -11,6 +11,11 @@ public class AIPawn : Pawn
     private StateMachine _stateMachine;
     private AIWeaponManager _weaponManager;
     private Animator _anim;
+    private AITargetingSystem _targetSystem;
+    private AISightSensor _sightSensor;
+    private AIMemory _memory;
+    private AILookController _lookController;
+    private TeamMember _team;
     
     private static readonly int Vertical = Animator.StringToHash("Vertical");
     private static readonly int Horizontal = Animator.StringToHash("Horizontal");
@@ -19,12 +24,23 @@ public class AIPawn : Pawn
     public NavMeshAgent Agent => _agent;
     public AIWeaponManager WeaponManager => _weaponManager;
     public StateMachine StateMachine => _stateMachine;
-
+    public AITargetingSystem TargetSystem => _targetSystem;
+    public AISightSensor SightSensor => _sightSensor;
+    public AIMemory Memory => _memory;
+    public TeamMember Team => _team;
+    public AILookController LookController => _lookController;
+    
     protected override void Awake()
     {
         base.Awake();
         _anim = GetComponentInChildren<Animator>();
         _agent = GetComponent<NavMeshAgent>();
+        _sightSensor = GetComponent<AISightSensor>();
+        _targetSystem = GetComponent<AITargetingSystem>();
+        _memory = GetComponent<AIMemory>();
+        _lookController = GetComponent<AILookController>();
+        _team = GetComponent<TeamMember>();
+        _weaponManager = GetComponent<AIWeaponManager>();
     }
 
 

@@ -10,15 +10,7 @@ public class AILookController : MonoBehaviour
 
     private void Update()
     {
-        UpdateTarget();
         LookAtTarget();
-    }
-
-    private void UpdateTarget()
-    {
-        // Simplified target selection - chooses the first enemy found. You can make this more sophisticated.
-        //var enemiesInView = sightSensor.GetEnemiesInView(); // Assume you implement this method to return enemies
-        //currentTarget = enemiesInView.Count > 0 ? enemiesInView[0] : null; // Picks the first enemy or null if none
     }
 
     private void LookAtTarget()
@@ -37,5 +29,10 @@ public class AILookController : MonoBehaviour
 
         // Smoothly interpolate towards the target or default rotation
         headTransform.rotation = Quaternion.Slerp(headTransform.rotation, targetRotation, Time.deltaTime * lookSpeed);
+    }
+    
+    public void SetTarget(GameObject target)
+    {
+        currentTarget = target;
     }
 }

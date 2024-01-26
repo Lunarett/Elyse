@@ -1,113 +1,112 @@
-using System.Collections.Generic;
 using UnityEngine;
+using System.Collections;
 
-public class AiTargetingSystem : MonoBehaviour
+/*
+ * - Responsible for target selection for AI entities
+ * - Evaluates targets based on distance and angle
+ * - Works with AISightSensor for detection and AIMemory for remembering targets
+ * - Attach to GameObject with AISightSensor and AIMemory
+ * - Gizmo properties adjustable in the inspector for visualization
+ */
+
+[RequireComponent(typeof(AISightSensor), typeof(AIMemory))]
+public class AITargetingSystem : MonoBehaviour
 {
-    [Header("Targeting Properties")]
-    [SerializeField] private float forgetTargetTime = 3.0f;
+    [Header("Targeting Parameters")]
+    [SerializeField] private float _angleWeight = 1.0f;
+    [SerializeField] private float _distanceWeight = 1.0f;
 
-    [Header("Weights")]
-    [SerializeField] private float distanceWeight = 1.0f;
-    [SerializeField] private float angleWeight = 1.0f;
-    [SerializeField] private float ageWeight = 1.0f;
+    [Header("Gizmo Settings")]
+    [SerializeField] private bool _drawGizmos = true;
+    [SerializeField] private Color _gizmoColor = Color.red;
+    [SerializeField] private float _gizmoSize = 0.5f;
 
-    private AISensoryMemory memory = new AISensoryMemory(10);
-    private AISightSensor sightSensor;
-    private AIMemory bestEnemyMemory;
-    private List<AIMemory> alliesInSight = new List<AIMemory>();
+    [Header("Performance Settings")]
+    [SerializeField] private float _updateInterval = 0.5f;
 
-    private TeamMember selfTeamMember;
+    private AISightSensor _sightSensor;
+    private AIMemory _aiMemory;
+    private GameObject _currentTarget;
 
-    public bool HasTarget => bestEnemyMemory != null;
-    public GameObject Target => bestEnemyMemory?.GameObject;
-    public Vector3 TargetPosition => bestEnemyMemory?.Position ?? Vector3.zero;
-    public bool TargetInSight => bestEnemyMemory != null && bestEnemyMemory.Age < 0.5f;
-    public float TargetDistance => bestEnemyMemory?.Distance ?? float.MaxValue;
+    public GameObject CurrentTarget => _currentTarget;
 
     private void Start()
     {
-        sightSensor = GetComponent<AISightSensor>();
-        selfTeamMember = GetComponent<TeamMember>();
+        _sightSensor = GetComponent<AISightSensor>();
+        _aiMemory = GetComponent<AIMemory>();
+        StartCoroutine(TargetEvaluationRoutine());
     }
 
-    private void Update()
+    private IEnumerator TargetEvaluationRoutine()
     {
-        memory.UpdateSensory(sightSensor);
-        memory.ForgetMemories(forgetTargetTime);
-
-        EvaluateScores();
-    }
-
-    void EvaluateScores()
-    {
-        bestEnemyMemory = null;
-        alliesInSight.Clear();
-
-        foreach (var memory in this.memory.Memories)
+        while (true)
         {
-            TeamMember otherMember = memory.GameObject.GetComponent<TeamMember>();
-            if (otherMember == null) continue;
-
-            if (TeamManager.Instance.AreAllies(selfTeamMember, otherMember))
-            {
-                alliesInSight.Add(memory);
-                continue;
-            }
-
-            memory.Score = CalculateScore(memory);
-
-            if (bestEnemyMemory == null || memory.Score > bestEnemyMemory.Score)
-            {
-                bestEnemyMemory = memory;
-            }
+            EvaluateTargets();
+            yield return new WaitForSeconds(_updateInterval);
         }
     }
 
-    private float Normalize(float value, float maxValue)
+    private void EvaluateTargets()
     {
-        return 1.0f - (value / maxValue);
+        var detectedObjects = _sightSensor.DetectedObjects;
+        float bestScore = float.MinValue;
+        GameObject bestTarget = null;
+
+        foreach (var obj in detectedObjects)
+        {
+            if (obj == null) continue;
+
+            float score = CalculateScore(obj);
+            if (score > bestScore)
+            {
+                bestScore = score;
+                bestTarget = obj;
+            }
+        }
+
+        if (bestTarget == null)
+        {
+            GameObject memoryTarget = _aiMemory.GetMostRecentTarget();
+            if (memoryTarget != null)
+            {
+                Vector3? lastKnownPosition = _aiMemory.GetLastKnownPosition(memoryTarget);
+                if (lastKnownPosition.HasValue)
+                {
+                    float memoryScore = CalculateScoreFromPosition(memoryTarget, lastKnownPosition.Value);
+                    if (memoryScore > bestScore)
+                    {
+                        bestTarget = memoryTarget;
+                    }
+                }
+            }
+        }
+
+        _currentTarget = bestTarget;
+
+        if (_currentTarget != null)
+        {
+            _aiMemory.UpdateMemory(_currentTarget);
+        }
     }
 
-    float CalculateScore(AIMemory memory)
+    private float CalculateScore(GameObject target)
     {
-        // Calculate the angle dynamically based on the AI's and target's positions.
-        Vector3 directionToTarget = (memory.Position - transform.position).normalized;
-        float angleToTarget = Vector3.Angle(transform.forward, directionToTarget);
-
-        // Normalize the dynamically calculated angle (assuming 180 is the max angle)
-        float normalizedAngle = 1.0f - (angleToTarget / 180.0f);
-
-        // Now use this normalized angle in the score calculation
-        float distanceScore = Normalize(memory.Distance, sightSensor.SightDistance) * distanceWeight;
-        float angleScore = normalizedAngle * angleWeight; // Using dynamically calculated angle now
-        float ageScore = Normalize(memory.Age, forgetTargetTime) * ageWeight;
-
-        return distanceScore + angleScore + ageScore;
+        return CalculateScoreFromPosition(target, target.transform.position);
     }
 
+    private float CalculateScoreFromPosition(GameObject target, Vector3 position)
+    {
+        float distanceScore = 1.0f / (Vector3.Distance(transform.position, position) * _distanceWeight);
+        Vector3 directionToTarget = (position - transform.position).normalized;
+        float angleScore = Vector3.Dot(directionToTarget, transform.forward) * _angleWeight;
+
+        return distanceScore + angleScore;
+    }
 
     private void OnDrawGizmos()
     {
-        if (memory == null) return;
-        float maxScore = float.MinValue;
-
-        foreach (var mem in memory.Memories)
-        {
-            maxScore = Mathf.Max(maxScore, mem.Score);
-        }
-
-        foreach (var mem in memory.Memories)
-        {
-            Color color = TeamManager.Instance.AreAllies(selfTeamMember, mem.GameObject.GetComponent<TeamMember>()) ? Color.blue : Color.red;
-            color.a = mem.Score / maxScore;
-
-            if (mem == bestEnemyMemory)
-            {
-                color = Color.yellow;
-            }
-
-            Gizmos.color = color;
-            Gizmos.DrawSphere(mem.Position, 0.2f);
-        }
+        if (!_drawGizmos || _currentTarget == null) return;
+        Gizmos.color = _gizmoColor;
+        Gizmos.DrawSphere(_currentTarget.transform.position, _gizmoSize);
     }
 }

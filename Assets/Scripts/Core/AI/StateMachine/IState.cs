@@ -10,7 +10,7 @@ using UnityEngine;
     public interface IState
     {
         EStateID GetStateID();
-        void BeginState(Pawn pawn);
-        void UpdateState(Pawn pawn);
-        void EndState(Pawn pawn);
+        void BeginState(AIPawn pawn);
+        void UpdateState(AIPawn pawn);
+        void EndState(AIPawn pawn);
     }
