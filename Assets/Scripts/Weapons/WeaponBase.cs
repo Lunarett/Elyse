@@ -1,8 +1,9 @@
 using System;
 using System.Collections;
-using FMODUnity;
 using UnityEngine;
 using Pulsar.Debug;
+using FMODUnity;
+using Unity.Mathematics;
 using Random = UnityEngine.Random;
 
 public enum FireMode
@@ -44,6 +45,7 @@ public class WeaponBase : MonoBehaviour
 
     private float _lastBurstFireTime;
     private float _lastFireTime;
+    private WeaponAnimation _weaponAnimation;
 
     public event Action<float> OnWeaponFired; 
     
@@ -70,6 +72,11 @@ public class WeaponBase : MonoBehaviour
         };
     }
 
+    public void SetWeaponAnimation(WeaponAnimation weaponAnimation)
+    {
+        _weaponAnimation = weaponAnimation;
+    }
+
     public void StartFire()
     {
         switch (_fireMode)
@@ -91,7 +98,10 @@ public class WeaponBase : MonoBehaviour
     {
         if (!(Time.time >= _lastFireTime + _fireRate)) return;
         _lastFireTime = Time.time;
-        
+
+        // Trigger recoil animation
+        _weaponAnimation.FireRecoil(_fireRecoilForce);
+
         OnWeaponFired?.Invoke(_fireRecoilForce);
         Vector3 finalFireDirection = GetFireSpreadDirection(_playerCamera.transform.forward);
         Fire(_fireTransform.position, finalFireDirection);
@@ -109,6 +119,7 @@ public class WeaponBase : MonoBehaviour
         for (int i = 0; i < _burstShotCount; i++)
         {
             Vector3 direction = GetFireSpreadDirection(_playerCamera.transform.forward);
+            _weaponAnimation?.FireRecoil(_fireRecoilForce);
             OnWeaponFired?.Invoke(_fireRecoilForce);
             Fire(_fireTransform.position, direction);
             yield return new WaitForSeconds(_burstFireRate);
