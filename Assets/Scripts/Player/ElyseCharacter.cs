@@ -142,6 +142,13 @@ public class ElyseCharacter : Character
         {
             _weaponManager.ActiveWeapon.StartReload();
         }
+        
+        // Switch Weapon
+        int switchDirection = _playerInputManager.GetSwitchWeaponInput();
+        if (switchDirection != 0)
+        {
+            _weaponManager.SwitchWeapon(switchDirection);
+        }
     }
 
     private void LateUpdate()
