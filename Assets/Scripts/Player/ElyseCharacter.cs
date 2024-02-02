@@ -29,8 +29,8 @@ public class ElyseCharacter : Character
     [SerializeField] private Rig _rig;
     
     private PlayerInputManager _playerInputManager;
-    private Player _player;
-    private WeaponAnimation _weaponAnimation;
+    private WeaponManager _weaponManager;
+    private PlayerHealth _playerHealth;
     private ElyseController _elyseController;
     private HUD _hud;
     private bool _isPaused;
@@ -40,7 +40,6 @@ public class ElyseCharacter : Character
     public bool IsDead { get; set; }
     public PlayerInputManager PlayerInputManager => _playerInputManager;
     public EViewMode ViewMode => _viewMode;
-    public WeaponAnimation WeaponAnim => _weaponAnimation;
     public ElyseController ElyseElyseController => _elyseController;
 
     public event Action<EViewMode> OnViewChanged;
@@ -59,23 +58,25 @@ public class ElyseCharacter : Character
         _hud = HUD.Instance;
         
         // Find all components in object
-        _weaponAnimation = GetComponentInChildren<WeaponAnimation>();
-        _player = GetComponent<Player>();
+        _playerHealth = GetComponent<PlayerHealth>();
+        _weaponManager = GetComponent<WeaponManager>();
 
-        _player.OnPlayerDied += OnPlayerDied;
+        // Subscribe to events
+        _playerHealth.OnPlayerDied += OnPlayerHealthDied;
+        _hud.OnGameResume += UnpauseGame;
         
         // Set to Local player
         Utils.SetLayerRecursively(gameObject, LayerMask.NameToLayer("Local Player"));
         SetViewMode(_viewMode);
 
-        _hud.OnGameResume += UnpauseGame;
-
         _isViewFPS = _viewMode == EViewMode.FPS;
         _rig.weight = 1;
     }
 
-    private void Start()
+    protected override void Start()
     {
+        base.Start();
+        
         if (!DebugUtils.CheckForNull<PawnCameraController>(_pawnCameraController, "ElyseCharacter: CameraController is null!"))
         {
             _weaponCamera.transform.position = _pawnCameraController.SpringArm.transform.position;
@@ -94,28 +95,52 @@ public class ElyseCharacter : Character
 
     private void Update()
     {
+        // Pause Game
         if (_playerInputManager.GetPauseInputDown())
         {
             Debug.Log("Pause input fired!");
             _isPaused = !_isPaused;
             if (_isPaused)
             {
-                Debug.Log("Game Paused!");
                 PauseGame();
             }
             else
             {
-                Debug.Log("Game Unpaused!");
                 UnpauseGame();
             }
         }
 
+        // Toggle View Mode
         if (_playerInputManager.GetViewInputDown())
         {
             Debug.Log("View input fired!");
             _isViewFPS = !_isViewFPS;
             EViewMode targetViewMode = _isViewFPS ? EViewMode.FPS : EViewMode.TPS;
             SetViewMode(targetViewMode);
+        }
+        
+        //Fire Weapon
+        if (_weaponManager.ActiveWeapon != null)
+        {
+            switch (_weaponManager.ActiveWeapon.FireMode)
+            {
+                case FireMode.Single:
+                case FireMode.Burst:
+                    if (_playerInputManager.GetFireInputDown()) _weaponManager.ActiveWeapon.StartFire();
+                    break;
+                case FireMode.Automatic:
+                    if (_playerInputManager.GetFireInputHeld()) _weaponManager.ActiveWeapon.StartFire();
+                    break;
+                default:
+                    Debug.LogError("ElyseCharacter: Fire mode is not implemented");
+                    break;
+            }
+        }
+        
+        // Reload Weapon
+        if (_playerInputManager.GetReloadInputDown())
+        {
+            _weaponManager.ActiveWeapon.StartReload();
         }
     }
 
@@ -128,6 +153,7 @@ public class ElyseCharacter : Character
     {
         if (IsDead) return;
         
+        // Update Third Person Mesh
         Vector3 velocity = _playerMovement.CharacterVelocity;
         float verticalValue = _playerInputManager.GetMoveInput().y != 0
             ? Vector3.Dot(velocity.normalized, transform.forward)
@@ -140,6 +166,10 @@ public class ElyseCharacter : Character
         _tpsAnimator.SetFloat(Horizontal, horizontalValue, 0.1f, Time.deltaTime);
         _tpsAnimator.SetBool(Grounded, _playerMovement.IsGrounded);
         _tpsAnimator.SetBool(Crouch, _playerInputManager.GetCrouchInputHeld());
+        
+        
+        // Bob First Person
+        _weaponManager.WeaponAnimation.SetIsGrounded(_playerMovement.IsGrounded);
     }
 
     public void SetViewMode(EViewMode viewMode)
@@ -147,6 +177,8 @@ public class ElyseCharacter : Character
         if (DebugUtils.CheckForNull<PawnCameraController>(_pawnCameraController,
                 "ElyseCharacter: PlayerCameraController is null")) return;
         
+        if (_weaponManager == null) { Debug.LogError("ElyseCharacter: WeaponManager is null");}
+        else _weaponManager.SetViewMode(viewMode);
         
         switch (viewMode)
         {
@@ -170,7 +202,7 @@ public class ElyseCharacter : Character
         }
     }
 
-    private void OnPlayerDied()
+    private void OnPlayerHealthDied()
     {
         _isDead = true;
         _rig.weight = 0;
@@ -203,9 +235,9 @@ public class ElyseCharacter : Character
     
     private void OnDestroy()
     {
-        if (_player != null)
+        if (_playerHealth != null)
         {
-            _player.OnPlayerDied -= OnPlayerDied;
+            _playerHealth.OnPlayerDied -= OnPlayerHealthDied;
         }
     }
 }

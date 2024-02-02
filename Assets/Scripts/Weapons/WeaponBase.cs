@@ -1,23 +1,25 @@
-using System;
 using System.Collections;
 using UnityEngine;
-using Pulsar.Debug;
 using FMODUnity;
-using Unity.Mathematics;
-using Random = UnityEngine.Random;
 
 public enum FireMode
 {
-    Auto,
     Single,
+    Automatic,
     Burst
 }
 
 public class WeaponBase : MonoBehaviour
 {
     [Header("General")]
-    [SerializeField] private string _weaponName;
+    [SerializeField] private string _weaponName = "Weapon";
     [SerializeField] private Vector3 _weaponOffset;
+
+    [Header("Ammo Properties")]
+    [SerializeField] private AmmoType _ammoType;
+    [SerializeField] private int _clipSize = 10;
+    [Space]
+    [SerializeField] private float _reloadDelay = 1.0f;
 
     [Header("Damage Properties")]
     [SerializeField] protected float _damage = 10.0f;
@@ -36,116 +38,151 @@ public class WeaponBase : MonoBehaviour
     [SerializeField] protected Transform _fireTransform;
     [SerializeField] protected ParticleSystem _muzzleEffect;
 
-    [Header("SFX")]
-    [SerializeField] private EventReference _fireEventRef; 
+    [Header("Audio")]
+    [SerializeField] private EventReference _fireEventRef;
+    [SerializeField] private EventReference _reloadEventRef;
+
+    private Pawn _owner;
+    private WeaponManager _weaponManager;
+    private WeaponAnimation _weaponAnimation;
 
     protected Camera _playerCamera;
     protected DamageCauseInfo _damageInfo;
-    private FMOD.Studio.EventInstance weaponSoundInstance;
-
-    private float _lastBurstFireTime;
-    private float _lastFireTime;
-    private WeaponAnimation _weaponAnimation;
-
-    public event Action<float> OnWeaponFired; 
     
-    public Pawn Pawn { get; set; }
+    private float _lastFireTime;
+    private int _currentAmmo;
+    private bool _isReloading = false;
+    
+    private FMOD.Studio.EventInstance _weaponSoundInstance;
+
+    public bool IsReloading => _isReloading;
     public Vector3 WeaponOffset => _weaponOffset;
-    public FireMode FireModeType => _fireMode;
+    public FireMode FireMode => _fireMode;
 
     protected virtual void Awake()
     {
-        weaponSoundInstance = RuntimeManager.CreateInstance(_fireEventRef);
+        _weaponSoundInstance = RuntimeManager.CreateInstance(_fireEventRef);
+        _currentAmmo = _clipSize;
     }
 
     protected virtual void Start()
     {
-        if (DebugUtils.CheckForNull(Pawn)) return;
-        _playerCamera = Pawn.GetComponentInChildren<SpringArm>().AttachedCamera;
-        if (DebugUtils.CheckForNull(_playerCamera, "WeaponBase: SpringArm was not found")) return;
-
-        _damageInfo = new DamageCauseInfo()
-        {
-            damage = _damage,
-            causer = Pawn,
-            CauseOfDeath = ECauseOfDeath.KilledByPlayer
-        };
     }
 
-    public void SetWeaponAnimation(WeaponAnimation weaponAnimation)
+    public void InitializeWeaponProps(Pawn owner, WeaponManager weaponManager, WeaponAnimation weaponAnimation)
     {
+        Debug.Log($"Initializing Weapon Props. WeaponAnimation null? {weaponAnimation == null}", this);
+        
+        _owner = owner;
         _weaponAnimation = weaponAnimation;
+        _playerCamera = owner.PawnCameraController.MainCamera;
+        _weaponManager = weaponManager;
     }
 
     public void StartFire()
     {
+        if (_isReloading || _currentAmmo <= 0) return;
+
         switch (_fireMode)
         {
-            case FireMode.Auto:
             case FireMode.Single:
+            case FireMode.Automatic:
                 TryFire();
                 break;
             case FireMode.Burst:
-                TryBurstFire();
-                break;
-            default:
-                Debug.LogError("Unsupported fire mode!");
+                StartCoroutine(_currentAmmo >= _burstShotCount ? BurstFire() : Reload());
                 break;
         }
+    }
+
+    public void StartReload()
+    {
+        if (_weaponManager == null)
+        {
+            Debug.LogError("WeaponBase: WeaponManager  is null!");
+            return;
+        }
+
+        if (CanReload()) StartCoroutine(Reload());
     }
 
     private void TryFire()
     {
-        if (!(Time.time >= _lastFireTime + _fireRate)) return;
+        if (Time.time < _lastFireTime + _fireRate) return;
         _lastFireTime = Time.time;
+        _currentAmmo--;
 
-        // Trigger recoil animation
-        _weaponAnimation.FireRecoil(_fireRecoilForce);
+        PlayFireSound();
 
-        OnWeaponFired?.Invoke(_fireRecoilForce);
-        Vector3 finalFireDirection = GetFireSpreadDirection(_playerCamera.transform.forward);
-        Fire(_fireTransform.position, finalFireDirection);
-    }
-
-    private void TryBurstFire()
-    {
-        if (!(Time.time >= _lastBurstFireTime + _fireRate)) return;
-        _lastBurstFireTime = Time.time;
-        StartCoroutine(BurstFire());
+        if (_weaponAnimation != null) _weaponAnimation.FireRecoil(_fireRecoilForce);
+        Vector3 position = _fireTransform.position;
+        Vector3 direction = _playerCamera.transform.forward;
+        Fire(position, direction);
     }
 
     private IEnumerator BurstFire()
     {
-        for (int i = 0; i < _burstShotCount; i++)
+        for (int i = 0; i < _burstShotCount && _currentAmmo > 0; i++)
         {
-            Vector3 direction = GetFireSpreadDirection(_playerCamera.transform.forward);
-            _weaponAnimation?.FireRecoil(_fireRecoilForce);
-            OnWeaponFired?.Invoke(_fireRecoilForce);
-            Fire(_fireTransform.position, direction);
+            _currentAmmo--;
+            if (_weaponAnimation != null) _weaponAnimation.FireRecoil(_fireRecoilForce);
+            Vector3 position = _fireTransform.position;
+            Vector3 direction = _playerCamera.transform.forward;
+            if (CanFire()) Fire(position, direction);
             yield return new WaitForSeconds(_burstFireRate);
         }
     }
 
-    protected Vector3 GetFireSpreadDirection(Vector3 direction)
-    {
-        Quaternion spreadRotation = Quaternion.Euler(
-            Random.Range(-_maxSpreadAngle, _maxSpreadAngle),
-            Random.Range(-_maxSpreadAngle, _maxSpreadAngle),
-            0f
-        );
-
-        return spreadRotation * direction;
-    }
-
     protected virtual void Fire(Vector3 position, Vector3 direction)
     {
-        FMOD.ATTRIBUTES_3D attributes = gameObject.To3DAttributes();
-        weaponSoundInstance.set3DAttributes(attributes);
-        weaponSoundInstance.start();
     }
 
-    private void OnDestroy()
+    private IEnumerator Reload()
     {
-        weaponSoundInstance.release();
+        _isReloading = true;
+        PlayReloadSound();
+    
+        // Start the reload animation
+        if (_weaponAnimation != null)
+        {
+            StartCoroutine(_weaponAnimation.ReloadAnimation(_reloadDelay));
+        }
+    
+        // Wait for the reload animation duration before proceeding with the ammo logic
+        yield return new WaitForSeconds(_reloadDelay);
+
+        int ammoNeeded = _clipSize - _currentAmmo;
+        if (_weaponManager.AmmoManager.UseAmmo(_ammoType, ammoNeeded))
+        {
+            _currentAmmo = _clipSize;
+        }
+        else
+        {
+            int availableAmmo = _weaponManager.AmmoManager.CheckAmmo(_ammoType);
+            _currentAmmo += availableAmmo;
+            _weaponManager.AmmoManager.UseAmmo(_ammoType, availableAmmo);
+        }
+
+        _isReloading = false;
+    }
+    
+    private bool CanFire()
+    {
+        return !_isReloading && _currentAmmo < _clipSize;
+    }
+
+    private bool CanReload()
+    {
+        return !_isReloading &&
+               _weaponManager.AmmoManager.CheckAmmo(_ammoType) > 0 &&
+               _currentAmmo < _clipSize;
+    }
+
+    private void PlayFireSound()
+    {
+    }
+
+    private void PlayReloadSound()
+    {
     }
 }

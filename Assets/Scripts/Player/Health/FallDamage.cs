@@ -16,7 +16,7 @@ public class FallDamage : MonoBehaviour
     [SerializeField] private EventReference damageSoundEvent;
 
     private PlayerMovement _movement;
-    private Player _player;
+    private PlayerHealth _playerHealth;
     private DamageCauseInfo _info;
     private Pawn _pawn;
     private float peakFallSpeed = 0f;
@@ -25,7 +25,7 @@ public class FallDamage : MonoBehaviour
     {
         _pawn = GetComponent<Pawn>();
         _movement = GetComponent<PlayerMovement>();
-        _player = GetComponent<Player>();
+        _playerHealth = GetComponent<PlayerHealth>();
     }
 
     private void Start()
@@ -54,7 +54,7 @@ public class FallDamage : MonoBehaviour
                 if (_enableFallDamage)
                 {
                     _info.damage = CalculateFallDamage(peakFallSpeed);
-                    _player.ApplyDamage(_info);
+                    _playerHealth.ApplyDamage(_info);
                     PlayDamageSound(_info.damage);
                 }
             }

@@ -1,140 +1,123 @@
 using System.Collections.Generic;
 using UnityEngine;
-using Pulsar.Debug;
 using Pulsar.Utils;
 using Unity.Mathematics;
 
 public class WeaponManager : MonoBehaviour
 {
-    [Header("Spawn Location References")]
-    [SerializeField] private Transform _fpsSpawnLocation;
-    [SerializeField] private Transform _tpsSpawnLocation;
+    [Header("Weapon View Layers")]
+    [SerializeField] private LayerMask _firstPersonLayer;
+    [SerializeField] private LayerMask _thirdPersonLayer;
+    
+    [Header("Weapon Spawn Properties")]
+    [SerializeField] private Transform _fpsSpawnTransform;
+    [SerializeField] private Transform _tpsSpawnTransform;
 
-    [Space]
-    [SerializeField] private int _startingIndex;
+    [Header("Starter Inventory Properties")]
+    [SerializeField] private int _weaponStartingIndex;
     [SerializeField] private List<WeaponBase> _weaponPrefabs;
+    [Space]
+    [SerializeField] private List<Ammo> _startingAmmo;
 
-    private PlayerInputManager _inputManager;
     private WeaponBase _activeWeapon;
-    private ElyseCharacter _elyseCharacter;
-    private int _currentWeaponIndex;
-    private List<WeaponBase> _weapons = new List<WeaponBase>();
+    private Pawn _owner;
     private WeaponAnimation _weaponAnimation;
+    private AmmoManager _ammoManager;
+    
+    private int _activeWeaponIndex;
+    private EViewMode _viewMode;
 
+    private readonly List<WeaponBase> _weapons = new List<WeaponBase>();
+
+    public Pawn Owner => _owner;
+    public AmmoManager AmmoManager => _ammoManager;
+    public WeaponBase ActiveWeapon => _activeWeapon;
+    public WeaponAnimation WeaponAnimation => _weaponAnimation;
+    public int ActiveWeaponIndex => _activeWeaponIndex;
+    
     private void Awake()
     {
-        _inputManager = GetComponent<PlayerInputManager>();
-        if (DebugUtils.CheckForNull<PlayerInputManager>(_inputManager, $"WeaponManager: PlayerInputManager not attached to {gameObject.name}!")) return;
-
-        _elyseCharacter = GetComponent<ElyseCharacter>();
-        if (DebugUtils.CheckForNull<ElyseCharacter>(_elyseCharacter, $"WeaponManager: ElyseCharacter not attached to {gameObject.name}!")) return;
-
+        _ammoManager = new AmmoManager(_startingAmmo);
+        
         _weaponAnimation = GetComponentInChildren<WeaponAnimation>();
+        if (_weaponAnimation == null)
+        {
+            Debug.LogError("[WeaponManager] WeaponAnimation is missing on the children of the GameObject.");
+        }
+
+        _owner = GetComponent<Pawn>();
+        if (_owner == null)
+        {
+            Debug.LogError("[WeaponManager] Pawn is missing on the GameObject.");
+        }
     }
 
-    void Start()
+    private void Start()
     {
-        if (DebugUtils.CheckForNull<Transform>(_fpsSpawnLocation, "WeaponManager: FPS spawn point is missing!")) return;
-        if (DebugUtils.CheckForNull<Transform>(_tpsSpawnLocation, "WeaponManager: TPS spawn point is missing!")) return;
-        InitializeWeapons();
-        _elyseCharacter.OnViewChanged += UpdateWeaponOnViewChanged;
-    }
-
-    private void InitializeWeapons()
-    {
+        // Initialize Weapons
         foreach (var weaponPrefab in _weaponPrefabs)
         {
-            WeaponBase weapon = Instantiate(weaponPrefab, _fpsSpawnLocation);
-            weapon.gameObject.SetActive(false);
-            _weapons.Add(weapon);
-            SetupWeapon(weapon);
+            AddWeapon(weaponPrefab);
         }
 
-        _currentWeaponIndex = _startingIndex;
-        SwitchWeapon(0); // Activate the starting weapon
+        if (_weaponPrefabs.Count <= 0) return;
+        _activeWeaponIndex = Mathf.Clamp(_weaponStartingIndex, 0, _weaponPrefabs.Count - 1);
+        SwitchWeapon(0);
     }
 
-    private void SetupWeapon(WeaponBase weapon)
+    public void AddWeapon(WeaponBase weapon)
     {
-        Utils.SetLayerRecursively(weapon.gameObject, _elyseCharacter.ViewMode == EViewMode.FPS ? 
-            LayerMask.NameToLayer("FP_Weapon") : 
-            LayerMask.NameToLayer("TP_Weapon")
-        );
-
-        weapon.Pawn = _elyseCharacter;
-        weapon.transform.localPosition = weapon.WeaponOffset;
-        weapon.transform.localRotation = quaternion.identity;
-        weapon.transform.localScale = Vector3.one;
-        weapon.SetWeaponAnimation(_weaponAnimation);
+        WeaponBase newWeapon = Instantiate(weapon, GetWeaponSpawnTransform(_viewMode));
+        newWeapon.gameObject.SetActive(false);
+        _weapons.Add(newWeapon);
+        newWeapon.InitializeWeaponProps(_owner, this, _weaponAnimation);
     }
-
-    private void Update()
-    {
-        if (_activeWeapon == null) return;
-        UpdateWeaponFire();
-        UpdateWeaponSwitching();
-    }
-
+    
     public void SwitchWeapon(int direction)
     {
-        _weapons[_currentWeaponIndex].gameObject.SetActive(false);
+        _weapons[_activeWeaponIndex].gameObject.SetActive(false);
 
-        _currentWeaponIndex = (_currentWeaponIndex + direction + _weapons.Count) % _weapons.Count;
-        _weapons[_currentWeaponIndex].gameObject.SetActive(true);
+        _activeWeaponIndex = (_activeWeaponIndex + direction + _weapons.Count) % _weapons.Count;
+        _activeWeapon = _weapons[_activeWeaponIndex];
+        _activeWeapon.gameObject.SetActive(true);
 
-        _activeWeapon = _weapons[_currentWeaponIndex];
-        UpdateWeaponOnViewChanged(_elyseCharacter.ViewMode);
+        UpdateWeaponOnViewChanged(_viewMode);
     }
 
+    public void SetViewMode(EViewMode viewMode)
+    {
+        _viewMode = viewMode;
+        UpdateWeaponOnViewChanged(viewMode);
+    }
+    
     private void UpdateWeaponOnViewChanged(EViewMode viewMode)
     {
-        switch (viewMode)
-        {
-            case EViewMode.FPS:
-                Utils.SetLayerRecursively(_activeWeapon.gameObject, LayerMask.NameToLayer("FP_Weapon"));
-                Transform weaponTransformFPS;
-                (weaponTransformFPS = _activeWeapon.transform).SetParent(_fpsSpawnLocation.transform);
-                weaponTransformFPS.localPosition = _activeWeapon.WeaponOffset;
-                weaponTransformFPS.localRotation = quaternion.identity;
-                weaponTransformFPS.localScale = Vector3.one;
-                break;
-            case EViewMode.TPS:
-                Utils.SetLayerRecursively(_activeWeapon.gameObject, LayerMask.NameToLayer("TP_Weapon"));
-                Transform weaponTransformTPS;
-                (weaponTransformTPS = _activeWeapon.transform).SetParent(_tpsSpawnLocation.transform);
-                weaponTransformTPS.localPosition = _activeWeapon.WeaponOffset;
-                weaponTransformTPS.localRotation = quaternion.identity;
-                weaponTransformTPS.localScale = Vector3.one;
-                break;
-        }
-    }
+        if (_activeWeapon == null) return;
 
-    private void UpdateWeaponFire()
-    {
-        switch (_activeWeapon.FireModeType)
-        {
-            case FireMode.Auto:
-                if (_inputManager.GetFireInputHeld())
-                {
-                    _activeWeapon.StartFire();
-                }
-                break;
-            case FireMode.Single:
-            case FireMode.Burst:
-                if (_inputManager.GetFireInputDown())
-                {
-                    _activeWeapon.StartFire();
-                }
-                break;
-        }
-    }
+        int targetLayer = viewMode == EViewMode.FPS ? LayerMaskToLayer(_firstPersonLayer) : LayerMaskToLayer(_thirdPersonLayer);
+        Utils.SetLayerRecursively(_activeWeapon.gameObject, targetLayer);
 
-    private void UpdateWeaponSwitching()
+        Transform weaponTransform = _activeWeapon.transform;
+        weaponTransform.SetParent(viewMode == EViewMode.FPS ? _fpsSpawnTransform : _tpsSpawnTransform);
+        weaponTransform.localPosition = _activeWeapon.WeaponOffset;
+        weaponTransform.localRotation = quaternion.identity;
+        weaponTransform.localScale = Vector3.one;
+    }
+    
+    private Transform GetWeaponSpawnTransform(EViewMode viewMode)
     {
-        int switchInput = _inputManager.GetSwitchWeaponInput();
-        if (switchInput != 0)
+        return viewMode == EViewMode.FPS ? _fpsSpawnTransform : _tpsSpawnTransform;
+    }
+    
+    private int LayerMaskToLayer(LayerMask layerMask)
+    {
+        int layerNumber = 0;
+        int layer = layerMask.value;
+        while (layer > 0)
         {
-            SwitchWeapon(switchInput);
+            layer = layer >> 1;
+            layerNumber++;
         }
+        return layerNumber - 1;
     }
 }

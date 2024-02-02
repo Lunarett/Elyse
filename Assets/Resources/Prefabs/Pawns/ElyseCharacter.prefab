@@ -716,10 +716,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a2510ab959b72ff4dbd762d2bd59efd1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  cameraTransform: {fileID: 516533363047978100}
+  _camera: {fileID: 3382677364014646298}
   _useRootYawRotation: 1
   _ignoreZRoll: 0
-  lookSpeed: 0.1
+  lookSpeed: 0.15
   pitchClamp: {x: -89, y: 89}
 --- !u!114 &3723548513185817919
 MonoBehaviour:
@@ -770,15 +770,34 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 82c1f0cee7fb02b46a7a1e6885ff34e5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _fpsSpawnLocation: {fileID: 4392748839232346001}
-  _tpsSpawnLocation: {fileID: 1165675026994962777}
-  _startingIndex: 0
+  _firstPersonLayer:
+    serializedVersion: 2
+    m_Bits: 256
+  _thirdPersonLayer:
+    serializedVersion: 2
+    m_Bits: 512
+  _fpsSpawnTransform: {fileID: 4392748839232346001}
+  _tpsSpawnTransform: {fileID: 1165675026994962777}
+  _weaponStartingIndex: 0
   _weaponPrefabs:
   - {fileID: 7457221728030768537, guid: aca8478c3184dfc469f3b8609a10fc49, type: 3}
   - {fileID: 1917782606559623225, guid: 037a18c2ff23cd24ebf274b27bc7444e, type: 3}
   - {fileID: 5159128229822020944, guid: 9b62240176b1b1846ad48cf39ec838e3, type: 3}
   - {fileID: 218861631099351297, guid: ef866031eac7ae942bc4cc2023bceff5, type: 3}
   - {fileID: 717022808269677660, guid: d2855d6d7ce7307408d7d7307d075c42, type: 3}
+  _startingAmmo:
+  - name: Pistol Ammo
+    ammoType: 0
+    initialCount: 22
+  - name: Rifle Ammo
+    ammoType: 1
+    initialCount: 60
+  - name: Launcher Projectiles
+    ammoType: 3
+    initialCount: 15
+  - name: Sniper rounds
+    ammoType: 2
+    initialCount: 15
 --- !u!114 &516533362349361296
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -961,8 +980,8 @@ MonoBehaviour:
     m_ActionName: 'Spectator/Elevate[/Keyboard/q,/Keyboard/e,/Keyboard/shift,/Keyboard/space]'
   - m_PersistentCalls:
       m_Calls: []
-    m_ActionId: 4b5250e0-a741-43fb-8a26-7aa53e86b81a
-    m_ActionName: Automobile/New action
+    m_ActionId: ea07fbe4-b293-4f8e-8295-0cfbe56f3948
+    m_ActionName: 'Player/Reload[/Keyboard/r]'
   m_NeverAutoSwitchControlSchemes: 0
   m_DefaultControlScheme: 
   m_DefaultActionMap: Player
@@ -1308,13 +1327,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 49771fd5411dd444982609bac5ae2fa8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  BobFrequency: 10
-  MidAirFrequency: 2
-  BobSharpness: 10
-  DefaultBobAmount: 0.02
-  RecoilSharpness: 50
-  MaxRecoilDistance: 0.08
-  RecoilRestitutionSharpness: 10
+  _bobFrequency: 5
+  _midAirFrequency: 1
+  _bobSharpness: 20
+  _defaultBobAmount: 0.02
+  _recoilSharpness: 50
+  _maxRecoilDistance: 0.5
+  _recoilRestitutionSharpness: 10
+  _reloadOffset: {x: 0.2, y: -0.4, z: -0.2}
+  _reloadDuration: 0.5
 --- !u!114 &7993534740751229778
 MonoBehaviour:
   m_ObjectHideFlags: 0

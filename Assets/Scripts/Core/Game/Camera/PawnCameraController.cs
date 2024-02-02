@@ -2,11 +2,13 @@ using System;
 using Pulsar.Debug;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.Serialization;
 
 public class PawnCameraController : MonoBehaviour
 {
     [Header("Camera Control Settings")]
-    [SerializeField] private Transform cameraTransform;
+    [SerializeField] private Camera _camera;
+    [Space]
     [SerializeField] private bool _useRootYawRotation = true;
     [SerializeField] private bool _ignoreZRoll;
     [Range(0.0f, 0.5f)] [SerializeField] private float lookSpeed = 0.1f;
@@ -19,6 +21,7 @@ public class PawnCameraController : MonoBehaviour
     private float rotationMultiplier = 1f;
 
     public SpringArm SpringArm => _springArm;
+    public Camera MainCamera => _camera;
 
     private void Awake()
     {
@@ -36,7 +39,7 @@ public class PawnCameraController : MonoBehaviour
     {
         if (_ignoreZRoll) _springArm.transform.position = transform.position;
         Vector2 mouseDelta = Mouse.current.delta.ReadValue();
-        HandleMouseYAWRotation(mouseDelta);
+        HandleMouseYawRotation(mouseDelta);
         HandleMousePitchRotation(mouseDelta);
     }
 
@@ -45,7 +48,7 @@ public class PawnCameraController : MonoBehaviour
         rotationMultiplier = multiplier;
     }
 
-    private void HandleMouseYAWRotation(Vector2 mouseDelta)
+    private void HandleMouseYawRotation(Vector2 mouseDelta)
     {
         _targetTransform.Rotate(0f, mouseDelta.x * lookSpeed * rotationMultiplier * Time.deltaTime, 0f, Space.Self);
     }
@@ -54,6 +57,6 @@ public class PawnCameraController : MonoBehaviour
     {
         cameraVerticalAngle += mouseDelta.y * lookSpeed * rotationMultiplier * Time.deltaTime;
         cameraVerticalAngle = Mathf.Clamp(cameraVerticalAngle, pitchClamp.x, pitchClamp.y);
-        cameraTransform.localEulerAngles = new Vector3(-cameraVerticalAngle, 0, 0);
+        _camera.transform.localEulerAngles = new Vector3(-cameraVerticalAngle, 0, 0);
     }
 }

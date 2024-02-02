@@ -3,9 +3,8 @@ using System;
 using Pulsar.Debug;
 using QFSW.QC;
 
-public class Player : HealthBase
+public class PlayerHealth : HealthBase
 {
-    // Define an event for when the player dies
     public event Action OnPlayerDied;
     public event Action<float, float> OnHealthChanged;
 
