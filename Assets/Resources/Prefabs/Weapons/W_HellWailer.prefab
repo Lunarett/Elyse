@@ -111,8 +111,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _weaponName: Hellwailer
   _weaponOffset: {x: 0.01, y: -0.01, z: 0}
-  _ammoType: 2
+  _ammoType: 3
   _clipSize: 5
+  _reloadDelay: 1
   _damage: 40
   _hitLayers:
     serializedVersion: 2
@@ -122,7 +123,7 @@ MonoBehaviour:
   _maxSpreadAngle: 1
   _burstFireRate: 0
   _burstShotCount: 0
-  _fireRecoilForce: 4
+  _fireRecoilForce: 0.25
   _fireTransform: {fileID: 8561565236990601452}
   _muzzleEffect: {fileID: 2098190134485057311}
   _fireEventRef:
@@ -132,6 +133,13 @@ MonoBehaviour:
       Data3: 965504409
       Data4: -621128104
     Path: event:/Player/Weapons/Hellwailer
+  _reloadEventRef:
+    Guid:
+      Data1: 0
+      Data2: 0
+      Data3: 0
+      Data4: 0
+    Path: 
   _projectilePrefab: {fileID: 3228266857497530306, guid: 071db60607ad84b40b9f22f1f106fad6,
     type: 3}
   _projectileSpeed: 100

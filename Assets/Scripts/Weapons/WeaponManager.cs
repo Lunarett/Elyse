@@ -12,6 +12,9 @@ public class WeaponManager : MonoBehaviour
     [Header("Weapon Spawn Properties")]
     [SerializeField] private Transform _fpsSpawnTransform;
     [SerializeField] private Transform _tpsSpawnTransform;
+    
+    [Header("Weapon Switching")]
+    [SerializeField] private float _switchCooldown = 0.5f;
 
     [Header("Starter Inventory Properties")]
     [SerializeField] private int _weaponStartingIndex;
@@ -25,6 +28,7 @@ public class WeaponManager : MonoBehaviour
     private AmmoManager _ammoManager;
     
     private int _activeWeaponIndex;
+    private float _lastSwitchTime = -1f;
     private EViewMode _viewMode;
 
     private readonly List<WeaponBase> _weapons = new List<WeaponBase>();
@@ -75,14 +79,32 @@ public class WeaponManager : MonoBehaviour
     
     public void SwitchWeapon(int direction)
     {
-        _weapons[_activeWeaponIndex].gameObject.SetActive(false);
+        if (Time.time < _lastSwitchTime + _switchCooldown)
+        {
+            return;
+        }
 
-        _activeWeaponIndex = (_activeWeaponIndex + direction + _weapons.Count) % _weapons.Count;
+        //_weaponAnimation.PlaySwitchAnimation(_switchCooldown);
+        
+        _lastSwitchTime = Time.time;
+        int newWeaponIndex = (_activeWeaponIndex + direction + _weapons.Count) % _weapons.Count;
+
+        if (newWeaponIndex == _activeWeaponIndex) return;
+        // Deactivate the current weapon
+        if (_activeWeapon != null)
+        {
+            _activeWeapon.gameObject.SetActive(false);
+        }
+
+        // Update the active weapon index to the new one
+        _activeWeaponIndex = newWeaponIndex;
         _activeWeapon = _weapons[_activeWeaponIndex];
-        _activeWeapon.gameObject.SetActive(true);
 
+        // Activate the new weapon
+        _activeWeapon.gameObject.SetActive(true);
         UpdateWeaponOnViewChanged(_viewMode);
     }
+
 
     public void SetViewMode(EViewMode viewMode)
     {

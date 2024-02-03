@@ -79,18 +79,19 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _weaponName: Archtronic
   _weaponOffset: {x: 0, y: 0, z: 0}
-  _ammoType: 3
-  _clipSize: 4
+  _ammoType: 2
+  _clipSize: 6
+  _reloadDelay: 1
   _damage: 25
   _hitLayers:
     serializedVersion: 2
     m_Bits: 129
-  _fireMode: 1
+  _fireMode: 0
   _fireRate: 0.4
   _maxSpreadAngle: 0.5
   _burstFireRate: 0
   _burstShotCount: 0
-  _fireRecoilForce: 1
+  _fireRecoilForce: 0.15
   _fireTransform: {fileID: 1421744972477986983}
   _muzzleEffect: {fileID: 1657320514282319976}
   _fireEventRef:
@@ -100,6 +101,13 @@ MonoBehaviour:
       Data3: 127166113
       Data4: 1352823211
     Path: event:/Player/Weapons/Archtronic
+  _reloadEventRef:
+    Guid:
+      Data1: 0
+      Data2: 0
+      Data3: 0
+      Data4: 0
+    Path: 
   _impactEffectPrefab: {fileID: 744084136304213716, guid: f4ad68aa2a7063449bd2e580eb161897,
     type: 3}
   _laserPrefab: {fileID: 5041111493687089217, guid: cf27699e3e694c54490414224dce7085,

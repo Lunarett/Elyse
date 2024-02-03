@@ -1,13 +1,16 @@
 using System.Collections;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 public class WeaponAnimation : MonoBehaviour
 {
+    [FormerlySerializedAs("_bobFrequency")]
     [Header("Bobbing")]
-    [SerializeField] private float _bobFrequency = 10f;
+    [SerializeField] private float _verticalBobFrequency = 10f;
+    [SerializeField] private float _horizontalBobFrequency = 10f;
     [SerializeField] private float _midAirFrequency = 2.0f;
+    [SerializeField] private float _bobAmplitude = 0.02f;
     [SerializeField] private float _bobSharpness = 10f;
-    [SerializeField] private float _defaultBobAmount = 0.02f;
 
     [Header("Recoil Animation")]
     [SerializeField] private float _recoilSharpness = 50f;
@@ -86,10 +89,11 @@ public class WeaponAnimation : MonoBehaviour
         Vector3 playerVelocity = (transform.position - _lastCharacterPosition) / Time.deltaTime;
         _weaponBobFactor = Mathf.Lerp(_weaponBobFactor, Mathf.Clamp01(playerVelocity.magnitude / 10f), _bobSharpness * Time.deltaTime);
 
-        float bobAmount = _defaultBobAmount;
-        float frequency = _isGrounded ? _bobFrequency : _midAirFrequency;
-        _weaponBobLocalPosition.x = Mathf.Sin(Time.time * frequency) * bobAmount * _weaponBobFactor;
-        _weaponBobLocalPosition.y = Mathf.Abs(Mathf.Sin(Time.time * frequency * 2f) * bobAmount * _weaponBobFactor);
+        float bobAmount = _bobAmplitude;
+        float verticalFrequency = _isGrounded ? _verticalBobFrequency : _midAirFrequency;
+        float sideFrequency = _isGrounded ? _horizontalBobFrequency : _midAirFrequency;
+        _weaponBobLocalPosition.x = Mathf.Sin(Time.time * sideFrequency) * bobAmount * _weaponBobFactor;
+        _weaponBobLocalPosition.y = Mathf.Abs(Mathf.Sin(Time.time * verticalFrequency * 2f) * bobAmount * _weaponBobFactor);
 
         _lastCharacterPosition = transform.position;
     }
