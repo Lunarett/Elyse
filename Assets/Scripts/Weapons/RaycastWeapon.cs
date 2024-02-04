@@ -1,6 +1,7 @@
 using System.Collections;
 using UnityEngine;
 using Unity.Mathematics;
+using Random = UnityEngine.Random;
 
 public class RaycastWeapon : WeaponBase
 {

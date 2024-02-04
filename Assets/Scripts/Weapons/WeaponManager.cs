@@ -84,26 +84,27 @@ public class WeaponManager : MonoBehaviour
             return;
         }
 
-        //_weaponAnimation.PlaySwitchAnimation(_switchCooldown);
-        
-        _lastSwitchTime = Time.time;
-        int newWeaponIndex = (_activeWeaponIndex + direction + _weapons.Count) % _weapons.Count;
+        _weaponAnimation.PlaySwitchAnimation(_switchCooldown * 2);
 
-        if (newWeaponIndex == _activeWeaponIndex) return;
-        // Deactivate the current weapon
+        float halfDuration = _switchCooldown;
+        Invoke(nameof(PerformSwitch), halfDuration);
+
+        _lastSwitchTime = Time.time + halfDuration;
+        _activeWeaponIndex = (_activeWeaponIndex + direction + _weapons.Count) % _weapons.Count;
+    }
+
+    private void PerformSwitch()
+    {
         if (_activeWeapon != null)
         {
             _activeWeapon.gameObject.SetActive(false);
         }
 
-        // Update the active weapon index to the new one
-        _activeWeaponIndex = newWeaponIndex;
         _activeWeapon = _weapons[_activeWeaponIndex];
-
-        // Activate the new weapon
         _activeWeapon.gameObject.SetActive(true);
         UpdateWeaponOnViewChanged(_viewMode);
     }
+
 
 
     public void SetViewMode(EViewMode viewMode)

@@ -1,6 +1,7 @@
 using System.Collections;
 using UnityEngine;
 using FMODUnity;
+using JetBrains.Annotations;
 
 public enum FireMode
 {
@@ -19,6 +20,7 @@ public class WeaponBase : MonoBehaviour
     [SerializeField] private AmmoType _ammoType;
     [SerializeField] private int _clipSize = 10;
     [Space]
+    [SerializeField] private bool _autoReload;
     [SerializeField] private float _reloadDelay = 1.0f;
 
     [Header("Damage Properties")]
@@ -29,6 +31,7 @@ public class WeaponBase : MonoBehaviour
     [SerializeField] private FireMode _fireMode;
     [Space]
     [SerializeField] private float _fireRate = 0.1f;
+    [SerializeField] private float _recoilAmount = 1.0f;
     [SerializeField] private float _maxSpreadAngle = 5f;
     [SerializeField] private float _burstFireRate = 0.1f;
     [SerializeField] private int _burstShotCount = 3;
@@ -81,8 +84,9 @@ public class WeaponBase : MonoBehaviour
 
     public void StartFire()
     {
+        if (_currentAmmo <= 0 && _autoReload && CanReload()) StartCoroutine(Reload());
         if (_isReloading || _currentAmmo <= 0) return;
-
+        
         switch (_fireMode)
         {
             case FireMode.Single:
@@ -90,7 +94,7 @@ public class WeaponBase : MonoBehaviour
                 TryFire();
                 break;
             case FireMode.Burst:
-                StartCoroutine(_currentAmmo >= _burstShotCount ? BurstFire() : Reload());
+                if(_currentAmmo >= _burstShotCount) StartCoroutine( BurstFire());
                 break;
         }
     }
@@ -112,11 +116,9 @@ public class WeaponBase : MonoBehaviour
         _lastFireTime = Time.time;
         _currentAmmo--;
 
-        PlayFireSound();
-
         if (_weaponAnimation != null) _weaponAnimation.FireRecoil(_fireRecoilForce);
         Vector3 position = _fireTransform.position;
-        Vector3 direction = _playerCamera.transform.forward;
+        Vector3 direction = CalculateSpreadDirection();
         Fire(position, direction);
     }
 
@@ -127,7 +129,7 @@ public class WeaponBase : MonoBehaviour
             _currentAmmo--;
             if (_weaponAnimation != null) _weaponAnimation.FireRecoil(_fireRecoilForce);
             Vector3 position = _fireTransform.position;
-            Vector3 direction = _playerCamera.transform.forward;
+            Vector3 direction = CalculateSpreadDirection();
             if (CanFire()) Fire(position, direction);
             yield return new WaitForSeconds(_burstFireRate);
         }
@@ -135,6 +137,8 @@ public class WeaponBase : MonoBehaviour
 
     protected virtual void Fire(Vector3 position, Vector3 direction)
     {
+        PlayFireSound();
+        _owner.PawnCameraController.AddRecoilOffset(_recoilAmount);
     }
 
     private IEnumerator Reload()
@@ -176,6 +180,14 @@ public class WeaponBase : MonoBehaviour
         return !_isReloading &&
                _weaponManager.AmmoManager.CheckAmmo(_ammoType) > 0 &&
                _currentAmmo < _clipSize;
+    }
+    
+    protected Vector3 CalculateSpreadDirection()
+    {
+        float spreadAngleX = Random.Range(-_maxSpreadAngle, _maxSpreadAngle);
+        float spreadAngleY = Random.Range(-_maxSpreadAngle, _maxSpreadAngle);
+        Vector3 direction = Quaternion.Euler(spreadAngleX, spreadAngleY, 0) * _playerCamera.transform.forward;
+        return direction;
     }
 
     private void PlayFireSound()

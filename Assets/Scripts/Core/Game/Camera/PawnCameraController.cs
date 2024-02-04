@@ -1,8 +1,6 @@
 using System;
-using Pulsar.Debug;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using UnityEngine.Serialization;
 
 public class PawnCameraController : MonoBehaviour
 {
@@ -14,11 +12,14 @@ public class PawnCameraController : MonoBehaviour
     [Range(0.0f, 0.5f)] [SerializeField] private float lookSpeed = 0.1f;
     [SerializeField] private Vector2 pitchClamp = new Vector2(-89.0f, 89.0f);
 
+    [Header("Recoil Settings")]
+    [SerializeField] private float recoilRecoverySpeed = 1f; // Speed at which recoil is recovered
+
     private SpringArm _springArm;
     private Transform _targetTransform;
-    
     private float cameraVerticalAngle;
     private float rotationMultiplier = 1f;
+    private float recoilOffset = 0f; // Additional recoil offset to be applied to pitch
 
     public SpringArm SpringArm => _springArm;
     public Camera MainCamera => _camera;
@@ -41,11 +42,23 @@ public class PawnCameraController : MonoBehaviour
         Vector2 mouseDelta = Mouse.current.delta.ReadValue();
         HandleMouseYawRotation(mouseDelta);
         HandleMousePitchRotation(mouseDelta);
+
+        // Gradually reduce recoil offset to recover back to the original position
+        if (recoilOffset != 0f)
+        {
+            recoilOffset = Mathf.MoveTowards(recoilOffset, 0f, recoilRecoverySpeed * Time.deltaTime);
+        }
     }
 
     public void SetRotationMultiplier(float multiplier)
     {
         rotationMultiplier = multiplier;
+    }
+
+    public void AddRecoilOffset(float offset)
+    {
+        recoilOffset += offset;
+        recoilOffset = Mathf.Clamp(recoilOffset, -pitchClamp.y, pitchClamp.y);
     }
 
     private void HandleMouseYawRotation(Vector2 mouseDelta)
@@ -56,7 +69,8 @@ public class PawnCameraController : MonoBehaviour
     private void HandleMousePitchRotation(Vector2 mouseDelta)
     {
         cameraVerticalAngle += mouseDelta.y * lookSpeed * rotationMultiplier * Time.deltaTime;
-        cameraVerticalAngle = Mathf.Clamp(cameraVerticalAngle, pitchClamp.x, pitchClamp.y);
+        // Apply recoilOffset when calculating the new vertical angle
+        cameraVerticalAngle = Mathf.Clamp(cameraVerticalAngle + recoilOffset, pitchClamp.x, pitchClamp.y);
         _camera.transform.localEulerAngles = new Vector3(-cameraVerticalAngle, 0, 0);
     }
 }

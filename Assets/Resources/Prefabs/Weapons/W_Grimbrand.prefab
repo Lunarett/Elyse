@@ -112,6 +112,7 @@ MonoBehaviour:
   _weaponOffset: {x: 0.01, y: -0.05, z: 0}
   _ammoType: 0
   _clipSize: 11
+  _autoReload: 0
   _reloadDelay: 0.6
   _damage: 10
   _hitLayers:
@@ -119,6 +120,7 @@ MonoBehaviour:
     m_Bits: 129
   _fireMode: 2
   _fireRate: 0.65
+  _recoilAmount: 0.08
   _maxSpreadAngle: 5
   _burstFireRate: 0.05
   _burstShotCount: 4

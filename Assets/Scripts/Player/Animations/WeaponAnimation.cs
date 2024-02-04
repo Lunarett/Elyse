@@ -1,16 +1,14 @@
 using System.Collections;
 using UnityEngine;
-using UnityEngine.Serialization;
 
 public class WeaponAnimation : MonoBehaviour
 {
-    [FormerlySerializedAs("_bobFrequency")]
     [Header("Bobbing")]
-    [SerializeField] private float _verticalBobFrequency = 10f;
-    [SerializeField] private float _horizontalBobFrequency = 10f;
-    [SerializeField] private float _midAirFrequency = 2.0f;
-    [SerializeField] private float _bobAmplitude = 0.02f;
-    [SerializeField] private float _bobSharpness = 10f;
+    [SerializeField] private float _verticalBobFrequency = 5.0f;
+    [SerializeField] private float _horizontalBobFrequency = 10.0f;
+    [SerializeField] private float _midAirFrequency = 1.0f;
+    [SerializeField] private float _bobSharpness = 15f;
+    [SerializeField] private float _bobAmplitude = 0.015f;
 
     [Header("Recoil Animation")]
     [SerializeField] private float _recoilSharpness = 50f;
@@ -19,6 +17,9 @@ public class WeaponAnimation : MonoBehaviour
 
     [Header("Reload Animation")]
     [SerializeField] private Vector3 _reloadOffset = new Vector3(0, -0.1f, 0);
+
+    [Header("Switch")]
+    [SerializeField] private Vector3 _switchDirection = Vector3.right;
 
     private Vector3 _initialLocalPosition;
     private Vector3 _weaponBobLocalPosition;
@@ -30,6 +31,11 @@ public class WeaponAnimation : MonoBehaviour
     private float _weaponBobFactor;
     private bool _isGrounded = true;
 
+    // Variables for switch animation
+    private bool _isSwitching = false;
+    private float _switchDuration = 0f;
+    private float _switchTimeElapsed = 0f;
+
     private void Start()
     {
         _initialLocalPosition = transform.localPosition;
@@ -38,16 +44,21 @@ public class WeaponAnimation : MonoBehaviour
 
     private void Update()
     {
-        if (!_isReloading) // Skip bob and recoil updates during reload animation
+        if (!_isReloading)
         {
             UpdateWeaponBob();
             UpdateWeaponRecoil();
+        }
+
+        if (_isSwitching)
+        {
+            UpdateSwitchAnimation();
         }
     }
 
     private void LateUpdate()
     {
-        if (!_isReloading) // Apply combined position adjustments only if not reloading
+        if (!_isReloading)
         {
             transform.localPosition = _initialLocalPosition + _weaponBobLocalPosition + _weaponRecoilLocalPosition;
         }
@@ -74,7 +85,6 @@ public class WeaponAnimation : MonoBehaviour
             yield return null;
         }
 
-        // Ensure weapon returns to its exact initial position
         transform.localPosition = _initialLocalPosition;
         _isReloading = false;
     }
@@ -91,7 +101,7 @@ public class WeaponAnimation : MonoBehaviour
 
         float bobAmount = _bobAmplitude;
         float verticalFrequency = _isGrounded ? _verticalBobFrequency : _midAirFrequency;
-        float sideFrequency = _isGrounded ? _horizontalBobFrequency : _midAirFrequency;
+        float sideFrequency = _isGrounded ? _horizontalBobFrequency : _midAirFrequency; // Use the new variable for side frequency
         _weaponBobLocalPosition.x = Mathf.Sin(Time.time * sideFrequency) * bobAmount * _weaponBobFactor;
         _weaponBobLocalPosition.y = Mathf.Abs(Mathf.Sin(Time.time * verticalFrequency * 2f) * bobAmount * _weaponBobFactor);
 
@@ -102,5 +112,31 @@ public class WeaponAnimation : MonoBehaviour
     {
         _weaponRecoilLocalPosition = Vector3.Lerp(_weaponRecoilLocalPosition, _accumulatedRecoil, _recoilSharpness * Time.deltaTime);
         _accumulatedRecoil = Vector3.Lerp(_accumulatedRecoil, Vector3.zero, _recoilRestitutionSharpness * Time.deltaTime);
+    }
+
+    public void PlaySwitchAnimation(float duration)
+    {
+        if (duration <= 0) return;
+
+        _isSwitching = true;
+        _switchDuration = duration;
+        _switchTimeElapsed = 0f;
+    }
+
+    private void UpdateSwitchAnimation()
+    {
+        if (_switchTimeElapsed < _switchDuration)
+        {
+            float rotationAmountPerFrame = 180f / _switchDuration * Time.deltaTime;
+            
+            transform.Rotate(_switchDirection, rotationAmountPerFrame);
+            
+            _switchTimeElapsed += Time.deltaTime;
+        }
+        else
+        {
+            _isSwitching = false; // Stop the animation
+            // Optionally adjust to exactly 360 degrees if there is a discrepancy
+        }
     }
 }
