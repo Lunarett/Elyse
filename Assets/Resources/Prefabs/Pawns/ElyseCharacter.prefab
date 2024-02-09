@@ -721,6 +721,7 @@ MonoBehaviour:
   _ignoreZRoll: 0
   lookSpeed: 0.15
   pitchClamp: {x: -89, y: 89}
+  forceRecoverySpeed: 1
 --- !u!114 &3723548513185817919
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -733,7 +734,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b5735170fec15ed4181db7498d3c4b0a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _thrustPower: 6
+  _thrustPower: 7
   _jetpackForce: 22
   _powerConsumptionRate: 10
   jetpackSoundEvent:
@@ -782,10 +783,6 @@ MonoBehaviour:
   _weaponStartingIndex: 0
   _weaponPrefabs:
   - {fileID: 7457221728030768537, guid: aca8478c3184dfc469f3b8609a10fc49, type: 3}
-  - {fileID: 1917782606559623225, guid: 037a18c2ff23cd24ebf274b27bc7444e, type: 3}
-  - {fileID: 5159128229822020944, guid: 9b62240176b1b1846ad48cf39ec838e3, type: 3}
-  - {fileID: 218861631099351297, guid: ef866031eac7ae942bc4cc2023bceff5, type: 3}
-  - {fileID: 717022808269677660, guid: d2855d6d7ce7307408d7d7307d075c42, type: 3}
   _startingAmmo:
   - name: Pistol Ammo
     ammoType: 0
@@ -812,6 +809,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _maxHealth: 100
+  _damageEffect: {r: 1, g: 0, b: 0, a: 1}
+  _healEffect: {r: 0, g: 1, b: 0, a: 1}
 --- !u!114 &2915690791224234742
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -983,6 +982,10 @@ MonoBehaviour:
       m_Calls: []
     m_ActionId: ea07fbe4-b293-4f8e-8295-0cfbe56f3948
     m_ActionName: 'Player/Reload[/Keyboard/r]'
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 875b356f-8ef8-4a5f-8b41-ec435016c1dd
+    m_ActionName: 'Player/Aim[/Keyboard/e]'
   m_NeverAutoSwitchControlSchemes: 0
   m_DefaultControlScheme: 
   m_DefaultActionMap: Player

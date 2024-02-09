@@ -1,4 +1,3 @@
-
 using System;
 using Pulsar.Debug;
 using UnityEngine;
@@ -29,7 +28,9 @@ public class ElyseCharacter : Character
     [SerializeField] private Rig _rig;
     
     private PlayerInputManager _playerInputManager;
+    private WeaponAnimation _weaponAnimation;
     private WeaponManager _weaponManager;
+    private WeaponBase _currentActiveWeapon;
     private PlayerHealth _playerHealth;
     private ElyseController _elyseController;
     private HUD _hud;
@@ -58,10 +59,14 @@ public class ElyseCharacter : Character
         _hud = HUD.Instance;
         
         // Find all components in object
+        _weaponAnimation = GetComponentInChildren<WeaponAnimation>();
         _playerHealth = GetComponent<PlayerHealth>();
         _weaponManager = GetComponent<WeaponManager>();
 
         // Subscribe to events
+        _weaponManager.OnWeaponAdded += OnWeaponAdded;
+        _weaponManager.OnWeaponRemoved += OnWeaponRemoved;
+        _weaponManager.OnWeaponSwitched += OnWeaponSwitched;
         _playerHealth.OnPlayerDied += OnPlayerHealthDied;
         _hud.OnGameResume += UnpauseGame;
         
@@ -76,6 +81,7 @@ public class ElyseCharacter : Character
     protected override void Start()
     {
         base.Start();
+        _weaponManager.AmmoManager.OnAmmoChanged += UpdateAllWeaponAmmoInHUD;
         
         if (!DebugUtils.CheckForNull<PawnCameraController>(_pawnCameraController, "ElyseCharacter: CameraController is null!"))
         {
@@ -84,12 +90,11 @@ public class ElyseCharacter : Character
         
         if (!DebugUtils.CheckForNull<Controller>(Owner, "ElyseCharacter: Owner is null!"))
         {
-            Debug.Log("Attempting to cast Owner to ElyseController...");
             _elyseController = Owner as ElyseController;
             DebugUtils.CheckForNull<ElyseController>(_elyseController, "ElyseCharacter: Failed to cast controller as ElyseController");
         }
         
-        _hud.SetDamageScreenAlpha(0);
+        _hud.SetScreenEffectAlpha(0);
         ShowMouseCursor(false);
     }
 
@@ -176,7 +181,7 @@ public class ElyseCharacter : Character
         
         
         // Bob First Person
-        _weaponManager.WeaponAnimation.SetIsGrounded(_playerMovement.IsGrounded);
+        _weaponAnimation.SetIsGrounded(_playerMovement.IsGrounded);
     }
 
     public void SetViewMode(EViewMode viewMode)
@@ -240,8 +245,95 @@ public class ElyseCharacter : Character
         ShowMouseCursor(true);
     }
     
+    private void OnWeaponAdded(WeaponBase weapon)
+    {
+        _hud.Inventory.AddElement(weapon.Name, weapon.Icon, weapon.CurrentAmmo, _weaponManager.AmmoManager.CheckAmmo(weapon.AmmoType));
+        _hud.Inventory.SetActive(weapon.Name, false);
+    }
+
+    private void OnWeaponRemoved(string weaponID)
+    {
+        _hud.Inventory.RemoveElement(weaponID);
+    }
+
+    private void OnWeaponSwitched(WeaponBase weapon)
+    {
+        _weaponAnimation.PlaySwitchAnimation(_weaponManager.SwitchCooldown);
+        
+        if (_currentActiveWeapon != null)
+        {
+            _hud.Inventory.SetActive(_currentActiveWeapon.Name, false);
+            
+            // Unsubscribe from the old weapon's events
+            _currentActiveWeapon.OnWeaponFire -= OnWeaponFired;
+            _currentActiveWeapon.OnWeaponReloadStarted -= OnWeaponReloadStarted;
+            _currentActiveWeapon.OnWeaponReloadEnded -= OnWeaponReloadEnded;
+        }
+
+        // Subscribe to the new weapon's events
+        weapon.OnWeaponFire += OnWeaponFired;
+        weapon.OnWeaponReloadStarted += OnWeaponReloadStarted;
+        weapon.OnWeaponReloadEnded += OnWeaponReloadEnded;
+
+        _currentActiveWeapon = weapon;
+
+        _hud.Inventory.SetActive(weapon.Name, true);
+        UpdateHUDAmmo(_currentActiveWeapon.CurrentAmmo, _weaponManager.AmmoManager.CheckAmmo(_currentActiveWeapon.AmmoType));
+    }
+
+    private void OnWeaponFired()
+    {
+        _weaponAnimation.FireRecoil(_weaponManager.ActiveWeapon.RecoilForce);
+        UpdateHUDAmmo(_currentActiveWeapon.CurrentAmmo, _weaponManager.AmmoManager.CheckAmmo(_currentActiveWeapon.AmmoType));
+    }
+
+    private void OnWeaponReloadStarted()
+    {
+        StartCoroutine(_weaponAnimation.ReloadAnimation(_weaponManager.ActiveWeapon.ReloadDelay));
+    }
+
+    private void OnWeaponReloadEnded()
+    {
+        UpdateHUDAmmo(_currentActiveWeapon.CurrentAmmo, _weaponManager.AmmoManager.CheckAmmo(_currentActiveWeapon.AmmoType));
+    }
+    
+    private void UpdateHUDAmmo(int currentAmmo, int maxAmmo)
+    {
+        _hud.Inventory.UpdateElementAmmo(_currentActiveWeapon.Name, currentAmmo, maxAmmo);
+    }
+    
+    private void UpdateAllWeaponAmmoInHUD(AmmoType ammoType, int newAmmoCount)
+    {
+        foreach (var weaponId in _weaponManager.WeaponOrder)
+        {
+            if (!_weaponManager.Weapons.TryGetValue(weaponId, out WeaponBase weapon)) continue;
+            // Only update the ammo display for weapons that use the type of ammo that was changed
+            if (weapon.AmmoType != ammoType) continue;
+            int currentAmmo = weapon.CurrentAmmo;
+            // No need to use newAmmoCount directly here, but it's available if needed
+            int maxAmmo = _weaponManager.AmmoManager.CheckAmmo(weapon.AmmoType);
+            _hud.Inventory.UpdateElementAmmo(weapon.Name, currentAmmo, maxAmmo);
+        }
+    }
+
+    
     private void OnDestroy()
     {
+        if (_weaponManager != null)
+        {
+            _weaponManager.OnWeaponAdded -= OnWeaponAdded;
+            _weaponManager.OnWeaponRemoved -= OnWeaponRemoved;
+            _weaponManager.OnWeaponSwitched -= OnWeaponSwitched;
+            _weaponManager.AmmoManager.OnAmmoChanged -= UpdateAllWeaponAmmoInHUD;
+        }
+
+        if (_currentActiveWeapon != null)
+        {
+            _currentActiveWeapon.OnWeaponFire -= OnWeaponFired;
+            _currentActiveWeapon.OnWeaponReloadStarted -= OnWeaponReloadStarted;
+            _currentActiveWeapon.OnWeaponReloadEnded -= OnWeaponReloadEnded;
+        }
+        
         if (_playerHealth != null)
         {
             _playerHealth.OnPlayerDied -= OnPlayerHealthDied;

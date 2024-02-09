@@ -19,7 +19,7 @@ public class HUD : MonoBehaviour
     [SerializeField] private Slider _healthSlider;
     [SerializeField] private Slider _powerSlider;
     
-    [Header("Damage Effect")]
+    [Header("Screen Effect")]
     [SerializeField] private AnimationCurve _damageEffectCurve;
     [SerializeField] private float _damageEffectDuration = 0.2f;
     [SerializeField] private Image _damageScreen;
@@ -31,11 +31,16 @@ public class HUD : MonoBehaviour
     [Header("Score Board")]
     [SerializeField] private PlayerScoreElement _playerScoreELement;
     [SerializeField] private Transform _scoreBoardContent;
+
+    [Header("Weapon Inventory")]
+    [SerializeField] private WeaponInventory _inventory;
     
     private GameFeedHandler _gameFeedHandler;
     private PanelManager _panelManager;
 
     public event Action OnGameResume;
+
+    public WeaponInventory Inventory => _inventory;
     
     public static HUD Instance { get; private set; }
 
@@ -69,19 +74,20 @@ public class HUD : MonoBehaviour
         _powerSlider.value = percentage;
     }
 
-    public void PlayDamageEffect()
+    public void PlayScreenEffect(Color color)
     {
-        StopCoroutine(nameof(DamageEffectCoroutine));
-        StartCoroutine(DamageEffectCoroutine());
+        _damageScreen.color = color;
+        StopCoroutine(nameof(ScreenEffectCoroutine));
+        StartCoroutine(ScreenEffectCoroutine());
     }
 
-    public void SetDamageScreenAlpha(float alpha)
+    public void SetScreenEffectAlpha(float alpha)
     {
         Color color = new Color(_damageScreen.color.r, _damageScreen.color.g, _damageScreen.color.b, alpha);
         _damageScreen.color = color;
     }
 
-    private IEnumerator DamageEffectCoroutine()
+    private IEnumerator ScreenEffectCoroutine()
     {
         float timer = 0f;
         while (timer < _damageEffectDuration)
