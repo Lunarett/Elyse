@@ -36,7 +36,7 @@ public class ChaseState : State
 
         if (Vector3.Distance(pawn.transform.position, currentTarget.transform.position) <= _effectiveFiringRange)
         {
-            pawn.WeaponManager.Fire();
+            //pawn.WeaponManager.Fire();
         }
 
         // Flanking and chasing logic

@@ -23,13 +23,13 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 620567471904299426}
+  serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 696928602932061172}
-  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &3206497917620981607
 GameObject:
@@ -54,6 +54,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3206497917620981607}
+  serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
@@ -61,7 +62,6 @@ Transform:
   m_Children:
   - {fileID: 2959617146992331122}
   m_Father: {fileID: 3206497918089847293}
-  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &3206497918089847290
 GameObject:
@@ -87,6 +87,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3206497918089847290}
+  serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
@@ -94,7 +95,6 @@ Transform:
   m_Children:
   - {fileID: 3206497917620981606}
   m_Father: {fileID: 0}
-  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &5159128229822020944
 MonoBehaviour:
@@ -108,18 +108,24 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8a1b90b756f382f4e94fc991030384ae, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  _weaponIcon: {fileID: 21300000, guid: e75cd9d84b783284ba02e8faa740b6a8, type: 3}
   _weaponName: Grimbrand
   _weaponOffset: {x: 0.01, y: -0.05, z: 0}
+  _ammoType: 0
+  _clipSize: 11
+  _autoReload: 0
+  _reloadDelay: 0.6
   _damage: 10
   _hitLayers:
     serializedVersion: 2
     m_Bits: 129
   _fireMode: 2
   _fireRate: 0.65
+  _recoilAmount: 0.08
   _maxSpreadAngle: 5
   _burstFireRate: 0.05
   _burstShotCount: 4
-  _fireRecoilForce: 4
+  _fireRecoilForce: 0.1
   _fireTransform: {fileID: 5084123161651506280}
   _muzzleEffect: {fileID: 6971734591215563999}
   _fireEventRef:
@@ -129,6 +135,13 @@ MonoBehaviour:
       Data3: -702835837
       Data4: 572594010
     Path: event:/Player/Weapons/Grimbrand
+  _reloadEventRef:
+    Guid:
+      Data1: 0
+      Data2: 0
+      Data3: 0
+      Data4: 0
+    Path: 
   _projectilePrefab: {fileID: 9127294051415415182, guid: 1364d912587e41343b1c856ff231c71e,
     type: 3}
   _projectileSpeed: 150
@@ -141,6 +154,7 @@ PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Modification:
+    serializedVersion: 3
     m_TransformParent: {fileID: 2959617146992331122}
     m_Modifications:
     - target: {fileID: 264520514954343661, guid: 1c31ed6428476f34ab49ff8aa81f8996,
@@ -204,6 +218,13 @@ PrefabInstance:
       value: PS_GrimbrandMuzzle
       objectReference: {fileID: 0}
     m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects:
+    - targetCorrespondingSourceObject: {fileID: 264520514954343661, guid: 1c31ed6428476f34ab49ff8aa81f8996,
+        type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 5084123161651506280}
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 1c31ed6428476f34ab49ff8aa81f8996, type: 3}
 --- !u!4 &696928602932061172 stripped
 Transform:
@@ -222,6 +243,7 @@ PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Modification:
+    serializedVersion: 3
     m_TransformParent: {fileID: 3206497917620981606}
     m_Modifications:
     - target: {fileID: 100000, guid: 5f9b176058917ba49a8059f6da098866, type: 3}
@@ -289,10 +311,17 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2300000, guid: 5f9b176058917ba49a8059f6da098866, type: 3}
-      propertyPath: m_Materials.Array.data[0]
+      propertyPath: 'm_Materials.Array.data[0]'
       value: 
       objectReference: {fileID: 2100000, guid: c9c44ad1bbde38b4ca221ccfa98530ff, type: 2}
     m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects:
+    - targetCorrespondingSourceObject: {fileID: 400000, guid: 5f9b176058917ba49a8059f6da098866,
+        type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 696928602932061172}
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 5f9b176058917ba49a8059f6da098866, type: 3}
 --- !u!4 &2959617146992331122 stripped
 Transform:

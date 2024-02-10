@@ -9,6 +9,7 @@ public class PlayerInputManager : InputManager
     private bool _crouchInputWasHeld;
     private bool _pauseInputWasHeld;
     private bool _interactInputWasHeld;
+    private bool _reloadInputWasHeld;
 
     private void LateUpdate()
     {
@@ -18,6 +19,7 @@ public class PlayerInputManager : InputManager
         _crouchInputWasHeld = GetJumpInputHeld();
         _pauseInputWasHeld = GetPauseInputHeld();
         _interactInputWasHeld = GetInteractInputHeld();
+        _reloadInputWasHeld = GetReloadInputHeld();
     }
 
     public Vector3 GetMoveInputVector3()
@@ -107,6 +109,11 @@ public class PlayerInputManager : InputManager
     {
         return _enableMoveInput && CheckInputActionPhase("Fly", InputActionPhase.Performed);
     }
+
+    public bool GetReloadInputHeld()
+    {
+        return _enableMouseInput && CheckInputActionPhase("Reload", InputActionPhase.Performed);
+    }
     
     private bool GetPauseInputHeld()
     {
@@ -121,6 +128,11 @@ public class PlayerInputManager : InputManager
     public bool GetInteractInputDown()
     {
         return _enableMoveInput && CanProcessInput() && (GetInteractInputHeld() && !_interactInputWasHeld);
+    }
+    
+    public bool GetReloadInputDown()
+    {
+        return _enableMoveInput && CanProcessInput() && (GetReloadInputHeld() && !_reloadInputWasHeld);
     }
 
     public bool GetInteractInputHeld()

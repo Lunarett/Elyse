@@ -23,6 +23,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3206497917620981607}
+  serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
@@ -30,7 +31,6 @@ Transform:
   m_Children:
   - {fileID: 2059122799339795410}
   m_Father: {fileID: 3206497918089847293}
-  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &3206497918089847290
 GameObject:
@@ -41,6 +41,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3206497918089847293}
+  - component: {fileID: 717022808269677660}
   m_Layer: 0
   m_Name: W_Sleet
   m_TagString: Untagged
@@ -55,6 +56,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3206497918089847290}
+  serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
@@ -62,8 +64,60 @@ Transform:
   m_Children:
   - {fileID: 3206497917620981606}
   m_Father: {fileID: 0}
-  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &717022808269677660
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3206497918089847290}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a7c1493ee5cde71488bdb202d8a1daeb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _weaponIcon: {fileID: 21300000, guid: da78577a29d4901429ea870b21d41064, type: 3}
+  _weaponName: Sleet
+  _weaponOffset: {x: 0, y: 0, z: 0}
+  _ammoType: 2
+  _clipSize: 4
+  _autoReload: 0
+  _reloadDelay: 1
+  _damage: 10
+  _hitLayers:
+    serializedVersion: 2
+    m_Bits: 129
+  _fireMode: 1
+  _fireRate: 0.6
+  _recoilAmount: 0.3
+  _maxSpreadAngle: 0
+  _burstFireRate: 0
+  _burstShotCount: 0
+  _fireRecoilForce: 0.3
+  _fireTransform: {fileID: 9037875148801702324}
+  _muzzleEffect: {fileID: 7692336672675980230, guid: dc8d729f3850788499bde8cece294812,
+    type: 3}
+  _fireEventRef:
+    Guid:
+      Data1: 140815598
+      Data2: 1084673937
+      Data3: -702835837
+      Data4: 572594010
+    Path: event:/Player/Weapons/Grimbrand
+  _reloadEventRef:
+    Guid:
+      Data1: 0
+      Data2: 0
+      Data3: 0
+      Data4: 0
+    Path: 
+  _impactEffectPrefab: {fileID: 744084136304213716, guid: 30522de5d32eeef4185eab5f70a90ab7,
+    type: 3}
+  _laserPrefab: {fileID: 5041111493687089217, guid: 60a786ccac0a88d4ba67488da5147de9,
+    type: 3}
+  _raycastRange: 1000
+  _lineRendererDuration: 0.1
 --- !u!1 &3877988465574732488
 GameObject:
   m_ObjectHideFlags: 0
@@ -87,19 +141,20 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3877988465574732488}
+  serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: -0.0019, y: -0.2096, z: -0.0121}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 2059122799339795410}
-  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &2059122799339399506
 PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Modification:
+    serializedVersion: 3
     m_TransformParent: {fileID: 3206497917620981606}
     m_Modifications:
     - target: {fileID: 100000, guid: 808d8bedf2d978e47a4a056a0c33f3d9, type: 3}
@@ -167,10 +222,17 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2300000, guid: 808d8bedf2d978e47a4a056a0c33f3d9, type: 3}
-      propertyPath: m_Materials.Array.data[0]
+      propertyPath: 'm_Materials.Array.data[0]'
       value: 
       objectReference: {fileID: 2100000, guid: 6d48a3a13b0fa584f860c7940154fdf3, type: 2}
     m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects:
+    - targetCorrespondingSourceObject: {fileID: 400000, guid: 808d8bedf2d978e47a4a056a0c33f3d9,
+        type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 9037875148801702324}
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 808d8bedf2d978e47a4a056a0c33f3d9, type: 3}
 --- !u!4 &2059122799339795410 stripped
 Transform:

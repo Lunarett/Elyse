@@ -1,4 +1,3 @@
-
 using System;
 using Pulsar.Debug;
 using UnityEngine;
@@ -29,8 +28,10 @@ public class ElyseCharacter : Character
     [SerializeField] private Rig _rig;
     
     private PlayerInputManager _playerInputManager;
-    private Player _player;
     private WeaponAnimation _weaponAnimation;
+    private WeaponManager _weaponManager;
+    private WeaponBase _currentActiveWeapon;
+    private PlayerHealth _playerHealth;
     private ElyseController _elyseController;
     private HUD _hud;
     private bool _isPaused;
@@ -40,7 +41,6 @@ public class ElyseCharacter : Character
     public bool IsDead { get; set; }
     public PlayerInputManager PlayerInputManager => _playerInputManager;
     public EViewMode ViewMode => _viewMode;
-    public WeaponAnimation WeaponAnim => _weaponAnimation;
     public ElyseController ElyseElyseController => _elyseController;
 
     public event Action<EViewMode> OnViewChanged;
@@ -60,22 +60,29 @@ public class ElyseCharacter : Character
         
         // Find all components in object
         _weaponAnimation = GetComponentInChildren<WeaponAnimation>();
-        _player = GetComponent<Player>();
+        _playerHealth = GetComponent<PlayerHealth>();
+        _weaponManager = GetComponent<WeaponManager>();
 
-        _player.OnPlayerDied += OnPlayerDied;
+        // Subscribe to events
+        _weaponManager.OnWeaponAdded += OnWeaponAdded;
+        _weaponManager.OnWeaponRemoved += OnWeaponRemoved;
+        _weaponManager.OnWeaponSwitched += OnWeaponSwitched;
+        _playerHealth.OnPlayerDied += OnPlayerHealthDied;
+        _hud.OnGameResume += UnpauseGame;
         
         // Set to Local player
         Utils.SetLayerRecursively(gameObject, LayerMask.NameToLayer("Local Player"));
         SetViewMode(_viewMode);
 
-        _hud.OnGameResume += UnpauseGame;
-
         _isViewFPS = _viewMode == EViewMode.FPS;
         _rig.weight = 1;
     }
 
-    private void Start()
+    protected override void Start()
     {
+        base.Start();
+        _weaponManager.AmmoManager.OnAmmoChanged += UpdateAllWeaponAmmoInHUD;
+        
         if (!DebugUtils.CheckForNull<PawnCameraController>(_pawnCameraController, "ElyseCharacter: CameraController is null!"))
         {
             _weaponCamera.transform.position = _pawnCameraController.SpringArm.transform.position;
@@ -83,39 +90,69 @@ public class ElyseCharacter : Character
         
         if (!DebugUtils.CheckForNull<Controller>(Owner, "ElyseCharacter: Owner is null!"))
         {
-            Debug.Log("Attempting to cast Owner to ElyseController...");
             _elyseController = Owner as ElyseController;
             DebugUtils.CheckForNull<ElyseController>(_elyseController, "ElyseCharacter: Failed to cast controller as ElyseController");
         }
         
-        _hud.SetDamageScreenAlpha(0);
+        _hud.SetScreenEffectAlpha(0);
         ShowMouseCursor(false);
     }
 
     private void Update()
     {
+        // Pause Game
         if (_playerInputManager.GetPauseInputDown())
         {
             Debug.Log("Pause input fired!");
             _isPaused = !_isPaused;
             if (_isPaused)
             {
-                Debug.Log("Game Paused!");
                 PauseGame();
             }
             else
             {
-                Debug.Log("Game Unpaused!");
                 UnpauseGame();
             }
         }
 
+        // Toggle View Mode
         if (_playerInputManager.GetViewInputDown())
         {
             Debug.Log("View input fired!");
             _isViewFPS = !_isViewFPS;
             EViewMode targetViewMode = _isViewFPS ? EViewMode.FPS : EViewMode.TPS;
             SetViewMode(targetViewMode);
+        }
+        
+        //Fire Weapon
+        if (_weaponManager.ActiveWeapon != null)
+        {
+            switch (_weaponManager.ActiveWeapon.FireMode)
+            {
+                case FireMode.Single:
+                case FireMode.Burst:
+                    if (_playerInputManager.GetFireInputDown()) _weaponManager.ActiveWeapon.StartFire();
+                    break;
+                case FireMode.Automatic:
+                    if (_playerInputManager.GetFireInputHeld()) _weaponManager.ActiveWeapon.StartFire();
+                    break;
+                default:
+                    Debug.LogError("ElyseCharacter: Fire mode is not implemented");
+                    break;
+            }
+        }
+        
+        // Reload Weapon
+        if (_playerInputManager.GetReloadInputDown())
+        {
+            _weaponManager.ActiveWeapon.StartReload();
+        }
+        
+        // Switch Weapon
+        int switchDirection = _playerInputManager.GetSwitchWeaponInput();
+        if (switchDirection != 0)
+        {
+            _weaponManager.SwitchWeapon(switchDirection);
         }
     }
 
@@ -128,6 +165,7 @@ public class ElyseCharacter : Character
     {
         if (IsDead) return;
         
+        // Update Third Person Mesh
         Vector3 velocity = _playerMovement.CharacterVelocity;
         float verticalValue = _playerInputManager.GetMoveInput().y != 0
             ? Vector3.Dot(velocity.normalized, transform.forward)
@@ -140,6 +178,10 @@ public class ElyseCharacter : Character
         _tpsAnimator.SetFloat(Horizontal, horizontalValue, 0.1f, Time.deltaTime);
         _tpsAnimator.SetBool(Grounded, _playerMovement.IsGrounded);
         _tpsAnimator.SetBool(Crouch, _playerInputManager.GetCrouchInputHeld());
+        
+        
+        // Bob First Person
+        _weaponAnimation.SetIsGrounded(_playerMovement.IsGrounded);
     }
 
     public void SetViewMode(EViewMode viewMode)
@@ -147,6 +189,8 @@ public class ElyseCharacter : Character
         if (DebugUtils.CheckForNull<PawnCameraController>(_pawnCameraController,
                 "ElyseCharacter: PlayerCameraController is null")) return;
         
+        if (_weaponManager == null) { Debug.LogError("ElyseCharacter: WeaponManager is null");}
+        else _weaponManager.SetViewMode(viewMode);
         
         switch (viewMode)
         {
@@ -170,7 +214,7 @@ public class ElyseCharacter : Character
         }
     }
 
-    private void OnPlayerDied()
+    private void OnPlayerHealthDied()
     {
         _isDead = true;
         _rig.weight = 0;
@@ -201,11 +245,98 @@ public class ElyseCharacter : Character
         ShowMouseCursor(true);
     }
     
+    private void OnWeaponAdded(WeaponBase weapon)
+    {
+        _hud.Inventory.AddElement(weapon.Name, weapon.Icon, weapon.CurrentAmmo, _weaponManager.AmmoManager.CheckAmmo(weapon.AmmoType));
+        _hud.Inventory.SetActive(weapon.Name, false);
+    }
+
+    private void OnWeaponRemoved(string weaponID)
+    {
+        _hud.Inventory.RemoveElement(weaponID);
+    }
+
+    private void OnWeaponSwitched(WeaponBase weapon)
+    {
+        _weaponAnimation.PlaySwitchAnimation(_weaponManager.SwitchCooldown);
+        
+        if (_currentActiveWeapon != null)
+        {
+            _hud.Inventory.SetActive(_currentActiveWeapon.Name, false);
+            
+            // Unsubscribe from the old weapon's events
+            _currentActiveWeapon.OnWeaponFire -= OnWeaponFired;
+            _currentActiveWeapon.OnWeaponReloadStarted -= OnWeaponReloadStarted;
+            _currentActiveWeapon.OnWeaponReloadEnded -= OnWeaponReloadEnded;
+        }
+
+        // Subscribe to the new weapon's events
+        weapon.OnWeaponFire += OnWeaponFired;
+        weapon.OnWeaponReloadStarted += OnWeaponReloadStarted;
+        weapon.OnWeaponReloadEnded += OnWeaponReloadEnded;
+
+        _currentActiveWeapon = weapon;
+
+        _hud.Inventory.SetActive(weapon.Name, true);
+        UpdateHUDAmmo(_currentActiveWeapon.CurrentAmmo, _weaponManager.AmmoManager.CheckAmmo(_currentActiveWeapon.AmmoType));
+    }
+
+    private void OnWeaponFired()
+    {
+        _weaponAnimation.FireRecoil(_weaponManager.ActiveWeapon.RecoilForce);
+        UpdateHUDAmmo(_currentActiveWeapon.CurrentAmmo, _weaponManager.AmmoManager.CheckAmmo(_currentActiveWeapon.AmmoType));
+    }
+
+    private void OnWeaponReloadStarted()
+    {
+        StartCoroutine(_weaponAnimation.ReloadAnimation(_weaponManager.ActiveWeapon.ReloadDelay));
+    }
+
+    private void OnWeaponReloadEnded()
+    {
+        UpdateHUDAmmo(_currentActiveWeapon.CurrentAmmo, _weaponManager.AmmoManager.CheckAmmo(_currentActiveWeapon.AmmoType));
+    }
+    
+    private void UpdateHUDAmmo(int currentAmmo, int maxAmmo)
+    {
+        _hud.Inventory.UpdateElementAmmo(_currentActiveWeapon.Name, currentAmmo, maxAmmo);
+    }
+    
+    private void UpdateAllWeaponAmmoInHUD(AmmoType ammoType, int newAmmoCount)
+    {
+        foreach (var weaponId in _weaponManager.WeaponOrder)
+        {
+            if (!_weaponManager.Weapons.TryGetValue(weaponId, out WeaponBase weapon)) continue;
+            // Only update the ammo display for weapons that use the type of ammo that was changed
+            if (weapon.AmmoType != ammoType) continue;
+            int currentAmmo = weapon.CurrentAmmo;
+            // No need to use newAmmoCount directly here, but it's available if needed
+            int maxAmmo = _weaponManager.AmmoManager.CheckAmmo(weapon.AmmoType);
+            _hud.Inventory.UpdateElementAmmo(weapon.Name, currentAmmo, maxAmmo);
+        }
+    }
+
+    
     private void OnDestroy()
     {
-        if (_player != null)
+        if (_weaponManager != null)
         {
-            _player.OnPlayerDied -= OnPlayerDied;
+            _weaponManager.OnWeaponAdded -= OnWeaponAdded;
+            _weaponManager.OnWeaponRemoved -= OnWeaponRemoved;
+            _weaponManager.OnWeaponSwitched -= OnWeaponSwitched;
+            _weaponManager.AmmoManager.OnAmmoChanged -= UpdateAllWeaponAmmoInHUD;
+        }
+
+        if (_currentActiveWeapon != null)
+        {
+            _currentActiveWeapon.OnWeaponFire -= OnWeaponFired;
+            _currentActiveWeapon.OnWeaponReloadStarted -= OnWeaponReloadStarted;
+            _currentActiveWeapon.OnWeaponReloadEnded -= OnWeaponReloadEnded;
+        }
+        
+        if (_playerHealth != null)
+        {
+            _playerHealth.OnPlayerDied -= OnPlayerHealthDied;
         }
     }
 }

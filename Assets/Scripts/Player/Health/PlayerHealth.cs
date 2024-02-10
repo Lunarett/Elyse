@@ -3,9 +3,12 @@ using System;
 using Pulsar.Debug;
 using QFSW.QC;
 
-public class Player : HealthBase
+public class PlayerHealth : HealthBase
 {
-    // Define an event for when the player dies
+    [Header("Screen Effects")]
+    [SerializeField] private Color _damageEffect = Color.red;
+    [SerializeField] private Color _healEffect = Color.green;
+    
     public event Action OnPlayerDied;
     public event Action<float, float> OnHealthChanged;
 
@@ -38,15 +41,16 @@ public class Player : HealthBase
     {
         if (IsDead()) return;
         _currentHealth -= damageInfo.damage;
+        Debug.LogWarning($"Health: {_currentHealth}, Damage: {damageInfo.damage}");
         _hud.SetHeath(_currentHealth, _maxHealth);
         if (_currentHealth <= 0)
         {
-            _hud.SetDamageScreenAlpha(0.5f);
+            _hud.SetScreenEffectAlpha(0.5f);
             OnDeath();
             return;
         }
         
-        _hud.PlayDamageEffect();
+        _hud.PlayScreenEffect(_damageEffect);
     }
 
     public override void ApplyHeal(float heal)
@@ -54,6 +58,8 @@ public class Player : HealthBase
         if (IsDead()) return;
         _currentHealth = Mathf.Min(_currentHealth + heal, _maxHealth);
         _hud.SetHeath(_currentHealth, _maxHealth);
+        
+        _hud.PlayScreenEffect(_healEffect);
     }
     
     [Command("kill.self", "Instantly kills you")]
