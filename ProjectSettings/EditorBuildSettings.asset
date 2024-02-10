@@ -15,3 +15,4 @@ EditorBuildSettings:
     path: Assets/Scenes/TestMenu.unity
     guid: 484a93eac30395f45a743263bd04930e
   m_configObjects: {}
+  m_UseUCBPForAssetBundles: 0
