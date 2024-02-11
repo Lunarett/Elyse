@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 7002512732039088090}
   - component: {fileID: 2141399773629437770}
   - component: {fileID: 7116328742527850554}
+  - component: {fileID: 8221233465118106262}
   m_Layer: 0
   m_Name: TurretExplosion
   m_TagString: Untagged
@@ -4807,6 +4808,19 @@ ParticleSystemRenderer:
   m_MeshWeighting2: 1
   m_MeshWeighting3: 1
   m_MaskInteraction: 0
+--- !u!114 &8221233465118106262
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7002512732039088091}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7f7b559dd553022459111f155ff66021, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _seconds: 1.5
 --- !u!1 &7002512732732737736
 GameObject:
   m_ObjectHideFlags: 0
